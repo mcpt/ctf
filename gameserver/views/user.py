@@ -6,6 +6,7 @@ from django.views.generic.edit import UpdateView
 from django.urls import reverse_lazy
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
+from django.db.models import Sum
 from django.urls import reverse
 from . import mixin
 
@@ -26,8 +27,8 @@ class UserList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     template_name = "gameserver/user/list.html"
     title = "pCTF: Users"
 
-    def get_ordering(self):
-        return "-points"
+    def get_queryset(self):
+        return self.model.objects.annotate(points=Sum('solves__problem__points')).order_by('-points')
 
 
 class UserDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin):
@@ -57,14 +58,14 @@ class UserDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin):
         return context
 
 
-class UserSubmissions(ListView, mixin.TitleMixin, mixin.MetaMixin):
-    context_object_name = "submissions"
-    template_name = "gameserver/user/submission.html"
+class UserSolves(ListView, mixin.TitleMixin, mixin.MetaMixin):
+    context_object_name = "solves"
+    template_name = "gameserver/user/solve.html"
     paginate_by = 50
 
     def get_queryset(self):
         self.user = get_object_or_404(models.User, username=self.kwargs["slug"])
-        return models.Submission.objects.filter(author=self.user).order_by(
+        return models.Solves.objects.filter(author=self.user).order_by(
             self.get_ordering()
         )
 
@@ -72,7 +73,7 @@ class UserSubmissions(ListView, mixin.TitleMixin, mixin.MetaMixin):
         return "-points"
 
     def get_title(self):
-        return "pCTF: Submissions by User " + self.user.username
+        return "pCTF: Solves by User " + self.user.username
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

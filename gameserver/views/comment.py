@@ -38,8 +38,8 @@ def add_comment(request, parent_type, parent_id):
         parent = get_object_or_404(models.Problem, slug=parent_id)
     elif parent_type == "user":
         parent = get_object_or_404(models.User, username=parent_id)
-    elif parent_type == "submission":
-        parent = get_object_or_404(models.Submission, pk=parent_id)
+    elif parent_type == "solve":
+        parent = get_object_or_404(models.Solve, pk=parent_id)
     elif parent_type == "comment":
         parent = get_object_or_404(models.Comment, pk=parent_id)
     elif parent_type == "post":

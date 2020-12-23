@@ -3,6 +3,7 @@ from .choices import timezone_choices, organization_request_status_choices
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.urls import reverse
+from django.db.models import Sum
 
 
 class User(AbstractUser):
@@ -13,9 +14,6 @@ class User(AbstractUser):
     organizations = models.ManyToManyField(
         "Organization", blank=True, related_name="members", related_query_name="member"
     )
-
-    points = models.FloatField(default=0)
-    num_problems_solved = models.PositiveIntegerField(default=0)
 
     payment_pointer = models.CharField(
         max_length=300,
@@ -30,42 +28,15 @@ class User(AbstractUser):
     def get_absolute_url(self):
         return reverse("user_detail", args=[self.username])
 
-    def has_attempted(self, problem):
-        queryset = self.submission_set.filter(problem=problem)
-        return bool(queryset)
-
     def has_solved(self, problem):
-        submissions = self.submission_set.filter(problem=problem)
-        for i in submissions:
-            if i.scoreable is None:
-                continue
-            if i.scored == i.scoreable:
-                return True
-        return False
+        solves = self.solves.filter(problem=problem)
+        return solves.count() > 0
 
-    def calculate_points(self):
-        submissions = self.submission_set.all()
-        points = {}
-        for i in submissions:
-            if not i.points:
-                continue
-            elif i.problem.pk in points:
-                points[i.problem.pk] = max(points[i.problem.pk], i.points)
-            else:
-                points[i.problem.pk] = i.points
-        return sum(points.values())
+    def points(self):
+        return self.solves.aggregate(points=Sum('problem__points'))['points']
 
-    def calculate_num_problems_solved(self):
-        solved_problems = set()
-        submissions = self.submission_set.all()
-        for i in submissions:
-            if i.scored == i.scoreable and i.problem.name not in solved_problems:
-                solved_problems.add(i.problem.name)
-        return len(solved_problems)
-
-    def update_stats(self):
-        self.points = self.calculate_points()
-        self.num_problems_solved = self.calculate_num_problems_solved()
+    def num_flags_captured(self):
+        return self.solves.count()
 
     def save(self, *args, **kwargs):
         self.update_stats()
@@ -137,17 +108,18 @@ class Team(models.Model):
     owner = models.ForeignKey(
         User, on_delete=models.PROTECT, related_name="teams_owning"
     )
-    name = models.CharField(max_length=64)
+    name = models.CharField(max_length=64, unique=True)
     description = models.TextField(blank=True)
+    access_code = models.CharField(max_length=36)
     registered_date = models.DateTimeField(auto_now_add=True)
-    members = models.ManyToManyField(User, related_name="teams_participating_in")
-    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name="teams", blank=True)
+    members = models.ManyToManyField(User, related_name="teams")
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name="teams", null=True, blank=True)
 
     def __str__(self):
         return self.name
 
     def get_absolute_url(self):
-        return reverse("team_detail", args=[self.slug])
+        return reverse("team_detail", args=[self.pk])
 
     def member_count(self):
         return self.members.all().count()

@@ -3,6 +3,9 @@ from django.core.exceptions import ValidationError
 from django import forms
 from django.forms import ModelForm
 from django.db.models import Q
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Submit
+from crispy_forms.bootstrap import FieldWithButtons
 
 from . import models
 
@@ -41,13 +44,33 @@ class ProfileUpdateForm(ModelForm):
         self.initial["organizations"] = [i.pk for i in user.organizations.all()]
 
 
-class OrganizationJoinForm(forms.Form):
+class GroupJoinForm(forms.Form):
     access_code = forms.CharField(max_length=36, strip=True)
 
     def __init__(self, *args, **kwargs):
-        self.organization = kwargs.pop("organization", None)
-        super(OrganizationJoinForm, self).__init__(*args, **kwargs)
+        self.group = kwargs.pop("group", None)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            FieldWithButtons('access_code', Submit('submit', 'Submit', css_class="btn-primary"))
+        )
+        super(GroupJoinForm, self).__init__(*args, **kwargs)
 
     def clean_access_code(self):
-        if self.cleaned_data["access_code"] != self.organization.access_code:
+        if self.cleaned_data["access_code"] != self.group.access_code:
             raise ValidationError("Incorrect Access Code", code="forbidden")
+
+class FlagSubmissionForm(forms.Form):
+    flag = forms.CharField(max_length=256, strip=True, label='', widget=forms.TextInput(attrs={'placeholder': 'pCTF{}'}))
+
+    def __init__(self, *args, **kwargs):
+        self.problem = kwargs.pop("problem", None)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            FieldWithButtons('flag', Submit('submit', 'Submit', css_class="btn-primary"))
+        )
+
+        super(FlagSubmissionForm, self).__init__(*args, **kwargs)
+
+    def clean_flag(self):
+        if self.cleaned_data["flag"] != self.problem.flag:
+            raise ValidationError("Incorrect Flag", code="incorrect")

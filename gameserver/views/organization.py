@@ -104,7 +104,7 @@ class OrganizationRequest(
 
 class OrganizationJoin(LoginRequiredMixin, FormView, mixin.TitleMixin, mixin.MetaMixin):
     template_name = "gameserver/organization/form.html"
-    form_class = forms.OrganizationJoinForm
+    form_class = forms.GroupJoinForm
     fields = ["access_code"]
 
     def get(self, *args, **kwargs):
@@ -136,7 +136,7 @@ class OrganizationJoin(LoginRequiredMixin, FormView, mixin.TitleMixin, mixin.Met
 
     def get_form_kwargs(self, *args, **kwargs):
         cur_kwargs = super().get_form_kwargs(*args, **kwargs)
-        cur_kwargs["organization"] = self.get_object()
+        cur_kwargs["group"] = self.get_object()
         return cur_kwargs
 
 

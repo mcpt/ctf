@@ -1,0 +1,13 @@
+<table class="table table-sm">
+    <thead>
+        <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Members</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for team in teams %}
+        {% include 'gameserver/team/snippet/row.html' %}
+        {% endfor %}
+    </tbody>
+</table>

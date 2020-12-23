@@ -9,11 +9,6 @@ register = template.Library()
 
 
 @register.filter
-def user_url(username):
-    return reverse("user_detail", args=[username])
-
-
-@register.filter
 def user(username, postfix=""):
     user_obj = models.User.objects.get(username=username)
     return format_html(
@@ -31,42 +26,18 @@ def users(usernames, postfix=""):
 
 
 @register.filter
-def problem_url(slug):
-    return reverse("problem_detail", args=[slug])
-
-
-@register.filter
 def problem(slug, postfix=""):
-    url = problem_url(slug)
-    problem = models.Problem.objects.get(slug=slug)
+    problem_obj = models.Problem.objects.get(slug=slug)
     return format_html(
-        '<a href="{0}{1}">{2}</a>', mark_safe(url), mark_safe(postfix), problem.name
+        '<a href="{0}{1}">{2}</a>', mark_safe(problem_obj.get_absolute_url()), mark_safe(postfix), problem_obj.name
     )
-
-
-@register.filter
-def submission_url(pk):
-    return reverse("submission_detail", args=[pk])
-
-
-@register.filter
-def submission(pk, postfix=""):
-    url = submission_url(pk)
-    return format_html(
-        '<a href="{0}{1}">#{2}</a>', mark_safe(url), mark_safe(postfix), str(pk)
-    )
-
-
-@register.filter
-def comment_url(pk):
-    return reverse("comment", args=[pk])
 
 
 @register.filter
 def comment(pk, postfix=""):
-    url = comment_url(pk)
+    comment_obj = models.Comment.objects.get(pk=pk)
     return format_html(
-        '<a href="{0}{1}">#{2}</a>', mark_safe(url), mark_safe(postfix), str(pk)
+        '<a href="{0}{1}">#{2}</a>', mark_safe(comment_obj.get_absolute_url()), mark_safe(postfix), str(pk)
     )
 
 
@@ -74,8 +45,6 @@ def comment_info(comment_obj):
     parent_type = comment_obj.parent_content_type.model
     if parent_type == "problem":
         parent_url = problem(comment_obj.parent.slug)
-    elif parent_type == "submission":
-        parent_url = "Submission " + submission(comment_obj.parent.pk)
     elif parent_type == "user":
         parent_url = user(comment_obj.parent.username)
     elif parent_type == "comment":
@@ -111,31 +80,30 @@ def comment_html(comment_obj):
 
 
 @register.filter
-def post_url(slug):
-    return reverse("blog_post", args=[slug])
-
-
-@register.filter
 def post(slug, postfix=""):
-    url = post_url(slug)
     post_obj = models.BlogPost.objects.get(slug=slug)
     return format_html(
-        '<a href="{0}{1}">{2}</a>', mark_safe(url), mark_safe(postfix), post_obj.title
+        '<a href="{0}{1}">{2}</a>', mark_safe(post_obj.get_absolute_url()), mark_safe(postfix), post_obj.title
     )
 
 
 @register.filter
-def organization_url(slug):
-    return reverse("organization_detail", args=[slug])
-
-
-@register.filter
 def organization(slug, postfix=""):
-    url = organization_url(slug)
     organization_obj = models.Organization.objects.get(slug=slug)
     return format_html(
         '<a href="{0}{1}">{2}</a>',
-        mark_safe(url),
+        mark_safe(organization_obj.get_absolute_url()),
         mark_safe(postfix),
         organization_obj.name,
+    )
+
+
+@register.filter
+def team(pk, postfix=""):
+    team_obj = models.Team.objects.get(pk=pk)
+    return format_html(
+        '<a href="{0}{1}">{2}</a>',
+        mark_safe(team_obj.get_absolute_url()),
+        mark_safe(postfix),
+        team_obj.name,
     )

@@ -1,6 +1,7 @@
 from django.db import models
 import uuid
 from .profile import User
+from django.urls import reverse
 
 # Create your models here.
 
@@ -31,6 +32,7 @@ class Problem(models.Model):
     author = models.ManyToManyField(User, related_name="problems_authored", blank=True)
     name = models.CharField(max_length=128)
     description = models.TextField()
+    summary = models.CharField(max_length=150)
     slug = models.SlugField(unique=True)
     created = models.DateTimeField(auto_now_add=True)
 
@@ -42,6 +44,9 @@ class Problem(models.Model):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse('problem_detail', args=[self.slug])
+
 def problem_file_path(instance, filename):
     return f'problem/{instance.problem.slug}/{filename}'
 
@@ -50,7 +55,7 @@ class ProblemFile(models.Model):
     artifact = models.FileField(upload_to=problem_file_path, unique=True)
 
     def __str__(self):
-        return self.name
+        return self.file_name()
 
     def file_name(self):
-        return '.'.join(self.artifact.name.split(".")[-2:])
+        return self.artifact.name.split("/")[-1]
