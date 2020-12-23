@@ -1,0 +1,72 @@
+{% extends 'gameserver/base_comment.html' %}
+{% load link_tags %}
+{% load humanize %}
+{% load martortags %}
+
+{% block main %}
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="mt-0">{{ organization.name }}</h5>
+        {% if organization.description == "" %}
+        <p class="font-italic">This organization has not shared any information.</p>
+        {% else %}
+        {{ organization.description|safe_markdown }}
+        {% endif %}
+    </div>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">Owner: {{ organization.owner }}</li>
+        <li class="list-group-item">Admins: {{ organization.admins.all|join:", " }}</li>
+        <li class="list-group-item">Number of Members: {{ member_count }}</li>
+    </ul>
+    <div class="card-body">
+        <a href="{% url 'organization_members' organization.slug %}" class="card-link">View members</a>
+    </div>
+</div>
+{% if user.is_authenticated %}
+<div class="card">
+    <div class="card-header">
+        Membership Status
+    </div>
+    {% if organization in user.organizations.all %}
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+            You are in this organization.
+        </li>
+    </ul>
+    {% else %}
+    <ul class="list-group list-group-flush">
+        {% for req in organization_requests %}
+        <li class="list-group-item" id="request_{{ req.pk }}">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">{{ req.user.username|user }} requested to join {{ req.created|naturaltime }}</h5>
+            </div>
+            <p class="mt-2 mb-3">{{ req.reason }}</p>
+            <small class="text-muted mb-1">{{ req.get_status_display }}</small>
+        </li>
+        {% empty %}
+        <li class="list-group-item">
+            {% if organization.is_private %}
+            You did not request to join yet.
+            {% else %}
+            You are not in this organization.
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    <div class="card-body">
+        {% if user.is_authenticated %}
+        {% if organization not in user.organizations.all %}
+        {% if not organization.is_private or not organization.access_code == "" %}
+        <a href="{% url 'organization_join' organization.slug %}" class="card-link">Join organization</a>
+        {% else %}
+        <a href="{% url 'organization_request' organization.slug %}" class="card-link">Request to join</a>
+        {% endif %}
+        {% else %}
+        <a href="{% url 'organization_leave' organization.slug %}" class="card-link">Leave organization</a>
+        {% endif %}
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

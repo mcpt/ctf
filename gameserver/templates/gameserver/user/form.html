@@ -1,0 +1,17 @@
+{% extends 'gameserver/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block main %}
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            <h5 class="card-title">Edit profile</h5>
+            {% csrf_token %}
+            {{ form|crispy }}
+            <a href="https://gravatar.com">Edit profile photo</a><br><br>
+            <button type="submit" class="btn btn-primary mr-2">Submit</button>
+            <a href="{% url 'user_detail_redirect' %}" class="btn btn-primary" role="button" aria-pressed="true">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

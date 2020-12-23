@@ -1,0 +1,43 @@
+{% extends 'gameserver/base.html' %}
+{% load static %}
+{% load gravatar_tags %}
+{% load link_tags %}
+{% load tz %}
+{% load humanize %}
+
+{% block comment %}
+<div class="card mb-3">
+    <div class="card-header">
+        Comments
+    </div>
+    <ul class="list-group list-group-flush">
+        {% for i in comments %}
+        <li class="list-group-item" id="comment_{{ i.pk }}">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">{{ i.pk|comment }}: {{ i.author.username|user }} commented {{ i.created_date|naturaltime }}</h5>
+            </div>
+            <p class="mt-2 mb-3">{{ i.text }}</p>
+            <a href="{% url 'comment' i.pk %}" class="card-link">Reply</a>
+        </li>
+        {% empty %}
+        <li class="list-group-item">
+            There are no comments.
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% if user.is_authenticated %}
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">New comment</h5>
+        <form method="POST" action="{{ request.path }}/add_comment">
+            {% csrf_token %}
+            <div class="form-group my-3">
+                <textarea class="form-control" id="comment" rows="3" name="text" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary mb-2">Submit</button>
+        </form>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

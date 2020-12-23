@@ -1,0 +1,34 @@
+{% extends 'gameserver/base_comment.html' %}
+{% load gravatar_tags %}
+
+{% block main %}
+<div class="card">
+    <div class="card-body">
+        <div class="media">
+            <img src="{{ profile.email|gravatar_url:200 }}" class="mr-3 img-thumbnail" alt="User's profile picture">
+            <div class="media-body">
+                <h5 class="mt-0">{{ profile.username }}</h5>
+                {% if profile.description == "" %}
+                <p class="font-italic">This user has not shared any information.</p>
+                {% else %}
+                {{ profile.description }}
+                {% endif %}
+            </div>
+            {% if profile == user %}
+            <a href="{% url 'user_edit' %}" class="card-link">Edit profile</a>
+            {% endif %}
+        </div>
+    </div>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">Points: {{ profile.points|floatformat }}</li>
+        <li class="list-group-item">Number of Problems Solved: {{ profile.num_problems_solved }}</li>
+    </ul>
+    <div class="card-body">
+        <a href="{% url 'user_submissions' profile.username %}" class="card-link">{{ profile.username }}'s Submissions</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block othermeta %}
+<meta property="og:profile:username" content="{{ profile.username }}" />
+{% endblock %}

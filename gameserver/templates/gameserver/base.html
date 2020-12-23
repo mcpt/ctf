@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load settings_tags %}
+{% load gravatar_tags %}
+
+{% block body %}
+<div class="d-flex" id="wrapper">
+    <div class="bg-light border-right" id="sidebar-wrapper">
+        <div class="list-group">
+            <div class="position-fixed list-group-flush">
+                {% settings_value "NAVBAR" as navbar %}
+                {% for name, link in navbar.items %}
+                <a href="{{ link }}" class="list-group-item list-group-item-action bg-light text-dark">{{ name }}</a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div id="page-content-wrapper">
+
+
+        <div class="container-fluid">
+            <div class="my-4">
+                {% block main %}
+                {% endblock %}
+            </div>
+            <div class="mb-6">
+                {% block comment %}
+                {% endblock %}
+            </div>
+        </div>
+
+
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom fixed-bottom">
+            <button class="btn btn-secondary" id="menu-toggle" onclick="toggleMenu()">
+                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-list" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M2.5 11.5A.5.5 0 0 1 3 11h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 3 7h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 3 3h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
+                </svg>
+            </button>
+
+            <a class="navbar-brand mx-auto" href="/">
+                <img src="{% static 'logos/lis.png' %}" height="30" alt="Long Inverted Solid pCTF logo">
+            </a>
+
+            <ul class="navbar-nav my-auto">
+                {% if user.is_authenticated %}
+                <li class="nav-item dropup">
+                    <a class="nav-link dropdown-toggle" href="#" id="profile-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <img src="{{ user.email|gravatar_url:20 }}" alt="User profile picture" class="img-thumbnail">
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="profile-dropdown">
+                        <a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Logged in as {{ user.username }}</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{% url 'user_detail_redirect' %}">Profile</a>
+                        {% if user.is_staff %}
+                        <a class="dropdown-item" href="{% url 'admin:index' %}">Admin</a>
+                        {% endif %}
+                        <a class="dropdown-item" href="{% url 'account_logout' %}">Log out</a>
+                    </div>
+                </li>
+                {% else %}
+                <li class="nav-item ml-4 my-auto">
+                    <div class="text-light">
+                        <a class="font-weight-bold text-info" href="{% url 'account_login' %}">Log in</a> or <a class="font-weight-bold text-info" href="{% url 'account_signup' %}">Sign up</a>
+                    </div>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+
+
+{% block script %}
+{% endblock %}
+
+<script src="{% static 'scripts/base.js' %}" defer></script>
+{% endblock %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block head %}
+<link href="{% static 'styles/base.css' %}" rel="stylesheet">
+<script src="https://vuejs.org/js/vue.min.js"></script>
+<script src="https://pagecdn.io/lib/ace/1.4.8/ace.js" type="text/javascript" charset="utf-8" onload=""></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js" integrity="sha384-y23I5Q6l+B6vatafAwxRu/0oK/79VlbSz7Q9aiSZUvyWYIYsd+qj+o24G5ZU2zJz" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "\\(", right: "\\)", display: false},
+                {left: "\\[", right: "\\]", display: true}
+            ],
+            maxSize: 50,
+        });
+    });
+</script>
+{% settings_value "GOOGLE_ANALYTICS_ON_ALL_VIEWS" as ganalytics_allviews %}
+{% if not ganalytics_allviews %}
+{% include "ganalytics/snippet.html" %}
+{% endif %}
+{% block deps %}
+{% endblock %}
+{% endblock %}
+
+{% block meta %}
+<meta property="og:title" content="{{ page_title }}" />
+<meta name="twitter:title" content="{{ page_title }}" />
+
+<meta property="og:site_name" content="{{ site.name|safe }}">
+
+<meta property="og:type" content="{{ og_type }}" />
+<meta name="twitter:card" content="summary" />
+
+<link rel="canonical" href="{% settings_value "SCHEME" %}://{{ site.domain }}{{ request.get_full_path }}">
+<meta property="og:url" content="{% settings_value "SCHEME" %}://{{ site.domain }}{{ request.get_full_path }}">
+
+<meta name="description" content="{{ meta_description }}">
+<meta property="og:description" content="{{ meta_description }}">
+<meta name="twitter:description" content="{{ meta_description }}" />
+
+{% settings_value "KEYWORDS" as keywords %}
+<meta name="keywords" content="{{ keywords|join:", " }}">
+
+{% if og_image %}
+<meta property="og:image" content="{{ og_image }}">
+<meta name="twitter:image" content="{{ og_image }}" />
+{% endif %}
+
+{% if meta_payment_pointer %}
+<meta name="monetization" content="{{ meta_payment_pointer }}">
+{% endif %}
+
+{% block othermeta %}
+{% endblock %}
+{% endblock %}

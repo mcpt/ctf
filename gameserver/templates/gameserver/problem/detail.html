@@ -1,0 +1,44 @@
+{% extends 'gameserver/base_comment.html' %}
+{% load gravatar_tags %}
+{% load martortags %}
+{% load link_tags %}
+
+{% block main %}
+<div class="card">
+    <div class="card-body">
+        <div class="media">
+            <div class="media-body">
+                <h5 class="mt-0">{{ problem.name }}</h5>
+                {{ problem.description|safe_markdown }}
+            </div>
+        </div>
+    </div>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">Points: {{ problem.points }}</li>
+        <li class="list-group-item">Author: {{ problem.author.all|users }}</li>
+        {% if problem.category.all %}
+        <li class="list-group-item">Category: {{ problem.category.all|join:", " }}</li>
+        {% endif %}
+        {% if problem.problem_type.all %}
+        <li class="list-group-item">Type: {{ problem.problem_type.all|join:", " }}</li>
+        {% endif %}
+        <li class="list-group-item">
+            <a href="{% url 'problem_all_submissions' problem.slug %}" class="card-link">All Submissions</a>
+            <a href="{% url 'problem_best_submissions' problem.slug %}" class="card-link">Best Submissions</a>
+        </li>
+    </ul>
+    <div class="card-body">
+        {% if user.is_authenticated %}
+        <div class="input-group">
+            <input name="flag" type="text" class="form-control" placeholder="pCTF{}" aria-label="pCTF{}" aria-describedby="submit-button">
+            <div class="input-group-append">
+                <button class="btn btn-primary" type="button" id="submit-button">Submit</button>
+              </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% block comments %}
+{{ block.super }}
+{% endblock %}
+{% endblock %}

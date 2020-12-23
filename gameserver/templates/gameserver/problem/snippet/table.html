@@ -1,0 +1,15 @@
+<table class="table table-sm">
+    <thead>
+        <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Categories</th>
+            <th scope="col">Types</th>
+            <th scope="col">Points</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for problem in problems %}
+        {% include 'gameserver/problem/snippet/row.html' %}
+        {% endfor %}
+    </tbody>
+</table>

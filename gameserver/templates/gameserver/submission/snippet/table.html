@@ -1,0 +1,18 @@
+<table class="table table-sm">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Status</th>
+            <th scope="col">Score</th>
+            <th scope="col">Points</th>
+            <th scope="col">Language</th>
+            <th scope="col">Problem</th>
+            <th scope="col">User</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for submission in submissions %}
+        {% include 'gameserver/submission/snippet/row.html' %}
+        {% endfor %}
+    </tbody>
+</table>

@@ -1,0 +1,20 @@
+{% load color_tags %}
+{% load link_tags %}
+{% if user.is_authenticated %}
+<tr class="table-{{ problem|problem_color:user }}">
+{% else %}
+<tr>
+{% endif %}
+<td>{{ problem.slug|problem }}</td>
+    {% if problem.category.all %}
+    <td>{{ problem.category.all|join:", " }}</td>
+    {% else %}
+    <td class="font-italic">Uncategorized</td>
+    {% endif %}
+    {% if problem.problem_type.all %}
+    <td>{{ problem.problem_type.all|join:", " }}</td>
+    {% else %}
+    <td class="font-italic">-</td>
+    {% endif %}
+    <td>{{ problem.points }}</td>
+</tr>

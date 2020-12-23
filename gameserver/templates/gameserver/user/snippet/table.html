@@ -1,0 +1,15 @@
+<table class="table table-sm">
+    <thead>
+        <tr>
+            <th scope="col">Rank</th>
+            <th scope="col">Username</th>
+            <th scope="col">Points</th>
+            <th scope="col">Problems</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        {% include 'gameserver/user/snippet/row.html' %}
+        {% endfor %}
+    </tbody>
+</table>

@@ -1,0 +1,24 @@
+{% extends 'gameserver/base_comment.html' %}
+{% load link_tags %}
+{% load humanize %}
+{% load martortags %}
+{% load settings_tags %}
+{% load tz %}
+
+{% block main %}
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="card-title">{{ post.title }}</h5>
+        <h6 class="card-subtitle mb-3 text-muted">{{ post.author.all|users }} posted {{ post.created|naturaltime }}</h6>
+        <p class="card-text">{{ post.text|safe_markdown }}</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block othermeta %}
+<meta property="og:article:published_time" content="{{ post.created|date:"c" }}" />
+<meta property="og:article:modified_time" content="{{ post.last_modified|date:"c" }}" />
+{% for author in post.author.all %}
+<meta property="og:article:author" content="{% settings_value "SCHEME" %}://{{ site.domain }}{{ author.get_absolute_url }}" />
+{% endfor %}
+{% endblock %}

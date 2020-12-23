@@ -1,0 +1,12 @@
+{% extends 'gameserver/base.html' %}
+{% load link_tags %}
+
+{% block main %}
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Users</h5>
+        {% include 'gameserver/user/snippet/table.html' %}
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,15 @@
+{% extends 'gameserver/base_comment.html' %}
+{% load link_tags %}
+{% load humanize %}
+{% load tz %}
+
+{% block main %}
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="card-title">
+            {{ comment|comment_html }}
+        </h5>
+        <p class="card-text">{{ comment.text }}</p>
+    </div>
+</div>
+{% endblock %}
