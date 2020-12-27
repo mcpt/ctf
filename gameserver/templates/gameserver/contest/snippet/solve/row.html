@@ -1,0 +1,16 @@
+{% load color_tags %}
+{% load link_tags %}
+<tr class="table-light">
+    <td>{{ contest_solve.solve.pk }}</td>
+    {% if contest_solve.solve.is_firstblood %}
+    <td>
+        <i class="bi bi-droplet"></i>
+    </td>
+    {% else %}
+    <td>
+        <i class="bi bi-flag"></i>
+    </td>
+    {% endif %}
+    <td>{{ contest_solve.solve.problem.slug|problem }}</td>
+    <td><a href="{{ contest_solve.participation.get_absolute_url }}">{{ contest_solve.participation.participant }}</a></td>
+</tr>

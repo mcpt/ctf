@@ -44,6 +44,24 @@ class ProfileUpdateForm(ModelForm):
         self.initial["organizations"] = [i.pk for i in user.organizations.all()]
 
 
+class TeamUpdateForm(ModelForm):
+    class Meta:
+        model = models.Team
+        fields = [
+            "name",
+            "description",
+            "members",
+            "access_code",
+        ]
+        widgets = {"members": forms.CheckboxSelectMultiple()}
+
+    def __init__(self, *args, **kwargs):
+        team = kwargs.pop("team", None)
+        super(TeamUpdateForm, self).__init__(*args, **kwargs)
+        self.fields["members"].queryset = team.members.all()
+        self.initial["members"] = [i.pk for i in team.members.all()]
+
+
 class GroupJoinForm(forms.Form):
     access_code = forms.CharField(max_length=36, strip=True)
 
@@ -74,3 +92,14 @@ class FlagSubmissionForm(forms.Form):
     def clean_flag(self):
         if self.cleaned_data["flag"] != self.problem.flag:
             raise ValidationError("Incorrect Flag", code="incorrect")
+
+class ContestJoinForm(forms.Form):
+    participant = forms.ModelChoiceField(queryset=models.Team.objects.none(), label='Participate as', required=False)
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user", None)
+        self.contest = kwargs.pop("contest", None)
+        super(ContestJoinForm, self).__init__(*args, **kwargs)
+        self.fields['participant'].empty_label = f'Myself ({self.user.username})'
+        if self.contest.teams_allowed:
+            self.fields['participant'].queryset = self.user.teams.all()

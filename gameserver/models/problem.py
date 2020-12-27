@@ -2,27 +2,16 @@ from django.db import models
 import uuid
 from .profile import User
 from django.urls import reverse
+from . import abstract
 
 # Create your models here.
 
 
-class Category(models.Model):
-    name = models.CharField(max_length=30)
-    description = models.TextField(blank=True)
-    slug = models.SlugField(unique=True)
-
-    class Meta:
-        abstract = True
-
-    def __str__(self):
-        return self.name
-
-
-class ProblemCategory(Category):
+class ProblemCategory(abstract.Category):
     pass
 
 
-class ProblemType(Category):
+class ProblemType(abstract.Category):
     pass
 
 
@@ -40,6 +29,8 @@ class Problem(models.Model):
 
     category = models.ManyToManyField(ProblemCategory, blank=True)
     problem_type = models.ManyToManyField(ProblemType, blank=True)
+
+    is_private = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name

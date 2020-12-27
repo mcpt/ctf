@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.urls import reverse
 from django.db.models import Sum
+from .contest import ContestParticipation
 
 
 class User(AbstractUser):
@@ -25,6 +26,8 @@ class User(AbstractUser):
         blank=True,
     )
 
+    current_contest = models.ForeignKey('ContestParticipation', on_delete=models.SET_NULL, related_name='current_participants', null=True, blank=True)
+
     def get_absolute_url(self):
         return reverse("user_detail", args=[self.username])
 
@@ -35,12 +38,25 @@ class User(AbstractUser):
     def points(self):
         return self.solves.aggregate(points=Sum('problem__points'))['points']
 
+    def contest_participations(self, contest):
+        return models.ContestParticipation.objects.filter(Q(participant_content_type='user', participant=self) | Q(participant_content_type='team', participant__members=self), contest=contest)
+
+    def remove_contest(self):
+        self.current_contest = None
+        self.save()
+
+    remove_contest.alters_data = True
+
+    def update_contest(self):
+        participation = self.current_contest
+        if participation is not None and participation.contest.is_finished():
+            print("remove")
+            self.remove_contest()
+
+    update_contest.alters_data = True
+
     def num_flags_captured(self):
         return self.solves.count()
-
-    def save(self, *args, **kwargs):
-        self.update_stats()
-        super().save(*args, **kwargs)
 
 
 class Organization(models.Model):
@@ -112,7 +128,7 @@ class Team(models.Model):
     description = models.TextField(blank=True)
     access_code = models.CharField(max_length=36)
     registered_date = models.DateTimeField(auto_now_add=True)
-    members = models.ManyToManyField(User, related_name="teams")
+    members = models.ManyToManyField(User, related_name="teams", blank=True)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name="teams", null=True, blank=True)
 
     def __str__(self):

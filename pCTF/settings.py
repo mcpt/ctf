@@ -57,6 +57,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "gameserver.middleware.TimezoneMiddleware",
+    "gameserver.middleware.ContestMiddleware",
 ]
 
 ROOT_URLCONF = "pCTF.urls"
@@ -200,6 +201,7 @@ NAVBAR = {
     "Users": "/users/",
     "Teams": "/teams/",
     "Organizations": "/organizations/",
+    "Contests": "/contests/",
 }
 
 

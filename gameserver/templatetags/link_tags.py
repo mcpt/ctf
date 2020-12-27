@@ -53,6 +53,10 @@ def comment_info(comment_obj):
         parent_url = post(comment_obj.parent.slug)
     elif parent_type == "organization":
         parent_url = organization(comment_obj.parent.slug)
+    elif parent_type == "contest":
+        parent_url = contest(comment_obj.parent.slug)
+    elif parent_type == "contestparticipation":
+        parent_url = contest_participation(comment_obj.parent.pk)
     else:
         parent_url = "unknown."
     comment_url = comment(comment_obj.pk)
@@ -106,4 +110,24 @@ def team(pk, postfix=""):
         mark_safe(team_obj.get_absolute_url()),
         mark_safe(postfix),
         team_obj.name,
+    )
+
+@register.filter
+def contest(slug, postfix=""):
+    contest_obj = models.Contest.objects.get(slug=slug)
+    return format_html(
+        '<a href="{0}{1}">{2}</a>',
+        mark_safe(contest_obj.get_absolute_url()),
+        mark_safe(postfix),
+        contest_obj.name,
+    )
+
+@register.filter
+def contest_participation(pk, postfix=""):
+    contest_participation_obj = models.ContestParticipation.objects.get(pk=pk)
+    return format_html(
+        '<a href="{0}{1}">{2}</a>',
+        mark_safe(contest_participation_obj.get_absolute_url()),
+        mark_safe(postfix),
+        contest_participation_obj,
     )

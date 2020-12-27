@@ -18,7 +18,7 @@ class ProblemFileInline(admin.TabularInline):
 
 
 class ProblemAdmin(admin.ModelAdmin):
-    fields = ["name", "slug", "author", "description", "points", "flag", "problem_type", "category"]
+    fields = ["name", "slug", "author", "description", "points", "flag", "problem_type", "category", 'is_private']
     inlines = [
         ProblemFileInline,
     ]
@@ -147,6 +147,7 @@ admin.site.register(models.OrganizationRequest, OrganizationRequestAdmin)
 admin.site.register(models.Comment)
 admin.site.register(models.BlogPost)
 admin.site.register(models.Team)
+admin.site.register(models.Contest)
 admin.site.site_header = "pCTF administration"
 admin.site.site_title = "pCTF admin"
 

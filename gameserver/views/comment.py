@@ -46,6 +46,10 @@ def add_comment(request, parent_type, parent_id):
         parent = get_object_or_404(models.BlogPost, slug=parent_id)
     elif parent_type == "organization":
         parent = get_object_or_404(models.Organization, slug=parent_id)
+    elif parent_type == "contest":
+        parent = get_object_or_404(models.Contest, slug=parent_id)
+    elif parent_type == "contestparticipation":
+        parent = get_object_or_404(models.ContestParticipation, pk=parent_id)
     else:
         raise NotImplementedError
     author = request.user

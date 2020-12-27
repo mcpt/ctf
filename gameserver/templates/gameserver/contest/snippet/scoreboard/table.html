@@ -1,0 +1,16 @@
+<table class="table table-sm">
+    <thead>
+        <tr>
+            <th scope="col">Rank</th>
+            <th scope="col">Name</th>
+            <th scope="col">Type</th>
+            <th scope="col">Points</th>
+            <th scope="col">Problems</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for participation in participations %}
+        {% include 'gameserver/contest/snippet/scoreboard/row.html' %}
+        {% endfor %}
+    </tbody>
+</table>

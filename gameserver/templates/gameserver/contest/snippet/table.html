@@ -1,0 +1,13 @@
+<table class="table table-sm">
+    <thead>
+        <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Time</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for contest in contests %}
+        {% include 'gameserver/contest/snippet/row.html' %}
+        {% endfor %}
+    </tbody>
+</table>

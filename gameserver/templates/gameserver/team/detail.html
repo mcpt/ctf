@@ -47,7 +47,7 @@
     </div>
 </div>
 {% endif %}
-<div class="card">
+<div class="card mb-3">
     <div class="card-header">
         Team Members
     </div>
@@ -56,6 +56,18 @@
         <a href="{{ member.get_absolute_url }}" class="list-group-item list-group-item-action">{{ member.username }}</a>
         {% empty %}
         <li class="list-group-item font-italic">This team has no members.</li>
+        {% endfor %}
+    </ul>
+</div>
+<div class="card">
+    <div class="card-header">
+        Participations
+    </div>
+    <ul class="list-group list-group-flush">
+        {% for contest_participation in team.contest_participations.all %}
+        <a href="{{ contest_participation.get_absolute_url }}" class="list-group-item list-group-item-action">{{ contest_participation.contest.name }}</a>
+        {% empty %}
+        <li class="list-group-item font-italic">This team has not participated in any contest yet.</li>
         {% endfor %}
     </ul>
 </div>

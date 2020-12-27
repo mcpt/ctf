@@ -1,0 +1,14 @@
+{% load link_tags %}
+{% load humanize %}
+<tr>
+    <td>{{ contest.slug|contest }}</th>
+    <td>
+        {% if not contest.is_started and not contest.is_ended %}
+        Starts {{ contest.start_time|naturaltime }}
+        {% elif contest.is_started and not contest.is_ended %}
+        Ends {{ contest.end_time|naturaltime }}
+        {% else %}
+        Ended {{ contest.end_time|naturaltime }}
+        {% endif %}
+    </td>
+</tr>

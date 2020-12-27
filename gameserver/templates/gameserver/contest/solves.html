@@ -1,0 +1,15 @@
+{% extends 'gameserver/base.html' %}
+{% load link_tags %}
+{% load color_tags %}
+
+{% block main %}
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Solves for {{ contest.slug|contest }}</h5>
+
+        {% include 'gameserver/contest/snippet/solve/table.html' %}
+
+        {% include 'paginator/snippet.html' %}
+    </div>
+</div>
+{% endblock %}

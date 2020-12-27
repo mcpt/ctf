@@ -3,13 +3,17 @@ from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.shortcuts import redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils.decorators import method_decorator
 from django.contrib import messages
 from django.views.generic.edit import FormMixin
 from django.urls import reverse
 from .. import forms
 from .. import models
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.shortcuts import get_object_or_404
+from django.http import HttpResponseForbidden
+from django.views.decorators.http import require_POST
 import uuid
 from . import mixin
 
@@ -79,20 +83,32 @@ class TeamCreate(LoginRequiredMixin, CreateView, mixin.TitleMixin, mixin.MetaMix
     def form_valid(self, form, **kwargs):
         model = form.save(commit=False)
         model.owner = self.request.user
-        model.access_token = uuid.uuid4().hex
+        model.access_code = uuid.uuid4().hex
         model.save()
         model.members.add(self.request.user)
 
         return super().form_valid(form)
 
 
-class TeamEdit(UpdateView, mixin.TitleMixin, mixin.MetaMixin):
+class TeamEdit(LoginRequiredMixin, UserPassesTestMixin, UpdateView, mixin.TitleMixin, mixin.MetaMixin):
     template_name = "gameserver/team/form.html"
     title = "pCTF: Update Team"
-    fields = ['name', 'description', 'access_code']
     model = models.Team
+    form_class = forms.TeamUpdateForm
+
+    def test_func(self):
+        return self.get_object().owner == self.request.user
+
+    def get_form_kwargs(self):
+        kwargs = super(UpdateView, self).get_form_kwargs()
+        kwargs["team"] = self.get_object()
+        return kwargs
+
+    def get_success_url(self):
+        return self.get_object().get_absolute_url()
 
 
+@method_decorator(require_POST, name='dispatch')
 class TeamLeave(LoginRequiredMixin, RedirectView):
     query_string = True
     pattern_name = "team_detail"

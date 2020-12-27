@@ -4,3 +4,4 @@ from .interface import *
 from .problem import *
 from .profile import *
 from .solve import *
+from .contest import *

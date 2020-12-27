@@ -3,6 +3,7 @@
 {% load martortags %}
 {% load link_tags %}
 {% load crispy_forms_tags %}
+{% load static %}
 
 {% block main %}
 <div class="card">
@@ -49,4 +50,8 @@
 {% block comments %}
 {{ block.super }}
 {% endblock %}
+{% endblock %}
+
+{% block deps %}
+<link href="{% static 'styles/problem.css' %}" rel="stylesheet">
 {% endblock %}

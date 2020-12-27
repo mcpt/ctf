@@ -8,6 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
 from django.db.models import Sum
 from django.urls import reverse
+from django.shortcuts import redirect
 from . import mixin
 
 
@@ -28,7 +29,13 @@ class UserList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     title = "pCTF: Users"
 
     def get_queryset(self):
-        return self.model.objects.annotate(points=Sum('solves__problem__points')).order_by('-points')
+        return self.model.objects.annotate(cum_points=Sum('solves__problem__points')).order_by('-cum_points')
+
+    def get(self, request, *args, **kwargs):
+        if request.in_contest:
+            return redirect('contest_scoreboard', slug=request.participation.contest.slug)
+        else:
+            return super().get(request, *args, **kwargs)
 
 
 class UserDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin):

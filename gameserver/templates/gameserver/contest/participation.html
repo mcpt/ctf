@@ -1,0 +1,39 @@
+{% extends 'gameserver/base_comment.html' %}
+{% load link_tags %}
+{% load humanize %}
+{% load martortags %}
+{% load crispy_forms_tags %}
+
+{% block main %}
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="mt-0"><a href="{{ participation.participant.get_absolute_url }}">{{ participation.participant }}</a>'s Participation in {{ participation.contest.slug|contest }}</h5>
+    </div>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">{{ participation.points }} Point{{ participation.points|pluralize }}</li>
+        <li class="list-group-item">{{ participation.num_flags_captured }} Flag{{ participation.num_flags_captured|pluralize }} Captured</li>
+    </ul>
+</div>
+<div class="card mb-3">
+    <div class="card-header">
+        Members
+    </div>
+    <ul class="list-group list-group-flush">
+        {% for participant in participation.participants.all %}
+        <a class="list-group-item list-group-item-action" href="{{ participant.get_absolute_url }}">
+            {{ participant.username }}
+        </a>
+        {% endfor %}
+    </ul>
+</div>
+{% if request.in_contest and request.participation.contest == participation.contest %}
+<div class="card">
+    <div class="card-header">
+        Solves
+    </div>
+    <div class="card-body">
+        {% include 'gameserver/contest/snippet/solve/table.html' with contest_solves=participation.solves.all %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

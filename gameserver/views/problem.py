@@ -3,10 +3,13 @@ from django.views.generic.edit import CreateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import FormMixin
 from django.urls import reverse
+from django.shortcuts import redirect
 from django.contrib import messages
 from .. import models
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.db.models import Q
 import logging
 from . import mixin
 from .. import forms
@@ -15,19 +18,27 @@ logger = logging.getLogger("django")
 
 
 class ProblemList(ListView, mixin.TitleMixin, mixin.MetaMixin):
-    model = models.Problem
     context_object_name = "problems"
     template_name = "gameserver/problem/list.html"
     title = "pCTF: Problems"
 
-    def get_ordering(self):
-        return "name"
+    def get_queryset(self):
+        return models.Problem.objects.filter(Q(is_private=False) | Q(author=self.request.user)).order_by('name')
+
+    def get(self, request, *args, **kwargs):
+        if request.in_contest:
+            return redirect('contest_problems', slug=request.participation.contest.slug)
+        else:
+            return super().get(request, *args, **kwargs)
 
 
-class ProblemDetail(DetailView, FormMixin, mixin.TitleMixin, mixin.MetaMixin):
+class ProblemDetail(UserPassesTestMixin, DetailView, FormMixin, mixin.TitleMixin, mixin.MetaMixin):
     model = models.Problem
     template_name = "gameserver/problem/detail.html"
     form_class = forms.FlagSubmissionForm
+
+    def test_func(self):
+        return not self.get_object().is_private or (self.request.in_contest and self.get_object() in self.request.user.current_contest.contest.problems.all()) or self.request.user in self.get_object().author.all()
 
     def get_title(self):
         return "pCTF: " + self.get_object().name
@@ -64,7 +75,9 @@ class ProblemDetail(DetailView, FormMixin, mixin.TitleMixin, mixin.MetaMixin):
             messages.info(self.request, 'Your flag was correct, but you have already solved this problem.')
         else:
             messages.success(self.request, 'Your flag was correct!')
-            models.Solve.objects.create(solver=self.request.user, problem=self.get_object())
+            solve = models.Solve.objects.create(solver=self.request.user, problem=self.get_object())
+            if self.request.in_contest:
+                models.ContestSolve.objects.create(solve=solve, participation=self.request.participation)
         return super().form_valid(form)
 
     def get_success_url(self):

@@ -15,7 +15,7 @@ class Index(ListView, mixin.TitleMixin, mixin.MetaMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["problems"] = models.Problem.objects.order_by("-created")[:5]
+        context["problems"] = models.Problem.objects.filter(is_private=False).order_by("-created")[:5]
         context["comments"] = models.Comment.objects.order_by("-created_date")[:5]
         return context
 

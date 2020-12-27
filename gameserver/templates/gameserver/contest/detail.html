@@ -1,0 +1,62 @@
+{% extends 'gameserver/base_comment.html' %}
+{% load link_tags %}
+{% load humanize %}
+{% load martortags %}
+{% load crispy_forms_tags %}
+
+{% block main %}
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="mt-0">{{ contest.name }}</h5>
+        {% if contest.description == "" %}
+        <p class="font-italic">This contest has no description.</p>
+        {% else %}
+        {{ contest.description|safe_markdown }}
+        {% endif %}
+    </div>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">Organizers: {{ contest.organizers.all|users }}</li>
+    </ul>
+    <div class="card-body">
+        {% if request.in_contest and request.participation.contest == contest %}
+        <a href="{% url 'contest_problems' contest.slug %}" class="card-link">View problems</a>
+        <a href="{% url 'contest_solves' contest.slug %}" class="card-link">View solves</a>
+        {% endif %}
+        <a href="{% url 'contest_scoreboard' contest.slug %}" class="card-link">View scoreboard</a>
+    </div>
+</div>
+{% if user.is_authenticated %}
+<div class="card">
+    <div class="card-header">
+        Participation
+    </div>
+    <ul class="list-group list-group-flush">
+        {% if user.current_contest.contest == contest %}
+        <li class="list-group-item">
+            You are currently in this contest as <a href="{{ request.participation.participant.get_absolute_url }}">{{ request.participation.participant }}</a>.
+        </li>
+        {% else %}
+        <li class="list-group-item">
+            You are currently not in this contest.
+        </li>
+        {% endif %}
+    </ul>
+    {% if user.is_authenticated and contest.is_ongoing %}
+    <div class="card-body">
+        {% if user.current_contest.contest == contest %}
+        <form method="post" action="{% url 'contest_leave' contest.slug %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Leave contest</button>
+        </form>
+        {% else %}
+        <form method="post">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <button type="submit" class="btn btn-primary">Join contest</button>
+        </form>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}
