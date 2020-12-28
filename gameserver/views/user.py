@@ -59,17 +59,12 @@ class UserDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMix
 
 class UserSolves(ListView, mixin.TitleMixin, mixin.MetaMixin):
     context_object_name = "solves"
-    template_name = "gameserver/user/solve.html"
+    template_name = "gameserver/user/solves.html"
     paginate_by = 50
 
     def get_queryset(self):
         self.user = get_object_or_404(models.User, username=self.kwargs["slug"])
-        return models.Solves.objects.filter(author=self.user).order_by(
-            self.get_ordering()
-        )
-
-    def get_ordering(self):
-        return "-points"
+        return models.Solve.objects.filter(solver=self.user).order_by('-pk')
 
     def get_title(self):
         return "pCTF: Solves by User " + self.user.username

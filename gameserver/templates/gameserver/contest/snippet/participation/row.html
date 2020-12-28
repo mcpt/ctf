@@ -1,7 +1,7 @@
 {% load link_tags %}
 {% load color_tags %}
 <tr class="table-{{ participation.contest|contest_color }}">
-    <th scope="row">{{ participation.rank }}</th>
+    <th scope="row"><a href="{{ participation.get_absolute_url }}">{{ participation.rank }}</a></th>
     <td>{{ participation.contest.slug|contest }}</td>
     <td><a href="{{ participation.participant.get_absolute_url }}">{{ participation.participant }}</a></td>
     <td>{{ participation.points }}</td>

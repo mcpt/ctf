@@ -31,6 +31,17 @@
     </div>
 </div>
 
+{% if contests %}
+<div class="card mb-3">
+    <div class="card-header">Ongoing Contests</div>
+    <ul class="list-group list-group-flush">
+        {% for contest in contests %}
+        <li class="list-group-item">{{ contest.slug|contest }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
 <div class="card"> 
     <div class="card-header">
         News

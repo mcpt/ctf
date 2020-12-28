@@ -58,12 +58,21 @@
         {% if user.is_authenticated %}
         {% if organization not in user.organizations.all %}
         {% if not organization.is_private or not organization.access_code == "" %}
-        <a href="{% url 'organization_join' organization.slug %}" class="card-link">Join organization</a>
+        <form action="{% url 'organization_join' organization.slug %}" method="post">
+            {% csrf_token %}
+            <button class="btn btn-primary" type="submit">Join organization</button>
+        </form>
         {% else %}
-        <a href="{% url 'organization_request' organization.slug %}" class="card-link">Request to join</a>
+        <form action="{% url 'organization_request' organization.slug %}" method="post">
+            {% csrf_token %}
+            <button class="btn btn-primary" type="submit">Request to join</button>
+        </form>
         {% endif %}
         {% else %}
-        <a href="{% url 'organization_leave' organization.slug %}" class="card-link">Leave organization</a>
+        <form action="{% url 'organization_leave' organization.slug %}" method="post">
+            {% csrf_token %}
+            <button class="btn btn-primary" type="submit">Leave organization</button>
+        </form>
         {% endif %}
         {% endif %}
     </div>

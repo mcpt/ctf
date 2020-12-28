@@ -4,17 +4,22 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.mixins import UserPassesTestMixin
 from . import mixin
 from django.shortcuts import redirect
+from django.db.models import Q
 
 
 class SolveList(ListView, mixin.TitleMixin, mixin.MetaMixin):
-    model = models.Solve
     context_object_name = "solves"
     template_name = "gameserver/solve/list.html"
     paginate_by = 50
     title = "pCTF: Solves"
 
-    def get_ordering(self):
-        return "-created"
+    def get_queryset(self):
+        queryset = models.Solve.objects.order_by('-created')
+        if self.request.user.is_authenticated:
+            queryset = queryset.filter(Q(problem__is_private=False) | Q(solver=self.request.user))
+        else:
+            queryset = queryset.filter(problem__is_private=False)
+        return queryset
 
     def get(self, request, *args, **kwargs):
         if request.in_contest:

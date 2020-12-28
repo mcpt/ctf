@@ -39,6 +39,7 @@
         {% endfor %}
     </ul>
 </div>
+{% if profile.contest_participations.all %}
 <div class="card">
     <div class="card-header">
         Participations
@@ -47,6 +48,7 @@
         {% include 'gameserver/contest/snippet/participation/table.html' with participations=profile.contest_participations.all %}
     </div>
 </div>
+{% endif %}
 {% include 'gameserver/comment/snippet.html' %}
 {% endblock %}
 

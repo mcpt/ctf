@@ -90,6 +90,10 @@ class ContestParticipation(models.Model):
     def get_absolute_url(self):
         return reverse('contest_participation_detail', args=[self.pk])
 
+    def has_solved(self, problem):
+        solves = self.solves.filter(solve__problem=problem)
+        return solves.count() > 0
+
     def __str__(self):
         return f"{self.participant().__str__()}'s Participation in {self.contest.name}"
 

@@ -50,7 +50,11 @@ class MetaMixin(ContextMixin):
         context = super().get_context_data(**kwargs)
         context["site"] = Site.objects.get_current()
         context["og_type"] = self.og_type
-        description = self.get_description().replace("\n", " ")
+        description = self.get_description()
+        description = description.strip(' ').replace("\n", " ")
+        description = description[:min(150, len(description))]
+        if description == '':
+            description = settings.DESCRIPTION
         context["meta_description"] = description
         context["og_image"] = self.get_og_image()
         payment_pointers = self.get_payment_pointers()

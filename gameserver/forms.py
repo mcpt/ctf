@@ -8,6 +8,9 @@ from crispy_forms.layout import Layout, Submit
 from crispy_forms.bootstrap import FieldWithButtons
 
 from . import models
+from .models import choices
+
+from pCTF import settings
 
 from allauth.account.forms import SignupForm
 from captcha.fields import ReCaptchaField
@@ -18,7 +21,14 @@ User = get_user_model()
 
 class PCTFSignupForm(SignupForm):
     captcha = ReCaptchaField(widget=ReCaptchaV3, label="")
-    field_order = ["email", "username", "password1", "password2", "captcha"]
+    timezone = forms.ChoiceField(choices=choices.timezone_choices, initial=settings.DEFAULT_TIMEZONE)
+    field_order = ["email", "username", "password1", "password2", "captcha", "timezone"]
+
+    def save(self, request):
+        user = super(PCTFSignupForm, self).save(request)
+        user.timezone = self.cleaned_data['timezone']
+        user.save()
+        return user
 
 
 class ProfileUpdateForm(ModelForm):
@@ -100,6 +110,18 @@ class ContestJoinForm(forms.Form):
         self.user = kwargs.pop("user", None)
         self.contest = kwargs.pop("contest", None)
         super(ContestJoinForm, self).__init__(*args, **kwargs)
+        if not self.user.is_authenticated:
+            return
         self.fields['participant'].empty_label = f'Myself ({self.user.username})'
         if self.contest.teams_allowed:
             self.fields['participant'].queryset = self.user.teams.all()
+
+        user_participations = self.user.participations_for_contest(self.contest)
+        if user_participations.count() > 0:
+            user_participation = user_participations.first()
+            if user_participation.team is None:
+                self.fields['participant'].queryset = models.Team.objects.none()
+            else:
+                self.fields['participant'].required = True
+                self.fields['participant'].empty_label = None
+                self.fields['participant'].queryset = models.Team.objects.filter(pk=user_participation.team.pk)

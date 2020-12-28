@@ -3,7 +3,7 @@ from .choices import timezone_choices, organization_request_status_choices
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.urls import reverse
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from .contest import ContestParticipation
 
 
@@ -38,8 +38,8 @@ class User(AbstractUser):
     def points(self):
         return self.solves.aggregate(points=Sum('problem__points'))['points']
 
-    def contest_participations(self, contest):
-        return models.ContestParticipation.objects.filter(Q(participant_content_type='user', participant=self) | Q(participant_content_type='team', participant__members=self), contest=contest)
+    def participations_for_contest(self, contest):
+        return ContestParticipation.objects.filter(Q(participants=self), contest=contest)
 
     def remove_contest(self):
         self.current_contest = None
@@ -102,7 +102,7 @@ class OrganizationRequest(models.Model):
     reason = models.TextField()
 
     def get_absolute_url(self):
-        return reverse("organization", args=[self.organization.slug])
+        return reverse("organization_detail", args=[self.organization.slug])
 
     def __str__(self):
         return f"Request to join {self.organization.name} ({self.pk})"

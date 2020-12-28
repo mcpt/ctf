@@ -23,7 +23,11 @@ class ProblemList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     title = "pCTF: Problems"
 
     def get_queryset(self):
-        return models.Problem.objects.filter(Q(is_private=False) | Q(author=self.request.user)).order_by('name')
+        queryset = models.Problem.objects.order_by('name')
+        if self.request.user.is_authenticated:
+            return queryset.filter(Q(is_private=False) | Q(author=self.request.user))
+        else:
+            return queryset.filter(is_private=False)
 
     def get(self, request, *args, **kwargs):
         if request.in_contest:
@@ -44,7 +48,7 @@ class ProblemDetail(UserPassesTestMixin, DetailView, FormMixin, mixin.TitleMixin
         return "pCTF: " + self.get_object().name
 
     def get_description(self):
-        return self.get_object().description
+        return self.get_object().summary
 
     def get_author(self):
         return self.get_object().author.all()
@@ -66,7 +70,8 @@ class ProblemDetail(UserPassesTestMixin, DetailView, FormMixin, mixin.TitleMixin
 
     def form_valid(self, form):
         if self.request.user.has_solved(self.get_object()):
-            messages.info(self.request, 'Your flag was correct, but you have already solved this problem.')
+            message = 'Your flag was correct, but you have already solved this problem.'
+            messages.info(self.request, message)
         else:
             messages.success(self.request, 'Your flag was correct!')
             solve = models.Solve.objects.create(solver=self.request.user, problem=self.get_object())

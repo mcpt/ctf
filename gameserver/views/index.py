@@ -2,6 +2,7 @@ from django.views.generic import DetailView, ListView
 import gameserver.models as models
 from django.contrib.contenttypes.models import ContentType
 from . import mixin
+from django.utils import timezone
 
 
 class Index(ListView, mixin.TitleMixin, mixin.MetaMixin):
@@ -17,6 +18,8 @@ class Index(ListView, mixin.TitleMixin, mixin.MetaMixin):
         context = super().get_context_data(**kwargs)
         context["problems"] = models.Problem.objects.filter(is_private=False).order_by("-created")[:5]
         context["comments"] = models.Comment.objects.order_by("-created_date")[:5]
+        moment = timezone.localtime()
+        context["contests"] = models.Contest.objects.filter(start_time__lte=moment, end_time__gt=moment).order_by("-start_time")[:5]
         return context
 
 
@@ -33,4 +36,4 @@ class BlogPost(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin
         return self.get_object().author.all()
 
     def get_description(self):
-        return self.get_object().text
+        return self.get_object().summary

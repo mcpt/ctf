@@ -15,10 +15,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from django.contrib.flatpages import views as flatpage_views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('', include('gameserver.urls')),
     path('accounts/', include('allauth.urls')),
     path('martor/', include('martor.urls')),
+    path('/<path:url>', flatpage_views.flatpage),
 ]

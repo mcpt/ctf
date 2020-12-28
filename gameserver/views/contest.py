@@ -6,7 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import UserPassesTestMixin
 from .. import forms
 from .. import models
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
@@ -15,13 +15,16 @@ from . import mixin
 
 
 class ContestList(ListView, mixin.TitleMixin, mixin.MetaMixin):
-    model = models.Contest
     context_object_name = "contests"
     template_name = "gameserver/contest/list.html"
     title = "pCTF: Contests"
 
-    def get_ordering(self):
-        return "-start_time"
+    def get_queryset(self):
+        queryset = models.Contest.objects.order_by('-start_time')
+        if self.request.user.is_authenticated:
+            return queryset.filter(Q(is_private=False) | Q(organizers=self.request.user))
+        else:
+            return queryset.filter(is_private=False)
 
 
 class ContestDetail(DetailView, FormMixin, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin):
@@ -34,13 +37,21 @@ class ContestDetail(DetailView, FormMixin, mixin.TitleMixin, mixin.MetaMixin, mi
         return "pCTF: Contest " + self.get_object().name
 
     def get_description(self):
-        return self.get_object().description
+        return self.get_object().summary
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['participations'] = None
+        if self.request.user.is_authenticated:
+            context['participations'] = self.request.user.participations_for_contest(self.get_object())
+        return context
 
     def get_form_kwargs(self, *args, **kwargs):
         cur_kwargs = super().get_form_kwargs(*args, **kwargs)
         cur_kwargs['user'] = self.request.user
         cur_kwargs['contest'] = self.get_object()
         return cur_kwargs
+        
 
     def post(self, request, *args, **kwargs):
         if not request.user.is_authenticated or not self.get_object().is_ongoing:

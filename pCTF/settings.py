@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'django.contrib.humanize',
     'crispy_forms',
+    'captcha',
 ]
 
 MIDDLEWARE = [
@@ -58,6 +59,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "gameserver.middleware.TimezoneMiddleware",
     "gameserver.middleware.ContestMiddleware",
+    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 ]
 
 ROOT_URLCONF = "pCTF.urls"
@@ -234,6 +236,8 @@ CRISPY_TEMPLATE_PACK = "bootstrap4"
 SILENCED_SYSTEM_CHECKS = ["urls.W002"]
 
 DEFAULT_TIMEZONE = 'UTC'
+
+tos_url = '/tos'
 
 try:
     from pCTF.config import *

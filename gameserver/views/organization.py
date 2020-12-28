@@ -7,6 +7,8 @@ from .. import forms
 from .. import models
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
+from django.utils.decorators import method_decorator
+from django.views.decorators.http import require_POST
 from . import mixin
 
 
@@ -74,9 +76,8 @@ class OrganizationMembers(ListView, mixin.TitleMixin, mixin.MetaMixin):
         return context
 
 
-class OrganizationRequest(
-    LoginRequiredMixin, CreateView, mixin.TitleMixin, mixin.MetaMixin
-):
+@method_decorator(require_POST, name='dispatch')
+class OrganizationRequest(LoginRequiredMixin, CreateView, mixin.TitleMixin, mixin.MetaMixin):
     template_name = "gameserver/organization/form.html"
     model = models.OrganizationRequest
     fields = ["reason"]
@@ -98,16 +99,17 @@ class OrganizationRequest(
         return context
 
 
+@method_decorator(require_POST, name='dispatch')
 class OrganizationJoin(LoginRequiredMixin, FormView, mixin.TitleMixin, mixin.MetaMixin):
     template_name = "gameserver/organization/form.html"
     form_class = forms.GroupJoinForm
     fields = ["access_code"]
 
-    def get(self, *args, **kwargs):
+    def post(self, *args, **kwargs):
         if not self.get_object().is_private:
             self.success()
             return redirect(self.get_object())
-        return super().get(*args, **kwargs)
+        return super().post(*args, **kwargs)
 
     def success(self):
         self.request.user.organizations.add(self.get_object())
@@ -136,6 +138,7 @@ class OrganizationJoin(LoginRequiredMixin, FormView, mixin.TitleMixin, mixin.Met
         return cur_kwargs
 
 
+@method_decorator(require_POST, name='dispatch')
 class OrganizationLeave(LoginRequiredMixin, RedirectView):
     query_string = True
     pattern_name = "organization_detail"

@@ -29,25 +29,37 @@
         <a href="{% url 'contest_scoreboard' contest.slug %}" class="card-link">View scoreboard</a>
     </div>
 </div>
-{% if user.is_authenticated %}
+{% if request.user.is_authenticated and contest.is_started %}
 <div class="card">
     <div class="card-header">
         Participation
     </div>
     <ul class="list-group list-group-flush">
-        {% if user.current_contest.contest == contest %}
+        {% if request.user.current_contest.contest == contest %}
         <li class="list-group-item">
             You are currently in this contest as <a href="{{ request.participation.participant.get_absolute_url }}">{{ request.participation.participant }}</a>.
         </li>
         {% else %}
         <li class="list-group-item">
+            {% if contest.is_finished %}
+            Contest is over.
+            {% elif participations %}
+            You are currently not in this contest, however, you have participated before.
+            {% else %}
             You are currently not in this contest.
+            {% endif %}
+        </li>
+        {% endif %}
+        {% if participations %}
+        <li class="list-group-item">
+            <h5 class="mt-2 mb-3">Your participations</h5>
+            {% include 'gameserver/contest/snippet/participation/table.html' %}
         </li>
         {% endif %}
     </ul>
-    {% if user.is_authenticated and contest.is_ongoing %}
+    {% if request.user.is_authenticated and contest.is_ongoing %}
     <div class="card-body">
-        {% if user.current_contest.contest == contest %}
+        {% if request.user.current_contest.contest == contest %}
         <form method="post" action="{% url 'contest_leave' contest.slug %}">
             {% csrf_token %}
             <button type="submit" class="btn btn-primary">Leave contest</button>

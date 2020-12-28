@@ -10,7 +10,7 @@
             {% csrf_token %}
             {{ form|crispy }}
             <button type="submit" class="btn btn-primary mr-2">Submit</button>
-            <a href="{{ organization.slug|organization_url }}" class="btn btn-primary" role="button" aria-pressed="true">Cancel</a>
+            <a href="{{ organization.get_absolute_url }}" class="btn btn-primary" role="button" aria-pressed="true">Cancel</a>
         </form>
     </div>
 </div>

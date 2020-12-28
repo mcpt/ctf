@@ -148,6 +148,7 @@ admin.site.register(models.Comment)
 admin.site.register(models.BlogPost)
 admin.site.register(models.Team)
 admin.site.register(models.Contest)
+admin.site.register(models.ContestTag)
 admin.site.site_header = "pCTF administration"
 admin.site.site_title = "pCTF admin"
 
