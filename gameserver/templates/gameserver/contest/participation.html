@@ -1,4 +1,4 @@
-{% extends 'gameserver/base_comment.html' %}
+{% extends 'gameserver/base.html' %}
 {% load link_tags %}
 {% load humanize %}
 {% load martortags %}
@@ -10,6 +10,7 @@
         <h5 class="mt-0"><a href="{{ participation.participant.get_absolute_url }}">{{ participation.participant }}</a>'s Participation in {{ participation.contest.slug|contest }}</h5>
     </div>
     <ul class="list-group list-group-flush">
+        <li class="list-group-item">Rank: #{{ participation.rank }}</li>
         <li class="list-group-item">{{ participation.points }} Point{{ participation.points|pluralize }}</li>
         <li class="list-group-item">{{ participation.num_flags_captured }} Flag{{ participation.num_flags_captured|pluralize }} Captured</li>
     </ul>
@@ -26,7 +27,7 @@
         {% endfor %}
     </ul>
 </div>
-{% if request.in_contest and request.participation.contest == participation.contest %}
+{% if request.in_contest and request.participation.contest == participation.contest or contest.is_finished %}
 <div class="card">
     <div class="card-header">
         Solves
@@ -36,4 +37,5 @@
     </div>
 </div>
 {% endif %}
+{% include 'gameserver/comment/snippet.html' %}
 {% endblock %}

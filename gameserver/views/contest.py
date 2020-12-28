@@ -24,7 +24,7 @@ class ContestList(ListView, mixin.TitleMixin, mixin.MetaMixin):
         return "-start_time"
 
 
-class ContestDetail(DetailView, FormMixin, mixin.TitleMixin, mixin.MetaMixin):
+class ContestDetail(DetailView, FormMixin, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin):
     model = models.Contest
     context_object_name = "contest"
     template_name = "gameserver/contest/detail.html"
@@ -35,14 +35,6 @@ class ContestDetail(DetailView, FormMixin, mixin.TitleMixin, mixin.MetaMixin):
 
     def get_description(self):
         return self.get_object().description
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_contenttype = ContentType.objects.get_for_model(models.Contest)
-        context["comments"] = models.Comment.objects.filter(
-            parent_content_type=user_contenttype, parent_object_id=self.get_object().pk
-        )
-        return context
 
     def get_form_kwargs(self, *args, **kwargs):
         cur_kwargs = super().get_form_kwargs(*args, **kwargs)
@@ -95,7 +87,7 @@ class ContestProblemList(UserPassesTestMixin, ListView, mixin.TitleMixin, mixin.
 
     def test_func(self):
         self.contest = get_object_or_404(models.Contest, slug=self.kwargs["slug"])
-        return self.request.in_contest and self.request.participation.contest == self.contest
+        return (self.request.in_contest and self.request.participation.contest == self.contest) or self.contest.is_finished
 
     def get_title(self):
         return "pCTF: Problems for Contest " + self.contest.name
@@ -116,7 +108,7 @@ class ContestSolveList(UserPassesTestMixin, ListView, mixin.TitleMixin, mixin.Me
 
     def test_func(self):
         self.contest = get_object_or_404(models.Contest, slug=self.kwargs["slug"])
-        return self.request.in_contest and self.request.participation.contest == self.contest
+        return (self.request.in_contest and self.request.participation.contest == self.contest) or self.contest.is_finished
 
     def get_queryset(self):
         return models.ContestSolve.objects.filter(participation__contest=self.contest).order_by('-solve__created')
@@ -134,7 +126,7 @@ class ContestScoreboard(ListView, mixin.TitleMixin, mixin.MetaMixin):
 
     def get_queryset(self):
         self.contest = get_object_or_404(models.Contest, slug=self.kwargs["slug"])
-        return self.model.objects.filter(contest=self.contest).annotate(cum_points=Sum('solves__solve__problem__points')).order_by('-cum_points')
+        return self.contest.ranks()
 
     def get_title(self):
         return "pCTF: Scoreboard for Contest " + self.contest.name
@@ -144,7 +136,7 @@ class ContestScoreboard(ListView, mixin.TitleMixin, mixin.MetaMixin):
         context["contest"] = self.contest
         return context
 
-class ContestParticipationDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin):
+class ContestParticipationDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin):
     model = models.ContestParticipation
     context_object_name = "participation"
     template_name = "gameserver/contest/participation.html"
@@ -154,11 +146,3 @@ class ContestParticipationDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin):
 
     def get_description(self):
         return self.get_object().__str__()
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_contenttype = ContentType.objects.get_for_model(self.model)
-        context["comments"] = models.Comment.objects.filter(
-            parent_content_type=user_contenttype, parent_object_id=self.get_object().pk
-        )
-        return context

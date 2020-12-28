@@ -1,0 +1,11 @@
+<div class="card my-3">
+    <div class="card-header">
+        Comments
+    </div>
+    <div class="card-body text-wrap">
+        {% include 'gameserver/comment/list.html' with depth=4 %}
+    </div>
+</div>
+{% if user.is_authenticated %}
+{% include 'gameserver/comment/form.html' %}
+{% endif %}

@@ -1,4 +1,4 @@
-{% extends 'gameserver/base_comment.html' %}
+{% extends 'gameserver/base.html' %}
 {% load gravatar_tags %}
 
 {% block main %}
@@ -27,7 +27,7 @@
         <a href="{% url 'user_solves' profile.username %}" class="card-link">{{ profile.username }}'s Solves</a>
     </div>
 </div>
-<div class="card">
+<div class="card mb-3">
     <div class="card-header">
         Teams Participating In
     </div>
@@ -39,6 +39,15 @@
         {% endfor %}
     </ul>
 </div>
+<div class="card">
+    <div class="card-header">
+        Participations
+    </div>
+    <div class="card-body">
+        {% include 'gameserver/contest/snippet/participation/table.html' with participations=profile.contest_participations.all %}
+    </div>
+</div>
+{% include 'gameserver/comment/snippet.html' %}
 {% endblock %}
 
 {% block othermeta %}

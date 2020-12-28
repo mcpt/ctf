@@ -1,0 +1,13 @@
+{% if comments %}
+<ul class="list-unstyled">
+    {% for comment in comments %}
+    {% include 'gameserver/comment/comment.html' %}
+    {% endfor %}
+</ul>
+{% elif not hide_empty %}
+<ul class="list-group list-group-flush">
+    <li class="list-group-item">
+        There are no comments.
+    </li>
+</ul>
+{% endif %}

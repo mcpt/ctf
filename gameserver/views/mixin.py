@@ -3,6 +3,7 @@ from django.views.generic.base import ContextMixin
 from django.contrib.sites.models import Site
 from django.contrib.auth import get_user_model
 from pCTF import settings
+from django.contrib.contenttypes.models import ContentType
 import random
 
 User = get_user_model()
@@ -55,4 +56,14 @@ class MetaMixin(ContextMixin):
         payment_pointers = self.get_payment_pointers()
         if payment_pointers:
             context["meta_payment_pointer"] = random.choice(payment_pointers)
+        return context
+
+
+class CommentMixin(ContextMixin):
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(**kwargs)
+        contenttype = ContentType.objects.get_for_model(self.model)
+        context["comments"] = models.Comment.objects.filter(
+            parent_content_type=contenttype, parent_object_id=self.get_object().pk
+        )
         return context

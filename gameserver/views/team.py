@@ -28,7 +28,7 @@ class TeamList(ListView, mixin.TitleMixin, mixin.MetaMixin):
         return "-name"
 
 
-class TeamDetail(DetailView, FormMixin, mixin.TitleMixin, mixin.MetaMixin):
+class TeamDetail(DetailView, FormMixin, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin):
     model = models.Team
     context_object_name = "team"
     template_name = "gameserver/team/detail.html"
@@ -39,14 +39,6 @@ class TeamDetail(DetailView, FormMixin, mixin.TitleMixin, mixin.MetaMixin):
 
     def get_description(self):
         return self.get_object().description
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_contenttype = ContentType.objects.get_for_model(models.Organization)
-        context["comments"] = models.Comment.objects.filter(
-            parent_content_type=user_contenttype, parent_object_id=self.get_object().pk
-        )
-        return context
 
     def get_form_kwargs(self, *args, **kwargs):
         cur_kwargs = super().get_form_kwargs(*args, **kwargs)

@@ -20,7 +20,7 @@ class OrganizationList(ListView, mixin.TitleMixin, mixin.MetaMixin):
         return "-name"
 
 
-class OrganizationDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin):
+class OrganizationDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin):
     model = models.Organization
     context_object_name = "organization"
     template_name = "gameserver/organization/detail.html"
@@ -33,10 +33,6 @@ class OrganizationDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user_contenttype = ContentType.objects.get_for_model(models.Organization)
-        context["comments"] = models.Comment.objects.filter(
-            parent_content_type=user_contenttype, parent_object_id=self.get_object().pk
-        )
         context["member_count"] = self.get_object().member_count()
         if self.request.user.is_authenticated:
             context[

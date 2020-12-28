@@ -48,7 +48,7 @@ def comment_info(comment_obj):
     elif parent_type == "user":
         parent_url = user(comment_obj.parent.username)
     elif parent_type == "comment":
-        parent_url = "Comment " + comment(comment_obj.parent.pk)
+        parent_url = format_html("Comment {0}", comment(comment_obj.parent.pk))
     elif parent_type == "blogpost":
         parent_url = post(comment_obj.parent.slug)
     elif parent_type == "organization":

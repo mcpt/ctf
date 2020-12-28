@@ -1,4 +1,4 @@
-{% extends 'gameserver/base_comment.html' %}
+{% extends 'gameserver/base.html' %}
 {% load link_tags %}
 {% load humanize %}
 {% load martortags %}
@@ -69,4 +69,5 @@
     </div>
 </div>
 {% endif %}
+{% include 'gameserver/comment/snippet.html' %}
 {% endblock %}

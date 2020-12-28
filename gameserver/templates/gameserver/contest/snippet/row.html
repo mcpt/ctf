@@ -1,14 +1,19 @@
 {% load link_tags %}
+{% load color_tags %}
 {% load humanize %}
-<tr>
+{% load tz %}
+{% get_current_timezone as TIME_ZONE %}
+<tr class="table-{{ contest|contest_color }}">
     <td>{{ contest.slug|contest }}</th>
+    <td>Starts on {{ contest.start_time }} ({{ TIME_ZONE }})</td>
+    <td>{{ contest.duration }} Long</td>
     <td>
-        {% if not contest.is_started and not contest.is_ended %}
-        Starts {{ contest.start_time|naturaltime }}
-        {% elif contest.is_started and not contest.is_ended %}
-        Ends {{ contest.end_time|naturaltime }}
+        {% if not contest.is_started %}
+        Planned
+        {% elif contest.is_ongoing %}
+        Ongoing
         {% else %}
-        Ended {{ contest.end_time|naturaltime }}
+        Ended
         {% endif %}
     </td>
 </tr>

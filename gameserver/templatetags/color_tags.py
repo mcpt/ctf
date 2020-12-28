@@ -9,3 +9,13 @@ def problem_color(problem, user):
         return "success"
     else:
         return "light"
+
+
+@register.filter
+def contest_color(contest):
+    if not contest.is_started():
+        return "warning"
+    elif contest.is_ongoing():
+        return "primary"
+    else:
+        return "success"

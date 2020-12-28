@@ -4,6 +4,7 @@ from django.urls import reverse
 from . import abstract
 from django.utils import timezone
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 from django.db.models import Sum
 
 # Create your models here.
@@ -47,6 +48,13 @@ class Contest(models.Model):
     def is_ongoing(self):
         return self.is_started() and not self.is_finished()
 
+    def duration(self):
+        return self.end_time - self.start_time
+
+    def ranks(self):
+        return self.participations.annotate(cum_points=Sum('solves__solve__problem__points')).order_by('-cum_points')
+
+
 class ContestParticipation(models.Model):
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE, related_name='participations')
     is_disqualified = models.BooleanField(default=False)
@@ -70,6 +78,14 @@ class ContestParticipation(models.Model):
 
     def num_flags_captured(self):
         return self.solves.count()
+
+    def rank(self):
+        points = self.points()
+        if points == 0:
+            nullpoints = None
+        else:
+            nullpoints = points
+        return self.contest.ranks().filter(Q(cum_points__gt=points) | Q(cum_points=nullpoints)).count()
 
     def get_absolute_url(self):
         return reverse('contest_participation_detail', args=[self.pk])

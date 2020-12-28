@@ -1,10 +1,12 @@
-{% extends 'gameserver/base_comment.html' %}
+{% extends 'gameserver/base.html' %}
 {% load link_tags %}
 {% load humanize %}
 {% load martortags %}
 {% load crispy_forms_tags %}
+{% load tz %}
 
 {% block main %}
+{% get_current_timezone as TIME_ZONE %}
 <div class="card mb-3">
     <div class="card-body">
         <h5 class="mt-0">{{ contest.name }}</h5>
@@ -16,9 +18,11 @@
     </div>
     <ul class="list-group list-group-flush">
         <li class="list-group-item">Organizers: {{ contest.organizers.all|users }}</li>
+        <li class="list-group-item">Starts on {{ contest.start_time }} ({{ TIME_ZONE }})</li>
+        <li class="list-group-item">{{ contest.duration }} Long</li>
     </ul>
     <div class="card-body">
-        {% if request.in_contest and request.participation.contest == contest %}
+        {% if request.in_contest and request.participation.contest == contest or contest.is_finished %}
         <a href="{% url 'contest_problems' contest.slug %}" class="card-link">View problems</a>
         <a href="{% url 'contest_solves' contest.slug %}" class="card-link">View solves</a>
         {% endif %}
@@ -58,5 +62,8 @@
     </div>
     {% endif %}
 </div>
+{% endif %}
+{% if not contest.is_private %}
+{% include 'gameserver/comment/snippet.html' %}
 {% endif %}
 {% endblock %}

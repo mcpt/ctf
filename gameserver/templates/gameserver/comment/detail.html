@@ -1,4 +1,4 @@
-{% extends 'gameserver/base_comment.html' %}
+{% extends 'gameserver/base.html' %}
 {% load link_tags %}
 {% load humanize %}
 {% load tz %}
@@ -12,4 +12,5 @@
         <p class="card-text">{{ comment.text }}</p>
     </div>
 </div>
+{% include 'gameserver/comment/snippet.html' %}
 {% endblock %}

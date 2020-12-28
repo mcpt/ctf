@@ -20,7 +20,7 @@ class Index(ListView, mixin.TitleMixin, mixin.MetaMixin):
         return context
 
 
-class BlogPost(DetailView, mixin.TitleMixin, mixin.MetaMixin):
+class BlogPost(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin):
     model = models.BlogPost
     context_object_name = "post"
     template_name = "gameserver/info/blog_post.html"
@@ -34,12 +34,3 @@ class BlogPost(DetailView, mixin.TitleMixin, mixin.MetaMixin):
 
     def get_description(self):
         return self.get_object().text
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        blogpost_contenttype = ContentType.objects.get_for_model(models.BlogPost)
-        context["comments"] = models.Comment.objects.filter(
-            parent_content_type=blogpost_contenttype,
-            parent_object_id=self.get_object().pk,
-        )
-        return context

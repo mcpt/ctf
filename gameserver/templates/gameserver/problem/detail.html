@@ -1,4 +1,4 @@
-{% extends 'gameserver/base_comment.html' %}
+{% extends 'gameserver/base.html' %}
 {% load gravatar_tags %}
 {% load martortags %}
 {% load link_tags %}
@@ -47,9 +47,9 @@
         {% endif %}
     </div>
 </div>
-{% block comments %}
-{{ block.super }}
-{% endblock %}
+{% if not problem.is_private %}
+{% include 'gameserver/comment/snippet.html' %}
+{% endif %}
 {% endblock %}
 
 {% block deps %}

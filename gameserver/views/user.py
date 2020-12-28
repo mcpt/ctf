@@ -38,7 +38,7 @@ class UserList(ListView, mixin.TitleMixin, mixin.MetaMixin):
             return super().get(request, *args, **kwargs)
 
 
-class UserDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin):
+class UserDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin):
     model = models.User
     context_object_name = "profile"
     template_name = "gameserver/user/detail.html"
@@ -55,14 +55,6 @@ class UserDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin):
 
     def get_author(self):
         return [self.get_object()]
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_contenttype = ContentType.objects.get_for_model(models.User)
-        context["comments"] = models.Comment.objects.filter(
-            parent_content_type=user_contenttype, parent_object_id=self.get_object().pk
-        )
-        return context
 
 
 class UserSolves(ListView, mixin.TitleMixin, mixin.MetaMixin):

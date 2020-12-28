@@ -34,20 +34,15 @@
             </div>
             {% endif %}
             {% if request.in_contest %}
-            <div class="alert alert-info alert-dismissible fade show mt-4" role="alert">
+            <div class="alert alert-info mt-4" role="alert">
                 <h4 class="alert-heading">{{ request.participation.contest.slug|contest }}</h4>
-                <div>You are currently participating in {{ request.participation.contest.slug|contest }} as <a href="{{ request.participation.participant.get_absolute_url }}">{{ request.participation.participant }}</a>.</div>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <p>You are currently participating in {{ request.participation.contest.slug|contest }} as <a href="{{ request.participation.get_absolute_url }}">{{ request.participation.participant }}</a>.</p>
+                <hr>
+                <p class="mb-0" id="countdown">Loading countdown...</p>
             </div>
             {% endif %}
-            <div class="my-4">
+            <div class="mt-4 mb-6">
                 {% block main %}
-                {% endblock %}
-            </div>
-            <div class="mb-6">
-                {% block comment %}
                 {% endblock %}
             </div>
         </div>
@@ -95,6 +90,13 @@
 {% endblock %}
 
 <script src="{% static 'scripts/base.js' %}" defer></script>
+{% if request.in_contest %}
+<script src="{% static 'scripts/countdown.js' %}"></script>
+<script>
+    countdownTo = new Date({{ request.participation.contest.end_time|date:"U" }} * 1000);
+    setInterval(countdownTimer, 1000, countdownTo, "countdown");
+</script>
+{% endif %}
 {% endblock %}
 
 {% block title %}{{ page_title }}{% endblock %}

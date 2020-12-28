@@ -32,7 +32,7 @@ class ProblemList(ListView, mixin.TitleMixin, mixin.MetaMixin):
             return super().get(request, *args, **kwargs)
 
 
-class ProblemDetail(UserPassesTestMixin, DetailView, FormMixin, mixin.TitleMixin, mixin.MetaMixin):
+class ProblemDetail(UserPassesTestMixin, DetailView, FormMixin, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin):
     model = models.Problem
     template_name = "gameserver/problem/detail.html"
     form_class = forms.FlagSubmissionForm
@@ -48,12 +48,6 @@ class ProblemDetail(UserPassesTestMixin, DetailView, FormMixin, mixin.TitleMixin
 
     def get_author(self):
         return self.get_object().author.all()
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        problem_contenttype = ContentType.objects.get_for_model(models.Problem)
-        context['comments'] = models.Comment.objects.filter(parent_content_type=problem_contenttype, parent_object_id=self.get_object().pk)
-        return context
 
     def get_form_kwargs(self, *args, **kwargs):
         cur_kwargs = super().get_form_kwargs(*args, **kwargs)

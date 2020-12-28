@@ -1,0 +1,8 @@
+{% load link_tags %}
+{% load color_tags %}
+<tr class="table-{{ participation.contest|contest_color }}">
+    <th scope="row">{{ participation.rank }}</th>
+    <td>{{ participation.contest.slug|contest }}</td>
+    <td><a href="{{ participation.participant.get_absolute_url }}">{{ participation.participant }}</a></td>
+    <td>{{ participation.points }}</td>
+</tr>

@@ -1,4 +1,4 @@
-{% extends 'gameserver/base_comment.html' %}
+{% extends 'gameserver/base.html' %}
 {% load link_tags %}
 {% load humanize %}
 {% load martortags %}
@@ -13,6 +13,7 @@
         <p class="card-text">{{ post.text|safe_markdown }}</p>
     </div>
 </div>
+{% include 'gameserver/comment/snippet.html' %}
 {% endblock %}
 
 {% block othermeta %}
