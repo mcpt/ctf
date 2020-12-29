@@ -1,29 +1,40 @@
+import django.db
 from django.contrib import admin
 from django.contrib.auth import get_user_model
-from . import models
 from django.contrib.flatpages.admin import FlatPageAdmin
 from django.contrib.flatpages.models import FlatPage
-from django.utils.translation import gettext_lazy as _
 from django.db.models import Q
+from django.utils.translation import gettext_lazy as _
 from martor.widgets import AdminMartorWidget
-import django.db
+
+from . import models
 
 User = get_user_model()
 
 
 class ProblemFileInline(admin.TabularInline):
-    fields = ['artifact']
+    fields = ["artifact"]
     model = models.ProblemFile
     extra = 0
 
 
 class ProblemAdmin(admin.ModelAdmin):
-    fields = ["name", "slug", "author", "description", "points", "flag", "problem_type", "category", 'is_private']
+    fields = [
+        "name",
+        "slug",
+        "author",
+        "description",
+        "points",
+        "flag",
+        "problem_type",
+        "category",
+        "is_private",
+    ]
     inlines = [
         ProblemFileInline,
     ]
     formfield_overrides = {
-        django.db.models.TextField: {'widget': AdminMartorWidget},
+        django.db.models.TextField: {"widget": AdminMartorWidget},
     }
 
     def has_view_permission(self, request, obj=None):
@@ -98,7 +109,14 @@ class OrganizationAdmin(admin.ModelAdmin):
 
 
 class OrganizationRequestAdmin(admin.ModelAdmin):
-    list_display = ["__str__", "user", "organization", "created", "status", "reviewed"]
+    list_display = [
+        "__str__",
+        "user",
+        "organization",
+        "created",
+        "status",
+        "reviewed",
+    ]
     list_filter = ["organization", "status"]
     readonly_fields = ["user", "organization", "created", "reason"]
 
@@ -111,7 +129,9 @@ class OrganizationRequestAdmin(admin.ModelAdmin):
         return False
 
     def has_view_permission(self, request, obj=None):
-        return self.has_given_permission(request, obj, "gameserver.view_organizationrequest")
+        return self.has_given_permission(
+            request, obj, "gameserver.view_organizationrequest"
+        )
 
     def has_change_permission(self, request, obj=None):
         status = self.has_given_permission(

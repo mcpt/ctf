@@ -1,14 +1,17 @@
-from django.views.generic import DetailView
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_POST
-from .. import models
-from django.shortcuts import get_object_or_404, redirect
 from django.contrib.contenttypes.models import ContentType
-from . import mixin
 from django.http import HttpResponseForbidden
+from django.shortcuts import get_object_or_404, redirect
+from django.views.decorators.http import require_POST
+from django.views.generic import DetailView
+
+from .. import models
+from . import mixin
 
 
-class Comment(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin):
+class Comment(
+    DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin
+):
     model = models.Comment
     context_object_name = "comment"
     template_name = "gameserver/comment/detail.html"
@@ -49,6 +52,8 @@ def add_comment(request, parent_type, parent_id):
     else:
         raise NotImplementedError
     author = request.user
-    comment = models.Comment(parent=parent, text=request.POST["text"], author=author)
+    comment = models.Comment(
+        parent=parent, text=request.POST["text"], author=author
+    )
     comment.save()
     return redirect("comment", pk=comment.pk)

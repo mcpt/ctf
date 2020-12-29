@@ -1,14 +1,13 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.contenttypes.models import ContentType
+from django.shortcuts import get_object_or_404, redirect
+from django.utils.decorators import method_decorator
+from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView, FormView
-from django.shortcuts import redirect
-from django.contrib.auth.mixins import LoginRequiredMixin
-from .. import forms
-from .. import models
-from django.contrib.contenttypes.models import ContentType
-from django.shortcuts import get_object_or_404
-from django.utils.decorators import method_decorator
-from django.views.decorators.http import require_POST
+
+from .. import forms, models
 from . import mixin
 
 
@@ -22,7 +21,9 @@ class OrganizationList(ListView, mixin.TitleMixin, mixin.MetaMixin):
         return "-name"
 
 
-class OrganizationDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin):
+class OrganizationDetail(
+    DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin
+):
     model = models.Organization
     context_object_name = "organization"
     template_name = "gameserver/organization/detail.html"
@@ -63,9 +64,9 @@ class OrganizationMembers(ListView, mixin.TitleMixin, mixin.MetaMixin):
         self.organization = get_object_or_404(
             models.Organization, slug=self.kwargs["slug"]
         )
-        return models.User.objects.filter(organizations=self.organization).order_by(
-            self.get_ordering()
-        )
+        return models.User.objects.filter(
+            organizations=self.organization
+        ).order_by(self.get_ordering())
 
     def get_title(self):
         return "pCTF: Members of Organization " + self.organization.name
@@ -76,8 +77,10 @@ class OrganizationMembers(ListView, mixin.TitleMixin, mixin.MetaMixin):
         return context
 
 
-@method_decorator(require_POST, name='dispatch')
-class OrganizationRequest(LoginRequiredMixin, CreateView, mixin.TitleMixin, mixin.MetaMixin):
+@method_decorator(require_POST, name="dispatch")
+class OrganizationRequest(
+    LoginRequiredMixin, CreateView, mixin.TitleMixin, mixin.MetaMixin
+):
     template_name = "gameserver/organization/form.html"
     model = models.OrganizationRequest
     fields = ["reason"]
@@ -99,8 +102,10 @@ class OrganizationRequest(LoginRequiredMixin, CreateView, mixin.TitleMixin, mixi
         return context
 
 
-@method_decorator(require_POST, name='dispatch')
-class OrganizationJoin(LoginRequiredMixin, FormView, mixin.TitleMixin, mixin.MetaMixin):
+@method_decorator(require_POST, name="dispatch")
+class OrganizationJoin(
+    LoginRequiredMixin, FormView, mixin.TitleMixin, mixin.MetaMixin
+):
     template_name = "gameserver/organization/form.html"
     form_class = forms.GroupJoinForm
     fields = ["access_code"]
@@ -138,12 +143,14 @@ class OrganizationJoin(LoginRequiredMixin, FormView, mixin.TitleMixin, mixin.Met
         return cur_kwargs
 
 
-@method_decorator(require_POST, name='dispatch')
+@method_decorator(require_POST, name="dispatch")
 class OrganizationLeave(LoginRequiredMixin, RedirectView):
     query_string = True
     pattern_name = "organization_detail"
 
     def get_redirect_url(self, *args, **kwargs):
-        organization = get_object_or_404(models.Organization, slug=kwargs["slug"])
+        organization = get_object_or_404(
+            models.Organization, slug=kwargs["slug"]
+        )
         self.request.user.organizations.remove(organization)
         return super().get_redirect_url(*args, **kwargs)

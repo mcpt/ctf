@@ -14,6 +14,7 @@ class TimezoneMiddleware:
             timezone.activate(pytz.timezone(settings.DEFAULT_TIMEZONE))
         return self.get_response(request)
 
+
 class ContestMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response

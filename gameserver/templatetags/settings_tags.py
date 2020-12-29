@@ -1,5 +1,5 @@
-from django import template
 import pCTF.settings as settings
+from django import template
 
 register = template.Library()
 

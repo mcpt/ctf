@@ -1,24 +1,23 @@
-FROM python:3-alpine
+FROM python:3.9-alpine
 
 LABEL maintainer="Kyunghan (Paul) Lee <contact@paullee.dev>"
 
 RUN apk update
+RUN apt-get update
 
 RUN apk add --no-cache --virtual .build-deps \
     gcc \
     python3-dev \
     musl-dev \
     postgresql-dev \
-    && pip install --no-cache-dir psycopg2 \
+    && python3 -m pip install --no-cache-dir psycopg2 \
     && apk del --no-cache .build-deps
-
-RUN apk add --no-cache libpq postgresql-dev gcc python3-dev musl-dev
 
 WORKDIR /app
 
 COPY requirements.txt /app/
 
-RUN pip install -r requirements.txt
+RUN python3 -m pip install -r requirements.txt
 
 COPY . /app/
 

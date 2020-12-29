@@ -1,6 +1,7 @@
 from django.db import models
-from .profile import User
 from django.urls import reverse
+
+from .profile import User
 
 # Create your models here.
 
@@ -19,4 +20,4 @@ class BlogPost(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return reverse('blog_post', args=[self.pk])
+        return reverse("blog_post", args=[self.pk])

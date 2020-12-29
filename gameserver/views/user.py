@@ -1,14 +1,12 @@
-from django.views.generic.base import RedirectView
-from .. import forms
-from django.views.generic import DetailView, ListView
-from .. import models
-from django.views.generic.edit import UpdateView
-from django.urls import reverse_lazy
 from django.contrib.contenttypes.models import ContentType
-from django.shortcuts import get_object_or_404
 from django.db.models import Sum
-from django.urls import reverse
-from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse, reverse_lazy
+from django.views.generic import DetailView, ListView
+from django.views.generic.base import RedirectView
+from django.views.generic.edit import UpdateView
+
+from .. import forms, models
 from . import mixin
 
 
@@ -29,16 +27,22 @@ class UserList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     title = "pCTF: Users"
 
     def get_queryset(self):
-        return self.model.objects.annotate(cum_points=Sum('solves__problem__points')).order_by('-cum_points')
+        return self.model.objects.annotate(
+            cum_points=Sum("solves__problem__points")
+        ).order_by("-cum_points")
 
     def get(self, request, *args, **kwargs):
         if request.in_contest:
-            return redirect('contest_scoreboard', slug=request.participation.contest.slug)
+            return redirect(
+                "contest_scoreboard", slug=request.participation.contest.slug
+            )
         else:
             return super().get(request, *args, **kwargs)
 
 
-class UserDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin):
+class UserDetail(
+    DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin
+):
     model = models.User
     context_object_name = "profile"
     template_name = "gameserver/user/detail.html"
@@ -63,8 +67,10 @@ class UserSolves(ListView, mixin.TitleMixin, mixin.MetaMixin):
     paginate_by = 50
 
     def get_queryset(self):
-        self.user = get_object_or_404(models.User, username=self.kwargs["slug"])
-        return models.Solve.objects.filter(solver=self.user).order_by('-pk')
+        self.user = get_object_or_404(
+            models.User, username=self.kwargs["slug"]
+        )
+        return models.Solve.objects.filter(solver=self.user).order_by("-pk")
 
     def get_title(self):
         return "pCTF: Solves by User " + self.user.username

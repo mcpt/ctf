@@ -41,12 +41,12 @@ INSTALLED_APPS = [
     "django.contrib.flatpages",
     "gameserver",
     "martor",
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'django.contrib.humanize',
-    'crispy_forms',
-    'captcha',
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "django.contrib.humanize",
+    "crispy_forms",
+    "captcha",
 ]
 
 MIDDLEWARE = [
@@ -59,7 +59,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "gameserver.middleware.TimezoneMiddleware",
     "gameserver.middleware.ContestMiddleware",
-    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
+    "django.contrib.flatpages.middleware.FlatpageFallbackMiddleware",
 ]
 
 ROOT_URLCONF = "pCTF.urls"
@@ -136,8 +136,8 @@ STATIC_URL = "/static/"
 # Auth settings
 
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
 ]
 
 AUTH_USER_MODEL = "gameserver.User"
@@ -225,7 +225,7 @@ PAYMENT_POINTERS = []  # Your Interledger Payment Pointers for Web Monetization
 
 # Martor settings
 
-MARTOR_THEME = 'semantic'
+MARTOR_THEME = "semantic"
 
 # Other settings
 
@@ -235,9 +235,9 @@ CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 SILENCED_SYSTEM_CHECKS = ["urls.W002"]
 
-DEFAULT_TIMEZONE = 'UTC'
+DEFAULT_TIMEZONE = "UTC"
 
-tos_url = '/tos'
+tos_url = "/tos"
 
 try:
     from pCTF.config import *

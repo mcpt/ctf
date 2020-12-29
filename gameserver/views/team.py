@@ -1,20 +1,19 @@
+import uuid
+
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.contenttypes.models import ContentType
+from django.http import HttpResponseForbidden
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
+from django.utils.decorators import method_decorator
+from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import RedirectView
-from django.views.generic.edit import CreateView, FormView, UpdateView
-from django.shortcuts import redirect
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.utils.decorators import method_decorator
-from django.contrib import messages
-from django.views.generic.edit import FormMixin
-from django.urls import reverse
-from .. import forms
-from .. import models
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.mixins import UserPassesTestMixin
-from django.shortcuts import get_object_or_404
-from django.http import HttpResponseForbidden
-from django.views.decorators.http import require_POST
-import uuid
+from django.views.generic.edit import (CreateView, FormMixin, FormView,
+                                       UpdateView)
+
+from .. import forms, models
 from . import mixin
 
 
@@ -28,7 +27,13 @@ class TeamList(ListView, mixin.TitleMixin, mixin.MetaMixin):
         return "-name"
 
 
-class TeamDetail(DetailView, FormMixin, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin):
+class TeamDetail(
+    DetailView,
+    FormMixin,
+    mixin.TitleMixin,
+    mixin.MetaMixin,
+    mixin.CommentMixin,
+):
     model = models.Team
     context_object_name = "team"
     template_name = "gameserver/team/detail.html"
@@ -42,7 +47,7 @@ class TeamDetail(DetailView, FormMixin, mixin.TitleMixin, mixin.MetaMixin, mixin
 
     def get_form_kwargs(self, *args, **kwargs):
         cur_kwargs = super().get_form_kwargs(*args, **kwargs)
-        cur_kwargs['group'] = self.get_object()
+        cur_kwargs["group"] = self.get_object()
         return cur_kwargs
 
     def post(self, request, *args, **kwargs):
@@ -56,21 +61,23 @@ class TeamDetail(DetailView, FormMixin, mixin.TitleMixin, mixin.MetaMixin, mixin
             return self.form_invalid(form)
 
     def form_valid(self, form):
-        messages.success(self.request, 'You are now a member of this team!')
+        messages.success(self.request, "You are now a member of this team!")
         self.get_object().members.add(self.request.user)
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse('team_detail', kwargs={'pk': self.get_object().pk})
+        return reverse("team_detail", kwargs={"pk": self.get_object().pk})
 
 
-class TeamCreate(LoginRequiredMixin, CreateView, mixin.TitleMixin, mixin.MetaMixin):
-    template_name = 'gameserver/team/create.html'
+class TeamCreate(
+    LoginRequiredMixin, CreateView, mixin.TitleMixin, mixin.MetaMixin
+):
+    template_name = "gameserver/team/create.html"
     model = models.Team
-    fields = ('name', 'description')
+    fields = ("name", "description")
 
     def get_title(self):
-        return 'pCTF: Create a Team'
+        return "pCTF: Create a Team"
 
     def form_valid(self, form, **kwargs):
         model = form.save(commit=False)
@@ -82,7 +89,13 @@ class TeamCreate(LoginRequiredMixin, CreateView, mixin.TitleMixin, mixin.MetaMix
         return super().form_valid(form)
 
 
-class TeamEdit(LoginRequiredMixin, UserPassesTestMixin, UpdateView, mixin.TitleMixin, mixin.MetaMixin):
+class TeamEdit(
+    LoginRequiredMixin,
+    UserPassesTestMixin,
+    UpdateView,
+    mixin.TitleMixin,
+    mixin.MetaMixin,
+):
     template_name = "gameserver/team/form.html"
     title = "pCTF: Update Team"
     model = models.Team
@@ -100,7 +113,7 @@ class TeamEdit(LoginRequiredMixin, UserPassesTestMixin, UpdateView, mixin.TitleM
         return self.get_object().get_absolute_url()
 
 
-@method_decorator(require_POST, name='dispatch')
+@method_decorator(require_POST, name="dispatch")
 class TeamLeave(LoginRequiredMixin, RedirectView):
     query_string = True
     pattern_name = "team_detail"

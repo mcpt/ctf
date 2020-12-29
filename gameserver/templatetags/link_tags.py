@@ -1,9 +1,9 @@
-from django import template
-from django.utils.safestring import mark_safe
-from django.utils.html import format_html, format_html_join
-from django.shortcuts import reverse
-from gameserver import models
 import django.contrib.humanize.templatetags.humanize as humanize
+from django import template
+from django.shortcuts import reverse
+from django.utils.html import format_html, format_html_join
+from django.utils.safestring import mark_safe
+from gameserver import models
 
 register = template.Library()
 
@@ -12,7 +12,10 @@ register = template.Library()
 def user(username, postfix=""):
     user_obj = models.User.objects.get(username=username)
     return format_html(
-        '<a href="{0}{1}">{2}</a>', mark_safe(user_obj.get_absolute_url()), mark_safe(postfix), user_obj.username
+        '<a href="{0}{1}">{2}</a>',
+        mark_safe(user_obj.get_absolute_url()),
+        mark_safe(postfix),
+        user_obj.username,
     )
 
 
@@ -20,8 +23,12 @@ def user(username, postfix=""):
 def users(usernames, postfix=""):
     user_objs = models.User.objects.filter(pk__in=usernames)
     return format_html_join(
-        ', ', '<a href="{0}{1}">{2}</a>',
-        ((user_obj.get_absolute_url(), postfix, user_obj.username) for user_obj in user_objs),
+        ", ",
+        '<a href="{0}{1}">{2}</a>',
+        (
+            (user_obj.get_absolute_url(), postfix, user_obj.username)
+            for user_obj in user_objs
+        ),
     )
 
 
@@ -29,7 +36,10 @@ def users(usernames, postfix=""):
 def problem(slug, postfix=""):
     problem_obj = models.Problem.objects.get(slug=slug)
     return format_html(
-        '<a href="{0}{1}">{2}</a>', mark_safe(problem_obj.get_absolute_url()), mark_safe(postfix), problem_obj.name
+        '<a href="{0}{1}">{2}</a>',
+        mark_safe(problem_obj.get_absolute_url()),
+        mark_safe(postfix),
+        problem_obj.name,
     )
 
 
@@ -37,7 +47,10 @@ def problem(slug, postfix=""):
 def comment(pk, postfix=""):
     comment_obj = models.Comment.objects.get(pk=pk)
     return format_html(
-        '<a href="{0}{1}">#{2}</a>', mark_safe(comment_obj.get_absolute_url()), mark_safe(postfix), str(pk)
+        '<a href="{0}{1}">#{2}</a>',
+        mark_safe(comment_obj.get_absolute_url()),
+        mark_safe(postfix),
+        str(pk),
     )
 
 
@@ -67,13 +80,19 @@ def comment_info(comment_obj):
 
 @register.filter
 def comment_html_nodate(comment_obj):
-    comment_url, author_url, comment_date, parent_url = comment_info(comment_obj)
-    return format_html("{0}: {1} commented on {2}", comment_url, author_url, parent_url)
+    comment_url, author_url, comment_date, parent_url = comment_info(
+        comment_obj
+    )
+    return format_html(
+        "{0}: {1} commented on {2}", comment_url, author_url, parent_url
+    )
 
 
 @register.filter
 def comment_html(comment_obj):
-    comment_url, author_url, comment_date, parent_url = comment_info(comment_obj)
+    comment_url, author_url, comment_date, parent_url = comment_info(
+        comment_obj
+    )
     return format_html(
         "{0}: {1} commented {2} on {3}",
         comment_url,
@@ -87,7 +106,10 @@ def comment_html(comment_obj):
 def post(slug, postfix=""):
     post_obj = models.BlogPost.objects.get(slug=slug)
     return format_html(
-        '<a href="{0}{1}">{2}</a>', mark_safe(post_obj.get_absolute_url()), mark_safe(postfix), post_obj.title
+        '<a href="{0}{1}">{2}</a>',
+        mark_safe(post_obj.get_absolute_url()),
+        mark_safe(postfix),
+        post_obj.title,
     )
 
 
@@ -112,6 +134,7 @@ def team(pk, postfix=""):
         team_obj.name,
     )
 
+
 @register.filter
 def contest(slug, postfix=""):
     contest_obj = models.Contest.objects.get(slug=slug)
@@ -121,6 +144,7 @@ def contest(slug, postfix=""):
         mark_safe(postfix),
         contest_obj.name,
     )
+
 
 @register.filter
 def contest_participation(pk, postfix=""):

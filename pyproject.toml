@@ -1,2 +1,6 @@
 [tool.black]
-line-length = 79
+line-length = 120
+
+[tool.isort]
+src_paths = ["isort", "test"]
+known_third_party = ["pCTF", "gameserver"]

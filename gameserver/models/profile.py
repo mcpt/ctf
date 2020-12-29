@@ -1,32 +1,45 @@
-from django.db import models
-from .choices import timezone_choices, organization_request_status_choices
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
+from django.db import models
+from django.db.models import Q, Sum
 from django.urls import reverse
-from django.db.models import Sum, Q
+
+from .choices import organization_request_status_choices, timezone_choices
 from .contest import ContestParticipation
 
 
 class User(AbstractUser):
     description = models.TextField(blank=True)
 
-    timezone = models.CharField(max_length=50, choices=timezone_choices, default="UTC")
+    timezone = models.CharField(
+        max_length=50, choices=timezone_choices, default="UTC"
+    )
 
     organizations = models.ManyToManyField(
-        "Organization", blank=True, related_name="members", related_query_name="member"
+        "Organization",
+        blank=True,
+        related_name="members",
+        related_query_name="member",
     )
 
     payment_pointer = models.CharField(
         max_length=300,
         validators=[
             RegexValidator(
-                regex=r"\$.*\.(?:.*)+?(?:/.*)?", message="Enter a payment pointer"
+                regex=r"\$.*\.(?:.*)+?(?:/.*)?",
+                message="Enter a payment pointer",
             )
         ],
         blank=True,
     )
 
-    current_contest = models.ForeignKey('ContestParticipation', on_delete=models.SET_NULL, related_name='current_participants', null=True, blank=True)
+    current_contest = models.ForeignKey(
+        "ContestParticipation",
+        on_delete=models.SET_NULL,
+        related_name="current_participants",
+        null=True,
+        blank=True,
+    )
 
     def get_absolute_url(self):
         return reverse("user_detail", args=[self.username])
@@ -36,10 +49,12 @@ class User(AbstractUser):
         return solves.count() > 0
 
     def points(self):
-        return self.solves.aggregate(points=Sum('problem__points'))['points']
+        return self.solves.aggregate(points=Sum("problem__points"))["points"]
 
     def participations_for_contest(self, contest):
-        return ContestParticipation.objects.filter(Q(participants=self), contest=contest)
+        return ContestParticipation.objects.filter(
+            Q(participants=self), contest=contest
+        )
 
     def remove_contest(self):
         self.current_contest = None
@@ -63,7 +78,9 @@ class Organization(models.Model):
     owner = models.ForeignKey(
         User, on_delete=models.PROTECT, related_name="organizations_owning"
     )
-    admins = models.ManyToManyField("User", related_name="organizations_maintaining")
+    admins = models.ManyToManyField(
+        "User", related_name="organizations_maintaining"
+    )
     name = models.CharField(max_length=64)
     short_name = models.CharField(max_length=24)
     description = models.TextField(blank=True)
@@ -120,6 +137,7 @@ class OrganizationRequest(models.Model):
 
     reviewed.boolean = True
 
+
 class Team(models.Model):
     owner = models.ForeignKey(
         User, on_delete=models.PROTECT, related_name="teams_owning"
@@ -129,7 +147,13 @@ class Team(models.Model):
     access_code = models.CharField(max_length=36)
     registered_date = models.DateTimeField(auto_now_add=True)
     members = models.ManyToManyField(User, related_name="teams", blank=True)
-    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name="teams", null=True, blank=True)
+    organization = models.ForeignKey(
+        Organization,
+        on_delete=models.CASCADE,
+        related_name="teams",
+        null=True,
+        blank=True,
+    )
 
     def __str__(self):
         return self.name

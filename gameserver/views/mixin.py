@@ -1,10 +1,12 @@
-from .. import models
-from django.views.generic.base import ContextMixin
-from django.contrib.sites.models import Site
-from django.contrib.auth import get_user_model
-from pCTF import settings
-from django.contrib.contenttypes.models import ContentType
 import random
+
+from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.sites.models import Site
+from django.views.generic.base import ContextMixin
+from pCTF import settings
+
+from .. import models
 
 User = get_user_model()
 
@@ -39,7 +41,9 @@ class MetaMixin(ContextMixin):
     def get_payment_pointers(self):
         authors = self.get_author()
         author_payment_pointers = [
-            author.payment_pointer for author in authors if author.payment_pointer
+            author.payment_pointer
+            for author in authors
+            if author.payment_pointer
         ]
         if author_payment_pointers:
             return author_payment_pointers
@@ -51,9 +55,9 @@ class MetaMixin(ContextMixin):
         context["site"] = Site.objects.get_current()
         context["og_type"] = self.og_type
         description = self.get_description()
-        description = description.strip(' ').replace("\n", " ")
-        description = description[:min(150, len(description))]
-        if description == '':
+        description = description.strip(" ").replace("\n", " ")
+        description = description[: min(150, len(description))]
+        if description == "":
             description = settings.DESCRIPTION
         context["meta_description"] = description
         context["og_image"] = self.get_og_image()
@@ -68,6 +72,7 @@ class CommentMixin(ContextMixin):
         context = super().get_context_data(**kwargs)
         contenttype = ContentType.objects.get_for_model(self.model)
         context["comments"] = models.Comment.objects.filter(
-            parent_content_type=contenttype, parent_object_id=self.get_object().pk
+            parent_content_type=contenttype,
+            parent_object_id=self.get_object().pk,
         )
         return context

@@ -1,11 +1,12 @@
-from django.db import models
 import uuid
-from django.urls import reverse
-from . import abstract
-from django.utils import timezone
+
 from django.contrib.auth import get_user_model
-from django.db.models import Q
-from django.db.models import Sum
+from django.db import models
+from django.db.models import Q, Sum
+from django.urls import reverse
+from django.utils import timezone
+
+from . import abstract
 
 # Create your models here.
 
@@ -15,7 +16,9 @@ class ContestTag(abstract.Category):
 
 
 class Contest(models.Model):
-    organizers = models.ManyToManyField('User', related_name="contests_organized", blank=True)
+    organizers = models.ManyToManyField(
+        "User", related_name="contests_organized", blank=True
+    )
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True)
     description = models.TextField()
@@ -31,13 +34,15 @@ class Contest(models.Model):
 
     teams_allowed = models.BooleanField(default=True)
 
-    problems = models.ManyToManyField('Problem', related_name="contests_featured_in", blank=True)
+    problems = models.ManyToManyField(
+        "Problem", related_name="contests_featured_in", blank=True
+    )
 
     def __str__(self):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('contest_detail', args=[self.slug])
+        return reverse("contest_detail", args=[self.slug])
 
     def is_started(self):
         return self.start_time <= timezone.now()
@@ -52,16 +57,28 @@ class Contest(models.Model):
         return self.end_time - self.start_time
 
     def ranks(self):
-        return self.participations.annotate(cum_points=Sum('solves__solve__problem__points')).order_by('-cum_points')
+        return self.participations.annotate(
+            cum_points=Sum("solves__solve__problem__points")
+        ).order_by("-cum_points")
 
 
 class ContestParticipation(models.Model):
-    contest = models.ForeignKey(Contest, on_delete=models.CASCADE, related_name='participations')
+    contest = models.ForeignKey(
+        Contest, on_delete=models.CASCADE, related_name="participations"
+    )
     is_disqualified = models.BooleanField(default=False)
 
-    team = models.ForeignKey('Team', on_delete=models.CASCADE, related_name='contest_participations', null=True, blank=True)
+    team = models.ForeignKey(
+        "Team",
+        on_delete=models.CASCADE,
+        related_name="contest_participations",
+        null=True,
+        blank=True,
+    )
 
-    participants = models.ManyToManyField('User', related_name="contest_participations", blank=True)
+    participants = models.ManyToManyField(
+        "User", related_name="contest_participations", blank=True
+    )
 
     def participant(self):
         if self.team is None:
@@ -70,7 +87,9 @@ class ContestParticipation(models.Model):
             return self.team
 
     def points(self):
-        points = self.solves.aggregate(points=Sum('solve__problem__points'))['points']
+        points = self.solves.aggregate(points=Sum("solve__problem__points"))[
+            "points"
+        ]
         if points is None:
             return 0
         else:
@@ -85,10 +104,14 @@ class ContestParticipation(models.Model):
             nullpoints = None
         else:
             nullpoints = points
-        return self.contest.ranks().filter(Q(cum_points__gt=points) | Q(cum_points=nullpoints)).count()
+        return (
+            self.contest.ranks()
+            .filter(Q(cum_points__gt=points) | Q(cum_points=nullpoints))
+            .count()
+        )
 
     def get_absolute_url(self):
-        return reverse('contest_participation_detail', args=[self.pk])
+        return reverse("contest_participation_detail", args=[self.pk])
 
     def has_solved(self, problem):
         solves = self.solves.filter(solve__problem=problem)
@@ -97,6 +120,11 @@ class ContestParticipation(models.Model):
     def __str__(self):
         return f"{self.participant().__str__()}'s Participation in {self.contest.name}"
 
+
 class ContestSolve(models.Model):
-    participation = models.ForeignKey(ContestParticipation, on_delete=models.CASCADE, related_name='solves')
-    solve = models.OneToOneField('Solve', on_delete=models.CASCADE, related_name='contest_solve')
+    participation = models.ForeignKey(
+        ContestParticipation, on_delete=models.CASCADE, related_name="solves"
+    )
+    solve = models.OneToOneField(
+        "Solve", on_delete=models.CASCADE, related_name="contest_solve"
+    )
