@@ -2,6 +2,8 @@ pCTF
 =====
 A platform to host as many CTF contests and problems as you want.
 
+See it live at https://ctf.pnoj.dev!
+
 ## Features
 - Admin Interface to add Problems, Contests, Organizations, etc.
 - Contests for individuals, or enable participants to team up

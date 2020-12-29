@@ -15,6 +15,11 @@
     <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
     {% endif %}
     <p>By clicking this button, you agree to our <a href="{% settings_value "tos_url" %}">terms</a>.</p>
+    <p>
+    This site is protected by reCAPTCHA and the Google
+    <a href="https://policies.google.com/privacy">Privacy Policy</a> and
+    <a href="https://policies.google.com/terms">Terms of Service</a> apply.
+    </p>
     <button type="submit" class="btn btn-primary mb-3 g-recaptcha">{% trans "Sign Up" %}</button>
 </form>
 
