@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'judge/**'
+      - 'gameserver/**'
       - 'pCTF/**'
       - 'requirements.txt'
       - 'Dockerfile'
