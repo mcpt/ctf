@@ -1,17 +1,12 @@
-FROM python:3.9-alpine
+FROM python:3.9-slim
 
 LABEL maintainer="Kyunghan (Paul) Lee <contact@paullee.dev>"
 
-RUN apk update
 RUN apt-get update
 
-RUN apk add --no-cache --virtual .build-deps \
-    gcc \
-    python3-dev \
-    musl-dev \
-    postgresql-dev \
-    && python3 -m pip install --no-cache-dir psycopg2 \
-    && apk del --no-cache .build-deps
+RUN apt-get install -y gcc python3-dev libpq-dev libffi-dev libssl-dev
+
+RUN python3 -m pip install --no-cache-dir psycopg2
 
 WORKDIR /app
 
