@@ -1,5 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Sum
+from django.db.models.functions import Coalesce
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import DetailView, ListView
@@ -28,7 +29,7 @@ class UserList(ListView, mixin.TitleMixin, mixin.MetaMixin):
 
     def get_queryset(self):
         return self.model.objects.annotate(
-            cum_points=Sum("solves__problem__points")
+            cum_points=Coalesce(Sum("solves__problem__points"), 0)
         ).order_by("-cum_points")
 
     def get(self, request, *args, **kwargs):

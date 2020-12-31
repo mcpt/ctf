@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Q, Sum
+from django.db.models.functions import Coalesce
 from django.urls import reverse
 
 from .choices import organization_request_status_choices, timezone_choices
@@ -49,7 +50,7 @@ class User(AbstractUser):
         return solves.count() > 0
 
     def points(self):
-        points = self.solves.aggregate(points=Sum("problem__points"))["points"]
+        points = self.solves.aggregate(points=Coalesce(Sum("problem__points"), 0))["points"]
         if points is not None:
             return points
         else:
