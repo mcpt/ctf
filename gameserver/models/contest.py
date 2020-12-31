@@ -2,7 +2,8 @@ import uuid
 
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.db.models import Q, Sum
+from django.db.models import Q, Sum, Max
+from django.db.models.functions import Coalesce
 from django.urls import reverse
 from django.utils import timezone
 
@@ -58,8 +59,9 @@ class Contest(models.Model):
 
     def ranks(self):
         return self.participations.annotate(
-            cum_points=Sum("solves__solve__problem__points")
-        ).order_by("-cum_points")
+            cum_points=Coalesce(Sum("solves__solve__problem__points"), 0),
+            most_recent_solve_time=Coalesce(Max("solves__solve__created"), self.start_time),
+        ).order_by("-cum_points", "most_recent_solve_time")
 
 
 class ContestParticipation(models.Model):
@@ -87,26 +89,37 @@ class ContestParticipation(models.Model):
             return self.team
 
     def points(self):
-        points = self.solves.aggregate(points=Sum("solve__problem__points"))[
-            "points"
-        ]
-        if points is None:
-            return 0
-        else:
-            return points
+        points = self.solves.aggregate(points=Coalesce(Sum("solve__problem__points"), 0))["points"]
+        return points
 
     def num_flags_captured(self):
         return self.solves.count()
 
+    def last_solve(self):
+        solves = self.solves.order_by('-solve__created')
+        if solves.count() >= 1:
+            return solves[0]
+        else:
+            return None
+
+    def last_solve_time(self):
+        last_solve = self.last_solve()
+        if last_solve is not None:
+            return last_solve.solve.created
+        else:
+            return self.contest.start_time
+
+    def time_taken(self):
+        solve_time = self.last_solve_time()
+        return solve_time - self.contest.start_time
+
     def rank(self):
         points = self.points()
-        if points == 0:
-            nullpoints = None
-        else:
-            nullpoints = points
+        last_solve_time = self.last_solve_time()
+        contest_ranks = self.contest.ranks()
         return (
-            self.contest.ranks()
-            .filter(Q(cum_points__gt=points) | Q(cum_points=nullpoints))
+            contest_ranks
+            .filter(Q(cum_points__gt=points) | Q(most_recent_solve_time__lte=last_solve_time) & Q(cum_points=points))
             .count()
         )
 

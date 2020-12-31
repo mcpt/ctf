@@ -24,6 +24,7 @@ class ProblemAdmin(admin.ModelAdmin):
         "slug",
         "author",
         "description",
+        "summary",
         "points",
         "flag",
         "problem_type",

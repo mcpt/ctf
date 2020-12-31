@@ -8,4 +8,5 @@ organization_request_status_choices = [
     ("r", "Rejected"),
 ]
 
-timezone_choices = [(i, i) for i in pytz.common_timezones]
+timezone_choices = [(i, i) for i in pytz.all_timezones]
+timezone_choices.sort(key=lambda x:x[0])

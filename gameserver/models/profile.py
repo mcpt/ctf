@@ -49,7 +49,11 @@ class User(AbstractUser):
         return solves.count() > 0
 
     def points(self):
-        return self.solves.aggregate(points=Sum("problem__points"))["points"]
+        points = self.solves.aggregate(points=Sum("problem__points"))["points"]
+        if points is not None:
+            return points
+        else:
+            return 0
 
     def participations_for_contest(self, contest):
         return ContestParticipation.objects.filter(

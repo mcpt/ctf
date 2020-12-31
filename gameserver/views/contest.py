@@ -40,7 +40,7 @@ class ContestDetail(
     form_class = forms.ContestJoinForm
 
     def get_title(self):
-        return "pCTF: Contest " + self.get_object().name
+        return "pCTF: " + self.get_object().name
 
     def get_description(self):
         return self.get_object().summary
@@ -130,7 +130,7 @@ class ContestProblemList(
         ) or self.contest.is_finished
 
     def get_title(self):
-        return "pCTF: Problems for Contest " + self.contest.name
+        return "pCTF: Problems for " + self.contest.name
 
     def get_queryset(self):
         return self.contest.problems.all()
@@ -180,7 +180,7 @@ class ContestScoreboard(ListView, mixin.TitleMixin, mixin.MetaMixin):
         return self.contest.ranks()
 
     def get_title(self):
-        return "pCTF: Scoreboard for Contest " + self.contest.name
+        return "pCTF: Scoreboard for " + self.contest.name
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -188,9 +188,7 @@ class ContestScoreboard(ListView, mixin.TitleMixin, mixin.MetaMixin):
         return context
 
 
-class ContestParticipationDetail(
-    DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin
-):
+class ContestParticipationDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin):
     model = models.ContestParticipation
     context_object_name = "participation"
     template_name = "gameserver/contest/participation.html"
