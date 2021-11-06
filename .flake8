@@ -2,4 +2,4 @@
 max-line-length = 120
 max-complexity = 18
 exclude = .git,__pycache__,__init__.py,settings.py,migrations,manage.py
-application-import-names = pCTF,gameserver
+application-import-names = mCTF,gameserver

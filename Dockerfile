@@ -1,7 +1,5 @@
 FROM python:3.9-slim
 
-LABEL maintainer="Kyunghan (Paul) Lee <contact@paullee.dev>"
-
 RUN apt-get update
 
 RUN apt-get install -y gcc python3-dev libpq-dev libffi-dev libssl-dev
@@ -18,4 +16,4 @@ COPY . /app/
 
 EXPOSE 8000
 
-CMD ["gunicorn", "pCTF.wsgi", "-b", "0.0.0.0:8000"]
+CMD ["gunicorn", "mCTF.wsgi", "-b", "0.0.0.0:8000"]

@@ -25,7 +25,7 @@ class UserList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     model = models.User
     context_object_name = "users"
     template_name = "gameserver/user/list.html"
-    title = "pCTF: Users"
+    title = "Users"
 
     def get_queryset(self):
         return self.model.objects.annotate(
@@ -53,7 +53,7 @@ class UserDetail(
         return "username"
 
     def get_title(self):
-        return "pCTF: User " + self.get_object().username
+        return "User " + self.get_object().username
 
     def get_description(self):
         return self.get_object().description
@@ -74,7 +74,7 @@ class UserSolves(ListView, mixin.TitleMixin, mixin.MetaMixin):
         return models.Solve.objects.filter(solver=self.user).order_by("-pk")
 
     def get_title(self):
-        return "pCTF: Solves by User " + self.user.username
+        return "Solves by User " + self.user.username
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -86,7 +86,7 @@ class UserEdit(UpdateView, mixin.TitleMixin, mixin.MetaMixin):
     template_name = "gameserver/user/form.html"
     form_class = forms.ProfileUpdateForm
     success_url = reverse_lazy("user_detail_redirect")
-    title = "pCTF: Update Profile"
+    title = "Update Profile"
 
     def get_object(self):
         return self.request.user

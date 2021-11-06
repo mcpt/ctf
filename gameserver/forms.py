@@ -9,7 +9,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.forms import ModelForm
-from pCTF import settings
+from django.conf import settings
 
 from . import models
 from .models import choices
@@ -17,7 +17,7 @@ from .models import choices
 User = get_user_model()
 
 
-class PCTFSignupForm(SignupForm):
+class MCTFSignupForm(SignupForm):
     captcha = ReCaptchaField(widget=ReCaptchaV3, label="")
     timezone = forms.ChoiceField(
         choices=choices.timezone_choices, initial=settings.DEFAULT_TIMEZONE
@@ -32,7 +32,7 @@ class PCTFSignupForm(SignupForm):
     ]
 
     def save(self, request):
-        user = super(PCTFSignupForm, self).save(request)
+        user = super(MCTFSignupForm, self).save(request)
         user.timezone = self.cleaned_data["timezone"]
         user.save()
         return user
@@ -107,7 +107,7 @@ class FlagSubmissionForm(forms.Form):
         max_length=256,
         strip=True,
         label="",
-        widget=forms.TextInput(attrs={"placeholder": "pCTF{}"}),
+        widget=forms.TextInput(attrs={"placeholder": "mCTF{}"}),
     )
 
     def __init__(self, *args, **kwargs):

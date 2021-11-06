@@ -19,7 +19,7 @@ logger = logging.getLogger("django")
 class ProblemList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     context_object_name = "problems"
     template_name = "gameserver/problem/list.html"
-    title = "pCTF: Problems"
+    title = "Problems"
 
     def get_queryset(self):
         queryset = models.Problem.objects.order_by("name")
@@ -63,7 +63,7 @@ class ProblemDetail(
         )
 
     def get_title(self):
-        return "pCTF: " + self.get_object().name
+        return "" + self.get_object().name
 
     def get_description(self):
         return self.get_object().summary
@@ -124,7 +124,7 @@ class ProblemSolves(ListView, mixin.TitleMixin, mixin.MetaMixin):
         return "-created"
 
     def get_title(self):
-        return "pCTF: Solves for Problem " + self.problem.name
+        return "Solves for Problem " + self.problem.name
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

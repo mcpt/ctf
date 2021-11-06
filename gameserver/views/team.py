@@ -21,7 +21,7 @@ class TeamList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     model = models.Team
     context_object_name = "teams"
     template_name = "gameserver/team/list.html"
-    title = "pCTF: Teams"
+    title = "Teams"
 
     def get_ordering(self):
         return "-name"
@@ -40,7 +40,7 @@ class TeamDetail(
     form_class = forms.GroupJoinForm
 
     def get_title(self):
-        return "pCTF: Team " + self.get_object().name
+        return "Team " + self.get_object().name
 
     def get_description(self):
         return self.get_object().description
@@ -77,7 +77,7 @@ class TeamCreate(
     fields = ("name", "description")
 
     def get_title(self):
-        return "pCTF: Create a Team"
+        return "Create a Team"
 
     def form_valid(self, form, **kwargs):
         model = form.save(commit=False)
@@ -97,7 +97,7 @@ class TeamEdit(
     mixin.MetaMixin,
 ):
     template_name = "gameserver/team/form.html"
-    title = "pCTF: Update Team"
+    title = "Update Team"
     model = models.Team
     form_class = forms.TeamUpdateForm
 

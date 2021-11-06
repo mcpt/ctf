@@ -17,7 +17,7 @@ class Comment(
     template_name = "gameserver/comment/detail.html"
 
     def get_title(self):
-        return "pCTF: Comment #" + str(self.get_object().pk)
+        return "Comment #" + str(self.get_object().pk)
 
     def get_description(self):
         return self.get_object().text

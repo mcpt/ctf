@@ -1,6 +1,6 @@
 import pytz
 from django.utils import timezone
-from pCTF import settings
+from django.conf import settings
 
 
 class TimezoneMiddleware:

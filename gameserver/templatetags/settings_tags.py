@@ -1,4 +1,4 @@
-import pCTF.settings as settings
+from django.conf import settings
 from django import template
 
 register = template.Library()

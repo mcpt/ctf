@@ -15,7 +15,7 @@ class OrganizationList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     model = models.Organization
     context_object_name = "organizations"
     template_name = "gameserver/organization/list.html"
-    title = "pCTF: Organizations"
+    title = "Organizations"
 
     def get_ordering(self):
         return "-name"
@@ -29,7 +29,7 @@ class OrganizationDetail(
     template_name = "gameserver/organization/detail.html"
 
     def get_title(self):
-        return "pCTF: Organization " + self.get_object().name
+        return "Organization " + self.get_object().name
 
     def get_description(self):
         return self.get_object().description
@@ -69,7 +69,7 @@ class OrganizationMembers(ListView, mixin.TitleMixin, mixin.MetaMixin):
         ).order_by(self.get_ordering())
 
     def get_title(self):
-        return "pCTF: Members of Organization " + self.organization.name
+        return "Members of Organization " + self.organization.name
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -94,7 +94,7 @@ class OrganizationRequest(
         return models.Organization.objects.get(slug=self.kwargs["slug"])
 
     def get_title(self):
-        return "pCTF: Request to join Organization " + self.get_object().name
+        return "Request to join Organization " + self.get_object().name
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -130,7 +130,7 @@ class OrganizationJoin(
         return models.Organization.objects.get(slug=self.kwargs["slug"])
 
     def get_title(self):
-        return "pCTF: Join Organization " + self.get_object().name
+        return "Join Organization " + self.get_object().name
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

@@ -12,7 +12,7 @@ class SolveList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     context_object_name = "solves"
     template_name = "gameserver/solve/list.html"
     paginate_by = 50
-    title = "pCTF: Solves"
+    title = "Solves"
 
     def get_queryset(self):
         queryset = models.Solve.objects.order_by("-created")

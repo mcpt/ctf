@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.views.generic.base import ContextMixin
-from pCTF import settings
+from django.conf import settings
 
 from .. import models
 
@@ -19,7 +19,11 @@ class TitleMixin(ContextMixin):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["page_title"] = self.get_title()
+
+        context["page_title"] = "mCTF"
+        title = self.get_title()
+        if title != "":
+            context["page_title"] = f'mCTF: {title}'
         return context
 
 

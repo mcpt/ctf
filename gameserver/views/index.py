@@ -10,7 +10,6 @@ class Index(ListView, mixin.TitleMixin, mixin.MetaMixin):
     template_name = "gameserver/info/index.html"
     model = models.BlogPost
     context_object_name = "posts"
-    title = "pCTF"
 
     def get_ordering(self):
         return "-created"
@@ -39,7 +38,7 @@ class BlogPost(
     og_type = "article"
 
     def get_title(self):
-        return "pCTF: " + self.get_object().title
+        return "" + self.get_object().title
 
     def get_author(self):
         return self.get_object().author.all()

@@ -15,7 +15,7 @@ from . import mixin
 class ContestList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     context_object_name = "contests"
     template_name = "gameserver/contest/list.html"
-    title = "pCTF: Contests"
+    title = "Contests"
 
     def get_queryset(self):
         queryset = models.Contest.objects.order_by("-start_time")
@@ -40,7 +40,7 @@ class ContestDetail(
     form_class = forms.ContestJoinForm
 
     def get_title(self):
-        return "pCTF: " + self.get_object().name
+        return "" + self.get_object().name
 
     def get_description(self):
         return self.get_object().summary
@@ -130,7 +130,7 @@ class ContestProblemList(
         ) or self.contest.is_finished
 
     def get_title(self):
-        return "pCTF: Problems for " + self.contest.name
+        return "Problems for " + self.contest.name
 
     def get_queryset(self):
         return self.contest.problems.all()
@@ -180,7 +180,7 @@ class ContestScoreboard(ListView, mixin.TitleMixin, mixin.MetaMixin):
         return self.contest.ranks()
 
     def get_title(self):
-        return "pCTF: Scoreboard for " + self.contest.name
+        return "Scoreboard for " + self.contest.name
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -194,7 +194,7 @@ class ContestParticipationDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin, 
     template_name = "gameserver/contest/participation.html"
 
     def get_title(self):
-        return f"pCTF: {self.get_object().__str__()}"
+        return f"{self.get_object().__str__()}"
 
     def get_description(self):
         return self.get_object().__str__()

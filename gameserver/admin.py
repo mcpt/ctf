@@ -170,8 +170,8 @@ admin.site.register(models.BlogPost)
 admin.site.register(models.Team)
 admin.site.register(models.Contest)
 admin.site.register(models.ContestTag)
-admin.site.site_header = "pCTF administration"
-admin.site.site_title = "pCTF admin"
+admin.site.site_header = "mCTF administration"
+admin.site.site_title = "mCTF admin"
 
 
 class FlatPageAdmin(FlatPageAdmin):
