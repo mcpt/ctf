@@ -24,7 +24,7 @@ class Contest(models.Model):
     slug = models.SlugField(unique=True)
     description = models.TextField()
     summary = models.CharField(max_length=150)
-    created = models.DateTimeField(auto_now_add=True)
+    date_created = models.DateTimeField(auto_now_add=True)
 
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
@@ -60,7 +60,7 @@ class Contest(models.Model):
     def ranks(self):
         return self.participations.annotate(
             cum_points=Coalesce(Sum("solves__solve__problem__points"), 0),
-            most_recent_solve_time=Coalesce(Max("solves__solve__created"), self.start_time),
+            most_recent_solve_time=Coalesce(Max("solves__solve__date_created"), self.start_time),
         ).order_by("-cum_points", "most_recent_solve_time")
 
 
@@ -96,7 +96,7 @@ class ContestParticipation(models.Model):
         return self.solves.count()
 
     def last_solve(self):
-        solves = self.solves.order_by('-solve__created')
+        solves = self.solves.order_by('-solve__date_created')
         if solves.count() >= 1:
             return solves[0]
         else:
@@ -105,7 +105,7 @@ class ContestParticipation(models.Model):
     def last_solve_time(self):
         last_solve = self.last_solve()
         if last_solve is not None:
-            return last_solve.solve.created
+            return last_solve.solve.date_created
         else:
             return self.contest.start_time
 

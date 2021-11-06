@@ -38,7 +38,7 @@
         {% for req in organization_requests %}
         <li class="list-group-item" id="request_{{ req.pk }}">
             <div class="d-flex w-100 justify-content-between">
-                <h5 class="mb-1">{{ req.user.username|user }} requested to join {{ req.created|naturaltime }}</h5>
+                <h5 class="mb-1">{{ req.user.username|user }} requested to join {{ req.date_created|naturaltime }}</h5>
             </div>
             <p class="mt-2 mb-3">{{ req.reason }}</p>
             <small class="text-muted mb-1">{{ req.get_status_display }}</small>

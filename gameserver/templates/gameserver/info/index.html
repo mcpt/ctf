@@ -51,8 +51,8 @@
         <!-- <a href="{% url 'blog_post' post.slug %}" class="list-group-item list-group-item-action"> -->
         <li class="list-group-item">
             <a href="{% url 'blog_post' post.slug %}"><h5 class="mb-1">{{ post.title }}</h5></a>
-            <h6 class="mb-3 text-muted">{{ post.author.all|users }} posted {{ post.created|naturaltime }}</h6>
-            <!-- <small>{{ post.author.all|join:", " }} posted {{ post.created|naturaltime }}</small> -->
+            <h6 class="mb-3 text-muted">{{ post.author.all|users }} posted {{ post.date_created|naturaltime }}</h6>
+            <!-- <small>{{ post.author.all|join:", " }} posted {{ post.date_created|naturaltime }}</small> -->
             <p class="mb-1">{{ post.text|safe_markdown }}</p>
         </li>
         {% endfor %}

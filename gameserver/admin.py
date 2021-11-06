@@ -114,12 +114,12 @@ class OrganizationRequestAdmin(admin.ModelAdmin):
         "__str__",
         "user",
         "organization",
-        "created",
+        "date_created",
         "status",
         "reviewed",
     ]
     list_filter = ["organization", "status"]
-    readonly_fields = ["user", "organization", "created", "reason"]
+    readonly_fields = ["user", "organization", "date_created", "reason"]
 
     def has_given_permission(self, request, obj, permission):
         if request.user.has_perm(permission):

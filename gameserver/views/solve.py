@@ -15,7 +15,7 @@ class SolveList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     title = "Solves"
 
     def get_queryset(self):
-        queryset = models.Solve.objects.order_by("-created")
+        queryset = models.Solve.objects.order_by("-date_created")
         if self.request.user.is_authenticated:
             queryset = queryset.filter(
                 Q(problem__is_private=False) | Q(solver=self.request.user)

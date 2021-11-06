@@ -12,14 +12,14 @@ class Index(ListView, mixin.TitleMixin, mixin.MetaMixin):
     context_object_name = "posts"
 
     def get_ordering(self):
-        return "-created"
+        return "-date_created"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["problems"] = models.Problem.objects.filter(
             is_private=False
-        ).order_by("-created")[:5]
-        context["comments"] = models.Comment.objects.order_by("-created_date")[
+        ).order_by("-date_created")[:5]
+        context["comments"] = models.Comment.objects.order_by("-date_created")[
             :5
         ]
         moment = timezone.localtime()

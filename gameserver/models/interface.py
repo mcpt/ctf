@@ -8,8 +8,8 @@ from .profile import User
 
 class BlogPost(models.Model):
     author = models.ManyToManyField(User, blank=True)
-    created = models.DateTimeField(auto_now_add=True)
-    last_modified = models.DateTimeField(auto_now=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_last_modified = models.DateTimeField(auto_now=True)
 
     title = models.CharField(max_length=128, blank=True)
     text = models.TextField(blank=True)

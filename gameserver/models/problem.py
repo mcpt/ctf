@@ -27,7 +27,7 @@ class Problem(models.Model):
     description = models.TextField()
     summary = models.CharField(max_length=150)
     slug = models.SlugField(unique=True)
-    created = models.DateTimeField(auto_now_add=True)
+    date_created = models.DateTimeField(auto_now_add=True)
 
     points = models.PositiveSmallIntegerField()
 

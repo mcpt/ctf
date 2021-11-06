@@ -95,7 +95,7 @@ class Organization(models.Model):
     short_name = models.CharField(max_length=24)
     description = models.TextField(blank=True)
     slug = models.SlugField(unique=True)
-    registered_date = models.DateTimeField(auto_now_add=True)
+    date_registered = models.DateTimeField(auto_now_add=True)
 
     is_private = models.BooleanField(default=False)
     access_code = models.CharField(max_length=36, blank=True)
@@ -122,7 +122,7 @@ class OrganizationRequest(models.Model):
     organization = models.ForeignKey(
         Organization, on_delete=models.CASCADE, related_name="requests"
     )
-    created = models.DateTimeField(auto_now_add=True)
+    date_created = models.DateTimeField(auto_now_add=True)
     status = models.CharField(
         max_length=1, choices=organization_request_status_choices, default="p"
     )
@@ -155,7 +155,7 @@ class Team(models.Model):
     name = models.CharField(max_length=64, unique=True)
     description = models.TextField(blank=True)
     access_code = models.CharField(max_length=36)
-    registered_date = models.DateTimeField(auto_now_add=True)
+    date_registered = models.DateTimeField(auto_now_add=True)
     members = models.ManyToManyField(User, related_name="teams", blank=True)
     organization = models.ForeignKey(
         Organization,

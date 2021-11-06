@@ -8,7 +8,7 @@ from .profile import User
 
 
 class Solve(models.Model):
-    solver = models.ForeignKey(
+    user = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
         null=True,
@@ -18,7 +18,7 @@ class Solve(models.Model):
     problem = models.ForeignKey(
         Problem, on_delete=models.CASCADE, related_name="solves"
     )
-    created = models.DateTimeField(auto_now_add=True)
+    date_created = models.DateTimeField(auto_now_add=True)
     is_disqualified = models.BooleanField(default=False)
 
     def is_firstblood(self):

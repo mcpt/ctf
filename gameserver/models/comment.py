@@ -22,7 +22,7 @@ class Comment(models.Model):
     )
 
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    created_date = models.DateTimeField(auto_now_add=True)
+    date_created = models.DateTimeField(auto_now_add=True)
 
     text = models.TextField()
 

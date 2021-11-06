@@ -121,7 +121,7 @@ class ProblemSolves(ListView, mixin.TitleMixin, mixin.MetaMixin):
         )
 
     def get_ordering(self):
-        return "-created"
+        return "-date_created"
 
     def get_title(self):
         return "Solves for Problem " + self.problem.name

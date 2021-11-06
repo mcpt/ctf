@@ -8,7 +8,7 @@
 <div class="card mb-3">
     <div class="card-body">
         <h5 class="card-title">{{ post.title }}</h5>
-        <h6 class="card-subtitle mb-3 text-muted">{{ post.author.all|users }} posted {{ post.created|naturaltime }}</h6>
+        <h6 class="card-subtitle mb-3 text-muted">{{ post.author.all|users }} posted {{ post.date_created|naturaltime }}</h6>
         <p class="card-text">{{ post.text|safe_markdown }}</p>
     </div>
 </div>
@@ -16,8 +16,8 @@
 {% endblock %}
 
 {% block othermeta %}
-<meta property="og:article:published_time" content="{{ post.created|date:"c" }}" />
-<meta property="og:article:modified_time" content="{{ post.last_modified|date:"c" }}" />
+<meta property="og:article:published_time" content="{{ post.date_created|date:"c" }}" />
+<meta property="og:article:modified_time" content="{{ post.date_last_modified|date:"c" }}" />
 {% for author in post.author.all %}
 <meta property="og:article:author" content="{{ SCHEME }}://{{ site.domain }}{{ author.get_absolute_url }}" />
 {% endfor %}

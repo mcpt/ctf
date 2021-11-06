@@ -43,7 +43,7 @@ class OrganizationDetail(
             ] = models.OrganizationRequest.objects.filter(
                 organization=self.get_object(), user=self.request.user
             ).order_by(
-                "-created"
+                "-date_created"
             )[
                 :3
             ]

@@ -74,7 +74,7 @@ def comment_info(comment_obj):
         parent_url = "unknown."
     comment_url = comment(comment_obj.pk)
     author_url = user(comment_obj.author.username)
-    comment_date = humanize.naturaltime(comment_obj.created_date)
+    comment_date = humanize.naturaltime(comment_obj.date_created)
     return comment_url, author_url, comment_date, parent_url
 
 
