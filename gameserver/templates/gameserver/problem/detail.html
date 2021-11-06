@@ -28,8 +28,8 @@
     <ul class="list-group list-group-flush">
         <li class="list-group-item">Points: {{ problem.points }}</li>
         <li class="list-group-item">Author: {{ problem.author.all|users }}</li>
-        {% if problem.category.all %}
-        <li class="list-group-item">Category: {{ problem.category.all|join:", " }}</li>
+        {% if problem.problem_group.all %}
+        <li class="list-group-item">Group: {{ problem.problem_group.all|join:", " }}</li>
         {% endif %}
         {% if problem.problem_type.all %}
         <li class="list-group-item">Type: {{ problem.problem_type.all|join:", " }}</li>

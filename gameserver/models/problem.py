@@ -9,7 +9,7 @@ from .profile import User
 # Create your models here.
 
 
-class ProblemCategory(abstract.Category):
+class ProblemGroup(abstract.Category):
     pass
 
 
@@ -31,7 +31,7 @@ class Problem(models.Model):
 
     points = models.PositiveSmallIntegerField()
 
-    category = models.ManyToManyField(ProblemCategory, blank=True)
+    problem_group = models.ManyToManyField(ProblemGroup, blank=True)
     problem_type = models.ManyToManyField(ProblemType, blank=True)
 
     is_private = models.BooleanField(default=True)

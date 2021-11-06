@@ -27,8 +27,8 @@ class ProblemAdmin(admin.ModelAdmin):
         "summary",
         "points",
         "flag",
+        "problem_group",
         "problem_type",
-        "category",
         "is_private",
     ]
     inlines = [
@@ -162,7 +162,7 @@ admin.site.register(User)
 admin.site.register(models.Problem, ProblemAdmin)
 admin.site.register(models.Solve)
 admin.site.register(models.ProblemType)
-admin.site.register(models.ProblemCategory)
+admin.site.register(models.ProblemGroup)
 admin.site.register(models.Organization, OrganizationAdmin)
 admin.site.register(models.OrganizationRequest, OrganizationRequestAdmin)
 admin.site.register(models.Comment)

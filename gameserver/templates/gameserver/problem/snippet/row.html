@@ -6,10 +6,10 @@
 <tr>
 {% endif %}
 <td>{{ problem.slug|problem }}</td>
-    {% if problem.category.all %}
-    <td>{{ problem.category.all|join:", " }}</td>
+    {% if problem.problem_group.all %}
+    <td>{{ problem.problem_group.all|join:", " }}</td>
     {% else %}
-    <td class="font-italic">Uncategorized</td>
+    <td class="font-italic">-</td>
     {% endif %}
     {% if problem.problem_type.all %}
     <td>{{ problem.problem_type.all|join:", " }}</td>
