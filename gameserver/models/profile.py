@@ -4,16 +4,21 @@ from django.db import models
 from django.db.models import Q, Sum
 from django.db.models.functions import Coalesce
 from django.urls import reverse
+from django.conf import settings
 
 from .choices import organization_request_status_choices, timezone_choices
 from .contest import ContestParticipation
+
+
+def get_default_user_timezone():
+    return settings.DEFAULT_TIMEZONE
 
 
 class User(AbstractUser):
     description = models.TextField(blank=True)
 
     timezone = models.CharField(
-        max_length=50, choices=timezone_choices, default="UTC"
+        max_length=50, choices=timezone_choices, default=get_default_user_timezone
     )
 
     organizations = models.ManyToManyField(
