@@ -1,7 +1,6 @@
 {% extends 'account/base.html' %}
 {% load crispy_forms_tags %}
 {% load i18n %}
-{% load settings_tags %}
 
 {% block head_title %}{% trans "Signup" %}{% endblock %}
 
@@ -14,7 +13,7 @@
     {% if redirect_field_value %}
     <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
     {% endif %}
-    <p>By clicking this button, you agree to our <a href="{% settings_value "tos_url" %}">terms</a>.</p>
+    <p>By clicking this button, you agree to our <a href="{{ TOS_URL }}">terms</a>.</p>
     <p>
     This site is protected by reCAPTCHA and the Google
     <a href="https://policies.google.com/privacy">Privacy Policy</a> and

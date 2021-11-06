@@ -1,5 +1,4 @@
 {% load static %}
-{% load settings_tags %}
 
 <!DOCTYPE html>
 <html lang="en" prefix="og: https://ogp.me/ns/{{ og_type }}#">
@@ -17,8 +16,7 @@
         <link href="{% static 'martor/css/martor.semantic.min.css' %}" type="text/css" media="all" rel="stylesheet" />
         <link href="{% static 'styles/bootstrap-icons.css' %}" type="text/css" media="all" rel="stylesheet" />
 
-        {% settings_value "GOOGLE_ANALYTICS_ON_ALL_VIEWS" as ganalytics_allviews %}
-        {% if ganalytics_allviews %}
+        {% if GOOGLE_ANALYTICS_ON_ALL_VIEWS %}
         {% include "ganalytics/snippet.html" %}
         {% endif %}
 

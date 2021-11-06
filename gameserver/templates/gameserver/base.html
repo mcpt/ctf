@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load settings_tags %}
 {% load gravatar_tags %}
 {% load link_tags %}
 
@@ -9,8 +8,7 @@
     <div class="bg-light border-right" id="sidebar-wrapper">
         <div class="list-group">
             <div class="position-fixed list-group-flush">
-                {% settings_value "NAVBAR" as navbar %}
-                {% for name, link in navbar.items %}
+                {% for name, link in NAVBAR.items %}
                 <a href="{{ link }}" class="list-group-item list-group-item-action bg-light text-dark">{{ name }}</a>
                 {% endfor %}
             </div>
@@ -120,8 +118,7 @@
         });
     });
 </script>
-{% settings_value "GOOGLE_ANALYTICS_ON_ALL_VIEWS" as ganalytics_allviews %}
-{% if not ganalytics_allviews %}
+{% if not GOOGLE_ANALYTICS_ON_ALL_VIEWS %}
 {% include "ganalytics/snippet.html" %}
 {% endif %}
 {% block deps %}
@@ -137,15 +134,14 @@
 <meta property="og:type" content="{{ og_type }}" />
 <meta name="twitter:card" content="summary" />
 
-<link rel="canonical" href="{% settings_value "SCHEME" %}://{{ site.domain }}{{ request.get_full_path }}">
-<meta property="og:url" content="{% settings_value "SCHEME" %}://{{ site.domain }}{{ request.get_full_path }}">
+<link rel="canonical" href="{{ SCHEME }}://{{ site.domain }}{{ request.get_full_path }}">
+<meta property="og:url" content="{{ SCHEME }}://{{ site.domain }}{{ request.get_full_path }}">
 
 <meta name="description" content="{{ meta_description }}">
 <meta property="og:description" content="{{ meta_description }}">
 <meta name="twitter:description" content="{{ meta_description }}" />
 
-{% settings_value "KEYWORDS" as keywords %}
-<meta name="keywords" content="{{ keywords|join:", " }}">
+<meta name="keywords" content="{{ KEYWORDS|join:", " }}">
 
 {% if og_image %}
 <meta property="og:image" content="{{ og_image }}">

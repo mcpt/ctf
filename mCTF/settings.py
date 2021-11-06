@@ -39,12 +39,12 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.sites",
     "django.contrib.flatpages",
+    "django.contrib.humanize",
     "gameserver",
     "martor",
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
-    "django.contrib.humanize",
     "crispy_forms",
     "captcha",
 ]
@@ -75,6 +75,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "gameserver.context_processors.settings_context",
             ],
         },
     },
@@ -92,6 +93,8 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 
 # Password validation
@@ -237,8 +240,6 @@ CRISPY_TEMPLATE_PACK = "bootstrap4"
 SILENCED_SYSTEM_CHECKS = ["urls.W002"]
 
 DEFAULT_TIMEZONE = "UTC"
-
-TOS_URL = "/tos"
 
 try:
     from mCTF.config import *
