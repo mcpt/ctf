@@ -1,13 +1,15 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
-from django.db.models import Q, Sum
+from django.db.models import Q, Sum, Min, Count
 from django.db.models.functions import Coalesce
+from django.db.models import OuterRef, Subquery
 from django.urls import reverse
 from django.conf import settings
 
 from .choices import organization_request_status_choices, timezone_choices
 from .contest import ContestParticipation
+from .submission import Submission
 
 
 def get_default_user_timezone():
@@ -51,15 +53,18 @@ class User(AbstractUser):
         return reverse("user_detail", args=[self.username])
 
     def has_solved(self, problem):
-        solves = self.solves.filter(problem=problem)
+        solves = self.submissions.filter(problem=problem, is_correct=True)
         return solves.count() > 0
 
+    def _get_unique_correct_submissions(self):
+        return self.submissions.filter(is_correct=True).values("problem", "problem__points").distinct()
+
     def points(self):
-        points = self.solves.aggregate(points=Coalesce(Sum("problem__points"), 0))["points"]
-        if points is not None:
-            return points
-        else:
-            return 0
+        points = self._get_unique_correct_submissions().aggregate(points=Coalesce(Sum("problem__points"), 0))["points"]
+        return points
+
+    def num_flags_captured(self):
+        return self._get_unique_correct_submissions().count()
 
     def participations_for_contest(self, contest):
         return ContestParticipation.objects.filter(
@@ -75,13 +80,17 @@ class User(AbstractUser):
     def update_contest(self):
         participation = self.current_contest
         if participation is not None and participation.contest.is_finished():
-            print("remove")
             self.remove_contest()
 
     update_contest.alters_data = True
 
-    def num_flags_captured(self):
-        return self.solves.count()
+    @classmethod
+    def ranks(cls):
+        submissions_with_points = Submission.objects.filter(user=OuterRef("pk"), is_correct=True).order_by().values("problem").distinct().annotate(sub_pk=Min("pk")).values('sub_pk')
+        return cls.objects.annotate(
+                points=Coalesce(Sum("submissions__problem__points", filter=Q(submissions__in=Subquery(submissions_with_points))), 0),
+                flags=Coalesce(Count("submissions__pk", filter=Q(submissions__in=Subquery(submissions_with_points))), 0),
+            ).order_by("-points", "flags")
 
 
 class Organization(models.Model):

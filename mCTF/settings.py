@@ -202,7 +202,7 @@ GOOGLE_ANALYTICS_TRACKING_ID = None
 
 NAVBAR = {
     "Problems": "/problems/",
-    "Solves": "/solves/",
+    "Submissions": "/submissions/",
     "Users": "/users/",
     "Teams": "/teams/",
     "Organizations": "/organizations/",

@@ -31,10 +31,10 @@
 {% if request.in_contest and request.participation.contest == participation.contest or contest.is_finished %}
 <div class="card">
     <div class="card-header">
-        Solves
+        Submissions
     </div>
     <div class="card-body">
-        {% include 'gameserver/contest/snippet/solve/table.html' with contest_solves=participation.solves.all %}
+        {% include 'gameserver/contest/snippet/submission/table.html' with contest_submissions=participation.submissions.all %}
     </div>
 </div>
 {% endif %}

@@ -35,7 +35,7 @@
         <li class="list-group-item">Type: {{ problem.problem_type.all|join:", " }}</li>
         {% endif %}
         <li class="list-group-item">
-            <a href="{% url 'problem_solves' problem.slug %}" class="card-link">All Solves</a>
+            <a href="{% url 'problem_submission_list' problem.slug %}" class="card-link">All Submissions</a>
         </li>
     </ul>
     <div class="card-body">

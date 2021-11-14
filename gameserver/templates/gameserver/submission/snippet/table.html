@@ -8,8 +8,8 @@
         </tr>
     </thead>
     <tbody>
-        {% for solve in solves %}
-        {% include 'gameserver/solve/snippet/row.html' %}
+        {% for submission in submissions %}
+        {% include 'gameserver/submission/snippet/row.html' %}
         {% endfor %}
     </tbody>
 </table>

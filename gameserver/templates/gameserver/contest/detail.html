@@ -23,8 +23,8 @@
     </ul>
     <div class="card-body">
         {% if request.in_contest and request.participation.contest == contest or contest.is_finished %}
-        <a href="{% url 'contest_problems' contest.slug %}" class="card-link">View problems</a>
-        <a href="{% url 'contest_solves' contest.slug %}" class="card-link">View solves</a>
+        <a href="{% url 'contest_problem_list' contest.slug %}" class="card-link">View problems</a>
+        <a href="{% url 'contest_submission_list' contest.slug %}" class="card-link">View submissions</a>
         {% endif %}
         <a href="{% url 'contest_scoreboard' contest.slug %}" class="card-link">View scoreboard</a>
     </div>

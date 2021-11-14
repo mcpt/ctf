@@ -3,6 +3,6 @@ from .contest import *
 from .index import *
 from .organization import *
 from .problem import *
-from .solve import *
+from .submission import *
 from .team import *
 from .user import *

@@ -24,7 +24,7 @@
         <li class="list-group-item">{{ profile.num_flags_captured }} Flag{{ profile.points|pluralize }} Captured</li>
     </ul>
     <div class="card-body">
-        <a href="{% url 'user_solves' profile.username %}" class="card-link">{{ profile.username }}'s Solves</a>
+        <a href="{% url 'user_submission_list' profile.username %}" class="card-link">{{ profile.username }}'s Submissions</a>
     </div>
 </div>
 <div class="card mb-3">

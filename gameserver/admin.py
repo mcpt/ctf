@@ -160,7 +160,7 @@ class OrganizationRequestAdmin(admin.ModelAdmin):
 
 admin.site.register(User)
 admin.site.register(models.Problem, ProblemAdmin)
-admin.site.register(models.Solve)
+admin.site.register(models.Submission)
 admin.site.register(models.ProblemType)
 admin.site.register(models.ProblemGroup)
 admin.site.register(models.Organization, OrganizationAdmin)

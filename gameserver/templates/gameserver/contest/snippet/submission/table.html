@@ -4,12 +4,12 @@
             <th scope="col">#</th>
             <th scope="col">Status</th>
             <th scope="col">Problem</th>
-            <th scope="col">Solver</th>
+            <th scope="col">User</th>
         </tr>
     </thead>
     <tbody>
-        {% for contest_solve in contest_solves %}
-        {% include 'gameserver/contest/snippet/solve/row.html' %}
+        {% for contest_submission in contest_submissions %}
+        {% include 'gameserver/contest/snippet/submission/row.html' %}
         {% endfor %}
     </tbody>
 </table>

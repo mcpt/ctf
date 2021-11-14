@@ -9,6 +9,7 @@ from django.urls import reverse
 from django.views.generic import DetailView, FormView, ListView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import CreateView, FormMixin
+from django.http import HttpResponseForbidden
 
 from .. import forms, models
 from . import mixin
@@ -33,7 +34,7 @@ class ProblemList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     def get(self, request, *args, **kwargs):
         if request.in_contest:
             return redirect(
-                "contest_problems", slug=request.participation.contest.slug
+                "contest_problem_list", slug=request.participation.contest.slug
             )
         else:
             return super().get(request, *args, **kwargs)
@@ -86,20 +87,29 @@ class ProblemDetail(
         else:
             return self.form_invalid(form)
 
+    def _create_submission_object(self, is_correct=False):
+        submission = models.Submission.objects.create(
+            user=self.request.user, problem=self.get_object(), is_correct=is_correct
+        )
+        if self.request.in_contest:
+            models.ContestSubmission.objects.create(
+                submission=submission, participation=self.request.participation
+            )
+        return submission
+
     def form_valid(self, form):
         if self.request.user.has_solved(self.get_object()):
-            message = "Your flag was correct, but you have already solved this problem."
+            message = "Your flag is correct, but you have already solved this problem."
             messages.info(self.request, message)
         else:
-            messages.success(self.request, "Your flag was correct!")
-            solve = models.Solve.objects.create(
-                solver=self.request.user, problem=self.get_object()
-            )
-            if self.request.in_contest:
-                models.ContestSolve.objects.create(
-                    solve=solve, participation=self.request.participation
-                )
+            messages.success(self.request, "Your flag is correct!")
+        self._create_submission_object(is_correct=True)
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        self._create_submission_object(is_correct=False)
+        messages.error(self.request, "Your flag is incorrect.")
+        return super().form_invalid(form)
 
     def get_success_url(self):
         return reverse(
@@ -107,16 +117,16 @@ class ProblemDetail(
         )
 
 
-class ProblemSolves(ListView, mixin.TitleMixin, mixin.MetaMixin):
-    context_object_name = "solves"
-    template_name = "gameserver/problem/solves.html"
+class ProblemSubmissionList(ListView, mixin.TitleMixin, mixin.MetaMixin):
+    context_object_name = "submissions"
+    template_name = "gameserver/problem/submission_list.html"
     paginate_by = 50
 
     def get_queryset(self):
         self.problem = get_object_or_404(
             models.Problem, slug=self.kwargs["slug"]
         )
-        return models.Solve.objects.filter(problem=self.problem).order_by(
+        return models.Submission.objects.filter(problem=self.problem).order_by(
             self.get_ordering()
         )
 
@@ -124,7 +134,7 @@ class ProblemSolves(ListView, mixin.TitleMixin, mixin.MetaMixin):
         return "-date_created"
 
     def get_title(self):
-        return "Solves for Problem " + self.problem.name
+        return "Submissions for Problem " + self.problem.name
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

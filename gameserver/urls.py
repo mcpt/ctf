@@ -17,16 +17,16 @@ urlpatterns = [
         name="problem_detail",
     ),
     path(
-        "problem/<slug:slug>/solves",
-        views.ProblemSolves.as_view(),
-        name="problem_solves",
+        "problem/<slug:slug>/submissions",
+        views.ProblemSubmissionList.as_view(),
+        name="problem_submission_list",
     ),
     path("users/", views.UserList.as_view(), name="user_list"),
     path("user/<str:slug>", views.UserDetail.as_view(), name="user_detail"),
     path(
-        "user/<str:slug>/solves",
-        views.UserSolves.as_view(),
-        name="user_solves",
+        "user/<str:slug>/submissions",
+        views.UserSubmissionList.as_view(),
+        name="user_submission_list",
     ),
     path(
         "organizations/",
@@ -40,8 +40,8 @@ urlpatterns = [
     ),
     path(
         "organization/<str:slug>/members",
-        views.OrganizationMembers.as_view(),
-        name="organization_members",
+        views.OrganizationMemberList.as_view(),
+        name="organization_member_list",
     ),
     path(
         "organization/<str:slug>/request",
@@ -77,12 +77,12 @@ urlpatterns = [
     path(
         "contest/<str:slug>/problems",
         views.ContestProblemList.as_view(),
-        name="contest_problems",
+        name="contest_problem_list",
     ),
     path(
-        "contest/<str:slug>/solves",
-        views.ContestSolveList.as_view(),
-        name="contest_solves",
+        "contest/<str:slug>/submissions",
+        views.ContestSubmissionList.as_view(),
+        name="contest_submission_list",
     ),
     path(
         "contest/<str:slug>/scoreboard",
@@ -95,7 +95,7 @@ urlpatterns = [
         name="contest_participation_detail",
     ),
     path("accounts/profile/edit", views.UserEdit.as_view(), name="user_edit"),
-    path("solves/", views.SolveList.as_view(), name="solve_list"),
+    path("submissions/", views.SubmissionList.as_view(), name="submission_list"),
     path("comment/<int:pk>", views.Comment.as_view(), name="comment"),
     path(
         "<str:parent_type>/<slug:parent_id>/add_comment",

@@ -28,9 +28,7 @@ class UserList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     title = "Users"
 
     def get_queryset(self):
-        return self.model.objects.annotate(
-            cum_points=Coalesce(Sum("solves__problem__points"), 0)
-        ).order_by("-cum_points")
+        return models.User.ranks()
 
     def get(self, request, *args, **kwargs):
         if request.in_contest:
@@ -62,19 +60,19 @@ class UserDetail(
         return [self.get_object()]
 
 
-class UserSolves(ListView, mixin.TitleMixin, mixin.MetaMixin):
-    context_object_name = "solves"
-    template_name = "gameserver/user/solves.html"
+class UserSubmissionList(ListView, mixin.TitleMixin, mixin.MetaMixin):
+    context_object_name = "submissions"
+    template_name = "gameserver/user/submission_list.html"
     paginate_by = 50
 
     def get_queryset(self):
         self.user = get_object_or_404(
             models.User, username=self.kwargs["slug"]
         )
-        return models.Solve.objects.filter(solver=self.user).order_by("-pk")
+        return models.Submission.objects.filter(user=self.user).order_by("-pk")
 
     def get_title(self):
-        return "Solves by User " + self.user.username
+        return "Submissions by User " + self.user.username
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

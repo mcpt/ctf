@@ -52,7 +52,7 @@ class OrganizationDetail(
         return context
 
 
-class OrganizationMembers(ListView, mixin.TitleMixin, mixin.MetaMixin):
+class OrganizationMemberList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     model = models.Organization
     context_object_name = "users"
     template_name = "gameserver/organization/member.html"

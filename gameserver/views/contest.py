@@ -118,7 +118,7 @@ class ContestProblemList(
     UserPassesTestMixin, ListView, mixin.TitleMixin, mixin.MetaMixin
 ):
     context_object_name = "problems"
-    template_name = "gameserver/contest/problems.html"
+    template_name = "gameserver/contest/problem_list.html"
 
     def test_func(self):
         self.contest = get_object_or_404(
@@ -141,11 +141,11 @@ class ContestProblemList(
         return context
 
 
-class ContestSolveList(
+class ContestSubmissionList(
     UserPassesTestMixin, ListView, mixin.TitleMixin, mixin.MetaMixin
 ):
-    context_object_name = "contest_solves"
-    template_name = "gameserver/contest/solves.html"
+    context_object_name = "contest_submissions"
+    template_name = "gameserver/contest/submission_list.html"
     paginate_by = 50
 
     def test_func(self):
@@ -158,9 +158,9 @@ class ContestSolveList(
         ) or self.contest.is_finished
 
     def get_queryset(self):
-        return models.ContestSolve.objects.filter(
+        return models.ContestSubmission.objects.filter(
             participation__contest=self.contest
-        ).order_by("-solve__date_created")
+        ).order_by("-submission__date_created")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

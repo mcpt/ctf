@@ -8,17 +8,17 @@ from .. import models
 from . import mixin
 
 
-class SolveList(ListView, mixin.TitleMixin, mixin.MetaMixin):
-    context_object_name = "solves"
-    template_name = "gameserver/solve/list.html"
+class SubmissionList(ListView, mixin.TitleMixin, mixin.MetaMixin):
+    context_object_name = "submissions"
+    template_name = "gameserver/submission/list.html"
     paginate_by = 50
-    title = "Solves"
+    title = "Submissions"
 
     def get_queryset(self):
-        queryset = models.Solve.objects.order_by("-date_created")
+        queryset = models.Submission.objects.order_by("-date_created")
         if self.request.user.is_authenticated:
             queryset = queryset.filter(
-                Q(problem__is_private=False) | Q(solver=self.request.user)
+                Q(problem__is_private=False) | Q(user=self.request.user)
             )
         else:
             queryset = queryset.filter(problem__is_private=False)
@@ -27,7 +27,7 @@ class SolveList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     def get(self, request, *args, **kwargs):
         if request.in_contest:
             return redirect(
-                "contest_solves", slug=request.participation.contest.slug
+                "contest_submission_list", slug=request.participation.contest.slug
             )
         else:
             return super().get(request, *args, **kwargs)
