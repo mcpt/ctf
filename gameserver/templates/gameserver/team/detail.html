@@ -1,4 +1,4 @@
-{% extends 'gameserver/base.html' %}
+{% extends '../base.html' %}
 {% load link_tags %}
 {% load humanize %}
 {% load martortags %}
@@ -65,9 +65,9 @@
         Participations
     </div>
     <div class="card-body">
-        {% include 'gameserver/contest/snippet/participation/table.html' with participations=team.contest_participations.all %}
+        {% include '../contest/snippet/participation/table.html' with participations=team.contest_participations.all %}
     </div>
 </div>
 {% endif %}
-{% include 'gameserver/comment/snippet.html' %}
+{% include '../comment/snippet.html' %}
 {% endblock %}

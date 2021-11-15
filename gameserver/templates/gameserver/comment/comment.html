@@ -11,7 +11,7 @@
 
         {% if depth != 0 %}
         {% with new_depth=depth|add:"-1" %}
-        {% include 'gameserver/comment/list.html' with comments=comment.comments.all hide_empty=True depth=new_depth %}
+        {% include './list.html' with comments=comment.comments.all hide_empty=True depth=new_depth %}
         {% endwith %}
         {% else %}
         {% if comment.comments.all %}

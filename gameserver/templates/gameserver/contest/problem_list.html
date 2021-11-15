@@ -1,4 +1,4 @@
-{% extends 'gameserver/base.html' %}
+{% extends '../base.html' %}
 {% load color_tags %}
 {% load link_tags %}
 
@@ -6,7 +6,7 @@
 <div class="card">
     <div class="card-body">
         <h5 class="card-title">Problems for {{ contest.slug|contest }}</h5>
-        {% include 'gameserver/contest/snippet/problem/table.html' %}
+        {% include './snippet/problem/table.html' %}
     </div>
 </div>
 {% endblock %}

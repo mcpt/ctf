@@ -1,7 +1,7 @@
 {% if comments %}
 <ul class="list-unstyled">
     {% for comment in comments %}
-    {% include 'gameserver/comment/comment.html' %}
+    {% include './comment.html' %}
     {% endfor %}
 </ul>
 {% elif not hide_empty %}

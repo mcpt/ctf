@@ -1,4 +1,4 @@
-{% extends 'gameserver/base.html' %}
+{% extends '../base.html' %}
 {% load link_tags %}
 {% load humanize %}
 {% load martortags %}
@@ -53,7 +53,7 @@
         {% if participations %}
         <li class="list-group-item">
             <h5 class="mt-2 mb-3">Your participations</h5>
-            {% include 'gameserver/contest/snippet/participation/table.html' %}
+            {% include './snippet/participation/table.html' %}
         </li>
         {% endif %}
     </ul>
@@ -76,6 +76,6 @@
 </div>
 {% endif %}
 {% if not contest.is_private %}
-{% include 'gameserver/comment/snippet.html' %}
+{% include '../comment/snippet.html' %}
 {% endif %}
 {% endblock %}

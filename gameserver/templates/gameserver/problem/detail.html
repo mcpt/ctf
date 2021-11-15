@@ -1,4 +1,4 @@
-{% extends 'gameserver/base.html' %}
+{% extends '../base.html' %}
 {% load gravatar_tags %}
 {% load martortags %}
 {% load link_tags %}
@@ -52,7 +52,7 @@
     </div>
 </div>
 {% if not problem.is_private %}
-{% include 'gameserver/comment/snippet.html' %}
+{% include '../comment/snippet.html' %}
 {% endif %}
 {% endblock %}
 

@@ -1,4 +1,4 @@
-{% extends 'gameserver/base.html' %}
+{% extends '../base.html' %}
 {% load link_tags %}
 
 {% block main %}
@@ -6,7 +6,7 @@
     <div class="card-body">
         <h5 class="card-title">Teams</h5>
         <a href="{% url 'team_create' %}" class="btn btn-primary mt-1 mb-3">Create a Team</a>
-        {% include 'gameserver/team/snippet/table.html' %}
+        {% include './snippet/table.html' %}
     </div>
 </div>
 {% endblock %}

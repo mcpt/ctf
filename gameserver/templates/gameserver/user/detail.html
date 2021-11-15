@@ -1,4 +1,4 @@
-{% extends 'gameserver/base.html' %}
+{% extends '../base.html' %}
 {% load gravatar_tags %}
 
 {% block main %}
@@ -45,11 +45,11 @@
         Participations
     </div>
     <div class="card-body">
-        {% include 'gameserver/contest/snippet/participation/table.html' with participations=profile.contest_participations.all %}
+        {% include '../contest/snippet/participation/table.html' with participations=profile.contest_participations.all %}
     </div>
 </div>
 {% endif %}
-{% include 'gameserver/comment/snippet.html' %}
+{% include '../comment/snippet.html' %}
 {% endblock %}
 
 {% block othermeta %}

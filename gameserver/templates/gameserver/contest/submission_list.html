@@ -1,4 +1,4 @@
-{% extends 'gameserver/base.html' %}
+{% extends '../base.html' %}
 {% load link_tags %}
 {% load color_tags %}
 
@@ -7,7 +7,7 @@
     <div class="card-body">
         <h5 class="card-title">Submissions for {{ contest.slug|contest }}</h5>
 
-        {% include 'gameserver/contest/snippet/submission/table.html' %}
+        {% include './snippet/submission/table.html' %}
 
         {% include 'paginator/snippet.html' %}
     </div>
