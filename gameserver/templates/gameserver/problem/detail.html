@@ -26,9 +26,13 @@
         {% endif %}
     </div>
     <ul class="list-group list-group-flush">
+        {% if not contest_problem %}
         <li class="list-group-item">Points: {{ problem.points }}</li>
+        {% else %}
+        <li class="list-group-item">Points: {{ contest_problem.points }}</li>
+        {% endif %}
         <li class="list-group-item">Author: {{ problem.author.all|users }}</li>
-        {% if problem.problem_group.all %}
+        {% if problem.problem_group.all and not user.current_contest %}
         <li class="list-group-item">Group: {{ problem.problem_group.all|join:", " }}</li>
         {% endif %}
         {% if problem.problem_type.all %}

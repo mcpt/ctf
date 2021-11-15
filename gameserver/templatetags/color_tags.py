@@ -5,10 +5,15 @@ register = template.Library()
 
 @register.filter
 def problem_color(problem, user):
-    entity = user
-    if user.current_contest is not None:
-        entity = user.current_contest
-    if entity.has_solved(problem):
+    if user.has_solved(problem):
+        return "success"
+    else:
+        return "light"
+
+
+@register.filter
+def contest_problem_color(contest_problem, user):
+    if user.current_contest.has_solved(contest_problem):
         return "success"
     else:
         return "light"

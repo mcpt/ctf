@@ -117,7 +117,7 @@ class ContestLeave(LoginRequiredMixin, RedirectView):
 class ContestProblemList(
     UserPassesTestMixin, ListView, mixin.TitleMixin, mixin.MetaMixin
 ):
-    context_object_name = "problems"
+    context_object_name = "contest_problems"
     template_name = "gameserver/contest/problem_list.html"
 
     def test_func(self):

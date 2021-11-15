@@ -11,9 +11,10 @@ class Submission(models.Model):
         null=True,
         blank=True,
         related_name="submissions",
+        related_query_name="submission",
     )
     problem = models.ForeignKey(
-        "Problem", on_delete=models.CASCADE, related_name="submissions"
+        "Problem", on_delete=models.CASCADE, related_name="submissions", related_query_name="submission",
     )
     date_created = models.DateTimeField(auto_now_add=True)
     is_correct = models.BooleanField(default=False)

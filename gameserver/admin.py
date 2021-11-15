@@ -158,6 +158,17 @@ class OrganizationRequestAdmin(admin.ModelAdmin):
         return qs.filter(organization__admins=request.user)
 
 
+class ContestProblemInline(admin.TabularInline):
+    model = models.ContestProblem
+    extra = 0
+
+
+class ContestAdmin(admin.ModelAdmin):
+    inlines = [
+        ContestProblemInline,
+    ]
+
+
 admin.site.register(User)
 admin.site.register(models.Problem, ProblemAdmin)
 admin.site.register(models.Submission)
@@ -168,7 +179,7 @@ admin.site.register(models.OrganizationRequest, OrganizationRequestAdmin)
 admin.site.register(models.Comment)
 admin.site.register(models.BlogPost)
 admin.site.register(models.Team)
-admin.site.register(models.Contest)
+admin.site.register(models.Contest, ContestAdmin)
 admin.site.register(models.ContestTag)
 admin.site.site_header = "mCTF administration"
 admin.site.site_title = "mCTF admin"

@@ -52,13 +52,18 @@ class ProblemDetail(
     template_name = "gameserver/problem/detail.html"
     form_class = forms.FlagSubmissionForm
 
+    def get_contest_object(self):
+        if self.request.in_contest:
+            return self.get_object().get_contest_problem(self.request.participation)
+        else:
+            return None
+
     def test_func(self):
         return (
             not self.get_object().is_private
             or (
                 self.request.in_contest
-                and self.get_object()
-                in self.request.user.current_contest.contest.problems.all()
+                and self.request.participation.contest.problems.filter(problem=self.get_object()).exists()
             )
             or self.request.user in self.get_object().author.all()
         )
@@ -93,16 +98,15 @@ class ProblemDetail(
         )
         if self.request.in_contest:
             models.ContestSubmission.objects.create(
-                submission=submission, participation=self.request.participation
+                problem=self.get_contest_object(), submission=submission, participation=self.request.participation
             )
         return submission
 
     def form_valid(self, form):
-        if self.request.user.has_solved(self.get_object()):
-            message = "Your flag is correct, but you have already solved this problem."
-            messages.info(self.request, message)
-        else:
+        if (not self.request.user.has_solved(self.get_object())) or (self.request.in_contest and not self.request.participation.has_solved(self.get_contest_object())):
             messages.success(self.request, "Your flag is correct!")
+        else:
+            messages.info(self.request, "Your flag is correct, but you have already solved this problem.")
         self._create_submission_object(is_correct=True)
         return super().form_valid(form)
 
@@ -116,6 +120,10 @@ class ProblemDetail(
             "problem_detail", kwargs={"slug": self.get_object().slug}
         )
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["contest_problem"] = self.get_contest_object()
+        return context
 
 class ProblemSubmissionList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     context_object_name = "submissions"

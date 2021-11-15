@@ -1,0 +1,14 @@
+<table class="table table-sm">
+    <thead>
+        <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Types</th>
+            <th scope="col">Points</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for contest_problem in contest_problems %}
+        {% include 'gameserver/contest/snippet/problem/row.html' %}
+        {% endfor %}
+    </tbody>
+</table>

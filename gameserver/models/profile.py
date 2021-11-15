@@ -88,8 +88,8 @@ class User(AbstractUser):
     def ranks(cls):
         submissions_with_points = Submission.objects.filter(user=OuterRef("pk"), is_correct=True).order_by().values("problem").distinct().annotate(sub_pk=Min("pk")).values('sub_pk')
         return cls.objects.annotate(
-                points=Coalesce(Sum("submissions__problem__points", filter=Q(submissions__in=Subquery(submissions_with_points))), 0),
-                flags=Coalesce(Count("submissions__pk", filter=Q(submissions__in=Subquery(submissions_with_points))), 0),
+                points=Coalesce(Sum("submission__problem__points", filter=Q(submission__in=Subquery(submissions_with_points))), 0),
+                flags=Coalesce(Count("submission__pk", filter=Q(submission__in=Subquery(submissions_with_points))), 0),
             ).order_by("-points", "flags")
 
 
