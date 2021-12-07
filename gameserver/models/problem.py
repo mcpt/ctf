@@ -4,8 +4,8 @@ from django.db import models
 from django.urls import reverse
 
 from . import abstract
-from .profile import User
 from .contest import ContestProblem
+from .profile import User
 
 # Create your models here.
 
@@ -21,9 +21,7 @@ class ProblemType(abstract.Category):
 class Problem(models.Model):
     flag = models.CharField(max_length=256)
 
-    author = models.ManyToManyField(
-        User, related_name="problems_authored", blank=True
-    )
+    author = models.ManyToManyField(User, related_name="problems_authored", blank=True)
     name = models.CharField(max_length=128)
     description = models.TextField()
     summary = models.CharField(max_length=150)
@@ -55,9 +53,7 @@ def problem_file_path(instance, filename):
 
 
 class ProblemFile(models.Model):
-    problem = models.ForeignKey(
-        Problem, on_delete=models.CASCADE, related_name="files"
-    )
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE, related_name="files")
     artifact = models.FileField(upload_to=problem_file_path, unique=True)
 
     def __str__(self):

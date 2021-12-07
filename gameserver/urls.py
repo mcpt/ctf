@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
     path("", views.Index.as_view(), name="index"),
     path("post/<slug:slug>", views.BlogPost.as_view(), name="blog_post"),
+    path("editorial/<slug:slug>", views.Editorial.as_view(), name="editorial"),
     path(
         "accounts/profile",
         views.UserDetailRedirect.as_view(),

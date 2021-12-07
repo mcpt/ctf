@@ -51,6 +51,19 @@
         {% endif %}
     </div>
 </div>
+{% if problem.editorials.all %}
+<div class="card mt-3">
+    <div class="card-header">Editorials</div>
+    <ul class="list-group list-group-flush">
+        {% for editorial in problem.editorials.all %}
+            <a href="{{ editorial.get_absolute_url }}" class="list-group-item list-group-item-action">
+	        {{ editorial }}
+		{% if editorial.pointee == "E" %}(external link){% endif %}
+	    </a>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
 {% if not problem.is_private %}
 {% include '../comment/snippet.html' %}
 {% endif %}

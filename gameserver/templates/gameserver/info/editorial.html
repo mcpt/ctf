@@ -1,0 +1,33 @@
+{% extends '../base.html' %}
+{% load link_tags %}
+{% load humanize %}
+{% load martortags %}
+{% load tz %}
+
+{% block main %}
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="card-title">{{ post.title }}</h5>
+	{% if post.pointee == "E" %}
+	<a href="{{ post.url }}">Link to Editorial</a>
+	{% else %}
+        <p class="card-text">{{ post.text|safe_markdown }}</p>
+	{% endif %}
+    </div>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">Author: {{ post.author.all|users }}</li>
+        <li class="list-group-item">Created: {{ post.date_created|naturaltime }}</li>
+        <li class="list-group-item">Last Modified: {{ post.date_created|naturaltime }}</li>
+        <li class="list-group-item">Problem: {{ post.target.slug|problem }}</li>
+    </ul>
+</div>
+{% include '../comment/snippet.html' %}
+{% endblock %}
+
+{% block othermeta %}
+<meta property="og:article:published_time" content="{{ post.date_created|date:"c" }}" />
+<meta property="og:article:modified_time" content="{{ post.date_last_modified|date:"c" }}" />
+{% for author in post.author.all %}
+<meta property="og:article:author" content="{{ SCHEME }}://{{ site.domain }}{{ author.get_absolute_url }}" />
+{% endfor %}
+{% endblock %}
