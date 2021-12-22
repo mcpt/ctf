@@ -69,6 +69,11 @@ class ProblemAdmin(admin.ModelAdmin):
             return qs
         return qs.filter(author=request.user)
 
+    def get_readonly_fields(self, request, obj=None):
+        fields = self.readonly_fields
+        if not request.user.has_perm('gameserver.change_problem_visibility'):
+            fields += ('is_private',)
+        return fields
 
 class OrganizationAdmin(admin.ModelAdmin):
     list_display = ["__str__", "owner", "member_count", "is_open"]
