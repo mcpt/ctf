@@ -43,7 +43,7 @@ class ProblemAdmin(admin.ModelAdmin):
             if obj is None:
                 return True
             else:
-                return request.user in obj.author.all()
+                return request.user in obj.author.all() or request.user.has_perm("gameserver.edit_all_problems")
         return False
 
     def has_change_permission(self, request, obj=None):
@@ -51,7 +51,7 @@ class ProblemAdmin(admin.ModelAdmin):
             if obj is None:
                 return True
             else:
-                return request.user in obj.author.all()
+                return request.user in obj.author.all() or request.user.has_perm("gameserver.edit_all_problems")
         return False
 
     def has_module_permission(self, request):
@@ -65,7 +65,7 @@ class ProblemAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        if request.user.is_superuser:
+        if request.user.is_superuser or request.user.has_perm('gameserver.edit_all_problems'):
             return qs
         return qs.filter(author=request.user)
 
