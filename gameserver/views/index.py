@@ -47,12 +47,12 @@ class BlogPost(
         return self.get_object().summary
 
 
-class Editorial(
+class Writeup(
     DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin
 ):
-    model = models.Editorial
+    model = models.Writeup
     context_object_name = "post"
-    template_name = "gameserver/info/editorial.html"
+    template_name = "gameserver/info/writeup.html"
     og_type = "article"
 
     def get_title(self):

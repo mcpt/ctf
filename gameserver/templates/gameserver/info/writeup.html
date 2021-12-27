@@ -9,7 +9,7 @@
     <div class="card-body">
         <h5 class="card-title">{{ post.title }}</h5>
 	{% if post.pointee == "E" %}
-	<a href="{{ post.url }}">Link to Editorial</a>
+	<a href="{{ post.url }}">External Link to Writeup</a>
 	{% else %}
         <p class="card-text">{{ post.text|safe_markdown }}</p>
 	{% endif %}

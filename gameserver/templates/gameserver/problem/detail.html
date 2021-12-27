@@ -51,14 +51,14 @@
         {% endif %}
     </div>
 </div>
-{% if problem.editorials.all %}
+{% if problem.writeups.all %}
 <div class="card mt-3">
-    <div class="card-header">Editorials</div>
+    <div class="card-header">Writeups</div>
     <ul class="list-group list-group-flush">
-        {% for editorial in problem.editorials.all %}
-            <a href="{{ editorial.get_absolute_url }}" class="list-group-item list-group-item-action">
-	        {{ editorial }}
-		{% if editorial.pointee == "E" %}(external link){% endif %}
+        {% for writeup in problem.writeups.all %}
+            <a href="{{ writeup.get_absolute_url }}" class="list-group-item list-group-item-action">
+	        {{ writeup }}
+		{% if writeup.pointee == "E" %}(external link){% endif %}
 	    </a>
         {% endfor %}
     </ul>

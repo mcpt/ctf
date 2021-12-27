@@ -30,20 +30,20 @@ class BlogPost(Post):
         return reverse("blog_post", args=[self.slug])
 
 
-class Editorial(Post):
+class Writeup(Post):
     class Pointee(models.TextChoices):
         POST = "P", _("Post")
         URL = "E", _("External URL")
 
-    target = models.ForeignKey(Problem, related_name="editorials", on_delete=models.CASCADE)
-    url = models.URLField(null=True)
+    target = models.ForeignKey(Problem, related_name="writeups", on_delete=models.CASCADE)
+    url = models.URLField(null=True, blank=True)
     pointee = models.CharField(max_length=1, choices=Pointee.choices, default=Pointee.URL)
 
     def __str__(self):
         return self.title
 
     def get_absolute_url(self):
-        return self.url if self.pointee == "E" else reverse("editorial", args=[self.slug])
+        return self.url if self.pointee == "E" else reverse("writeup", args=[self.slug])
 
     def get_absolute_model_url(self):
-        return reverse("editorial", args=[self.slug])
+        return reverse("writeup", args=[self.slug])
