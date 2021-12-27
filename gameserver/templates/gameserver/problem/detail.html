@@ -51,6 +51,19 @@
         {% endif %}
     </div>
 </div>
+{% if problem.writeups.all %}
+<div class="card mt-3">
+    <div class="card-header">Writeups</div>
+    <ul class="list-group list-group-flush">
+        {% for writeup in problem.writeups.all %}
+            <a href="{{ writeup.get_absolute_url }}" class="list-group-item list-group-item-action">
+	        {{ writeup }}
+		{% if writeup.pointee == "E" %}(external link){% endif %}
+	    </a>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
 {% if not problem.is_private %}
 {% include '../comment/snippet.html' %}
 {% endif %}

@@ -45,3 +45,21 @@ class BlogPost(
 
     def get_description(self):
         return self.get_object().summary
+
+
+class Writeup(
+    DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin
+):
+    model = models.Writeup
+    context_object_name = "post"
+    template_name = "gameserver/info/writeup.html"
+    og_type = "article"
+
+    def get_title(self):
+        return "" + self.get_object().title
+
+    def get_author(self):
+        return self.get_object().author.all()
+
+    def get_description(self):
+        return self.get_object().summary

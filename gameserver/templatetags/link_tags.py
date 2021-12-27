@@ -33,6 +33,19 @@ def users(usernames, postfix=""):
 
 
 @register.filter
+def userst(usernames, postfix=""):
+    user_objs = models.User.objects.filter(pk__in=usernames)
+    return format_html_join(
+        ", ",
+        "{0}",
+        (
+            (user_obj.username, )
+            for user_obj in user_objs
+        ),
+    )
+
+
+@register.filter
 def problem(slug, postfix=""):
     problem_obj = models.Problem.objects.get(slug=slug)
     return format_html(
