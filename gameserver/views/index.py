@@ -34,7 +34,7 @@ class BlogPost(
 ):
     model = models.BlogPost
     context_object_name = "post"
-    template_name = "info/blog_post.html"
+    template_name = "blogpost/detail.html"
     og_type = "article"
 
     def get_title(self):
