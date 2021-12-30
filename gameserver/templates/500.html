@@ -1,13 +1,9 @@
-{% extends 'base.html' %}
+{% extends 'card.html' %}
 
-{% block main %}
-<div class="card">
-    <div class="card-body">
-        <h5 class="card-title">500: Something went wrong!</h5>
-        <p class="card-text">
-            Please contact the admins if you see this page. Thanks!
-            <a href="/">Return Home</a>
-        </p>
-    </div>
-</div>
+{% block heading %}500: Something went wrong!{% endblock %}
+{% block content %}
+    <p class="card-text">
+        Please contact the admins if you see this page. Thanks!
+        <a href="/">Return Home</a>
+    </p>
 {% endblock %}

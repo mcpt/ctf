@@ -1,9 +1,7 @@
-{% extends 'base.html' %}
+{% extends 'card.html' %}
 
-{% block main %}
-<div class="card">
-    <div class="card-body">
-        <h5 class="card-title">404: Page Not Found</h5>
+{% block heading %}404: Page Not Found{% endblock %}
+{% block content %}
         <p class="card-text">
             <a href="/">Return Home</a>
             <!-- Honey? Where's my flag? -->
@@ -14,6 +12,4 @@
             <!-- Why do you need to know? -->
             <!-- I need it! -->
         </p>
-    </div>
-</div>
 {% endblock %}
