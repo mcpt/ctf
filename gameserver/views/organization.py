@@ -25,7 +25,7 @@ class OrganizationDetail(
     DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin
 ):
     model = models.Organization
-    context_object_name = "organization"
+    context_object_name = "group"
     template_name = "organization/detail.html"
 
     def get_title(self):
@@ -39,6 +39,13 @@ class OrganizationDetail(
         context["member_count"] = self.get_object().member_count()
         if self.request.user.is_authenticated:
             context[
+                "last_user_organization_request"
+            ] = models.OrganizationRequest.objects.filter(
+                organization=self.get_object(), user=self.request.user
+            ).order_by(
+                "-date_created"
+            )[0]
+            context[
                 "organization_requests"
             ] = models.OrganizationRequest.objects.filter(
                 organization=self.get_object(), user=self.request.user
@@ -49,39 +56,18 @@ class OrganizationDetail(
             ]
         else:
             context["organization_requests"] = []
+        context["entity"] = "organization"
+        context["membered_admins"] = self.get_object().admins.filter(
+            organizations=self.get_object()
+        ).order_by("username")
         return context
 
 
-class OrganizationMemberList(ListView, mixin.TitleMixin, mixin.MetaMixin):
-    model = models.Organization
-    context_object_name = "users"
-    template_name = "organization/member.html"
-
-    def get_ordering(self):
-        return "-username"
-
-    def get_queryset(self):
-        self.organization = get_object_or_404(
-            models.Organization, slug=self.kwargs["slug"]
-        )
-        return models.User.objects.filter(
-            organizations=self.organization
-        ).order_by(self.get_ordering())
-
-    def get_title(self):
-        return "Members of Organization " + self.organization.name
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["organization"] = self.organization
-        return context
-
-
-@method_decorator(require_POST, name="dispatch")
+# @method_decorator(require_POST, name="dispatch")
 class OrganizationRequest(
     LoginRequiredMixin, CreateView, mixin.TitleMixin, mixin.MetaMixin
 ):
-    template_name = "organization/form.html"
+    template_name = "organization/form-join.html"
     model = models.OrganizationRequest
     fields = ["reason"]
 
@@ -99,6 +85,7 @@ class OrganizationRequest(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["organization"] = self.get_object()
+        context["is_join_request"] = True
         return context
 
 
@@ -106,7 +93,7 @@ class OrganizationRequest(
 class OrganizationJoin(
     LoginRequiredMixin, FormView, mixin.TitleMixin, mixin.MetaMixin
 ):
-    template_name = "organization/form.html"
+    template_name = "organization/form-join.html"
     form_class = forms.GroupJoinForm
     fields = ["access_code"]
 

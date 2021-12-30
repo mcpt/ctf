@@ -2,5 +2,5 @@
 {% load link_tags %}
 <tr>
     <td>{{ organization.slug|organization }}</th>
-    <td><a href="{% url 'organization_members' organization.slug %}">{{ organization.member_count }}</a></td>
+    <td>{{ organization.member_count }}</td>
 </tr>

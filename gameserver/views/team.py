@@ -35,7 +35,7 @@ class TeamDetail(
     mixin.CommentMixin,
 ):
     model = models.Team
-    context_object_name = "team"
+    context_object_name = "group"
     template_name = "team/detail.html"
     form_class = forms.GroupJoinForm
 
@@ -44,6 +44,11 @@ class TeamDetail(
 
     def get_description(self):
         return self.get_object().description
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["entity"] = "team"
+        return context
 
     def get_form_kwargs(self, *args, **kwargs):
         cur_kwargs = super().get_form_kwargs(*args, **kwargs)

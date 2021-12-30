@@ -1,12 +1,4 @@
-{% extends '../base.html' %}
+{% extends 'table-list.html' %}
 {% load link_tags %}
 
-{% block main %}
-<div class="card">
-    <div class="card-body">
-        <h5 class="card-title">Members of {{ organization.slug|organization }}</h5>
-        {% include '../user/snippet/table.html' %}
-    </div>
-</div>
-{% endblock %}
-
+{% block heading %}Members of {{ organization.slug|organization }}{% endblock %}

@@ -1,0 +1,18 @@
+{% load martortags %}
+<div class="card mb-3">
+    <div class="card-body">
+        <h1 class="mt-0">{{ group.name }}</h1>
+        <hr>
+        {% if group.description == "" %}
+            <p class="font-italic">This {{ entity }} has not shared any information.</p>
+        {% else %}
+            {{ group.description|safe_markdown }}
+        {% endif %}
+        {% if request.user == group.owner %}
+            {# todo: interface for editing organizations? #}
+            {% if entity == "team" %}
+                <a href="{% url 'team_edit' group.pk %}" class="card-link">Edit {{ entity }}</a>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>

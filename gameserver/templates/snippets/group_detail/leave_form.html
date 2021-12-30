@@ -1,0 +1,15 @@
+<p class="mb-0">You are currently in this {{ entity }}. <a href="#" onclick="$('#leave-form').show()">Leave {{ entity }}?</a></p>
+<div id="leave-form" class="card mt-3">
+    <form class="card-body" action="
+        {% if entity == "organization" %}
+            {% url "organization_leave" group.slug %}
+        {% elif entity == "team" %}
+            {% url "team_leave" group.pk %}
+        {% endif %}
+    " method="post">
+        {% csrf_token %}
+        <p>Are you sure you want to leave {{ group }}?</p>
+        <a onclick="$('#leave-form').hide()" href="#" class="btn btn-light btn-sm">No, remain</a>
+        <button type="submit" class="btn btn-danger btn-sm">Yes, leave {{ entity }}</button>
+    </form>
+</div>

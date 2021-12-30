@@ -86,7 +86,12 @@ class TeamUpdateForm(ModelForm):
 
 
 class GroupJoinForm(forms.Form):
-    access_code = forms.CharField(max_length=36, strip=True)
+    access_code = forms.CharField(
+        max_length=36, 
+        strip=True,
+        widget=forms.TextInput(attrs={"placeholder": "Access Code"}),
+        label="Enter the access code to join",
+    )
 
     def __init__(self, *args, **kwargs):
         self.group = kwargs.pop("group", None)
