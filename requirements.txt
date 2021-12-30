@@ -8,6 +8,7 @@ Django==3.2.9
 django-allauth==0.45.0
 django-crispy-forms==1.13.0
 django-recaptcha==2.0.6
+django-sass==1.1.0
 idna==3.3
 Markdown==3.3.4
 martor==1.6.4
