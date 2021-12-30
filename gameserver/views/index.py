@@ -52,7 +52,7 @@ class Writeup(
 ):
     model = models.Writeup
     context_object_name = "post"
-    template_name = "info/writeup.html"
+    template_name = "problem/writeup.html"
     og_type = "article"
 
     def get_title(self):

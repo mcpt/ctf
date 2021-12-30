@@ -1,0 +1,46 @@
+@import "colours";
+
+a, .btn-link {
+    text-decoration: none;
+}
+.form-control, .form-select, .form-label {
+    font-size: 1rem;
+}
+
+$head-bg: $gray-900;
+$head-color: #fff;
+
+.card-header {
+    color: #{$head-color};
+    background-color: #{$head-bg};
+
+    + .card-body .table-list thead {
+        --bs-table-bg: #{$gray-200};
+        color: #{$head-bg};
+        border-color: transparent;
+    }
+}
+
+// https://github.com/twbs/bootstrap/blob/main/scss/_tables.scss
+%table-hover {
+  tbody > tr:hover > * {
+    --bs-table-accent-bg: var(--bs-table-hover-bg);
+    color: var(--bs-table-hover-color);
+  }
+}
+
+// custom 
+.table-list {
+    thead {
+        --bs-table-color: #{$head-color};
+        --bs-table-bg: #{$head-bg};
+        color: var(--bs-table-color);
+        border-color: var(--bs-table-border-color);
+
+        text-transform: uppercase;
+    }
+    table > tbody:not(:first-child) {
+        border-top: transparent;
+    }
+    @extend %table-hover;
+}

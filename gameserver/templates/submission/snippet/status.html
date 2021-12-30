@@ -1,0 +1,10 @@
+{% load bootstrap_icons %}
+<td>
+    {% if not submission.is_correct %}
+        <span title="WA">{% bs_icon 'x-lg' %}</span>
+    {% elif submission.is_firstblood %}
+        <span title="First blood">{% bs_icon 'droplet' %}</span>
+    {% else %}
+        <span title="Captured">{% bs_icon 'flag' %}</span>
+    {% endif %}
+</td>

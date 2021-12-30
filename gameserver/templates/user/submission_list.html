@@ -7,7 +7,7 @@
     <div class="card-body">
         <h5 class="card-title">{{ author|user }}'s Submissions</h5>
 
-        {% include '../submission/snippet/table.html' %}
+        {% include '../submission/snippet/table.html' with hide_pk=True %}
 
         {% include 'paginator/snippet.html' %}
     </div>

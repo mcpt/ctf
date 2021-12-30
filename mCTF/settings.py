@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "crispy_forms",
     "captcha",
     "django_bootstrap5",
+    "django_bootstrap_icons",
     "django_sass",
 ]
 
@@ -69,6 +70,7 @@ ROOT_URLCONF = "mCTF.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
+        # "DIRS": ["templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -136,6 +138,9 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "static"
+# STATICFILES_DIRS = [
+#     BASE_DIR / "assets",
+# ]
 
 
 # Auth settings

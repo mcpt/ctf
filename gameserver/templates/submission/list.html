@@ -1,15 +1,22 @@
-{% extends '../base.html' %}
+{% extends 'table-list.html' %}
 {% load link_tags %}
-{% load color_tags %}
 
-{% block main %}
-<div class="card">
-    <div class="card-body">
-        <h5 class="card-title">Submissions</h5>
+{% block heading %}
+    {% if problem %}
+        Submissions for {{ problem.slug|problem }}
+    {% elif author %}
+        Submissions by {{ author|user }}
+    {% else %}
+        All Submissions
+    {% endif %}
+{% endblock %}
 
-        {% include './snippet/table.html' %}
+{% block th %}
+    {% include "./snippet/thead.html" with hide_pk=True %}
+{% endblock %}
 
-        {% include 'paginator/snippet.html' %}
-    </div>
-</div>
+{% block trows %}
+    {% for submission in submissions %}
+        {% include './snippet/row.html' with hide_pk=True %}
+    {% endfor %}
 {% endblock %}

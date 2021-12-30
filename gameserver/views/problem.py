@@ -27,7 +27,7 @@ class ProblemList(ListView, mixin.TitleMixin, mixin.MetaMixin):
         if self.request.user.is_authenticated:
             return queryset.filter(
                 Q(is_private=False) | Q(author=self.request.user)
-            )
+            ).distinct()
         else:
             return queryset.filter(is_private=False)
 
@@ -127,7 +127,7 @@ class ProblemDetail(
 
 class ProblemSubmissionList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     context_object_name = "submissions"
-    template_name = "problem/submission_list.html"
+    template_name = "submission/list.html"
     paginate_by = 50
 
     def get_queryset(self):
@@ -142,7 +142,7 @@ class ProblemSubmissionList(ListView, mixin.TitleMixin, mixin.MetaMixin):
         return "-date_created"
 
     def get_title(self):
-        return "Submissions for Problem " + self.problem.name
+        return "Submissions for " + self.problem.name
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

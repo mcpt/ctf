@@ -1,11 +1,33 @@
-{% extends '../base.html' %}
+{% extends 'table-list.html' %}
 {% load color_tags %}
+{% load link_tags %}
 
-{% block main %}
-<div class="card">
-    <div class="card-body">
-        <h5 class="card-title">Problems</h5>
-        {% include './snippet/table.html' %}
-    </div>
-</div>
+{% block th %}
+    <th scope="col">Problem</th>
+    <th scope="col">Types</th>
+    <th scope="col">Groups</th>
+    <th scope="col">Points</th>
+{% endblock %}
+
+{% block trows %}
+    {% for problem in problems %}
+        {% if user.is_authenticated %}
+        <tr class="table-{{ problem|problem_color:user }}">
+        {% else %}
+        <tr>
+        {% endif %}
+            <td>{{ problem.slug|problem }}</td>
+            {% if problem.problem_type.all %}
+                <td>{{ problem.problem_type.all|join:", " }}</td>
+            {% else %}
+                <td class="font-italic">-</td>
+            {% endif %}
+            {% if problem.problem_group.all %}
+                <td>{{ problem.problem_group.all|join:", " }}</td>
+            {% else %}
+                <td class="font-italic">-</td>
+            {% endif %}
+            <td>{{ problem.points }}</td>
+        </tr>
+    {% endfor %}
 {% endblock %}
