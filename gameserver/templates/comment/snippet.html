@@ -1,11 +1,16 @@
-<div class="card my-3">
-    <div class="card-header">
-        Comments
-    </div>
-    <div class="card-body text-wrap">
-        {% include './list.html' with depth=4 %}
-    </div>
-</div>
-{% if user.is_authenticated %}
-{% include './form.html' %}
-{% endif %}
+
+<section class="card my-3">
+    {% if not is_private %}
+        <h5 class="card-header">Comments</h5>
+        <div class="card-body text-wrap">
+            {% include './list.html' with depth=4 %}
+            {% if user.is_authenticated %}
+                {% include './form.html' %}
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="card-body">
+            <p class="card-text"><i>Comments are not available on a private {{ entity }}</i></p>
+        </div>
+    {% endif %}
+</section>
