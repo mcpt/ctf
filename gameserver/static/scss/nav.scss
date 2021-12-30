@@ -1,0 +1,18 @@
+#navbar-content .nav-item:hover {
+	background-color: rgba(255,255,255,.15);	
+}
+.navbar-nav .nav-link {
+	font-weight: 400;
+	font-size: 1rem;
+	line-height: 2;
+
+	&:hover .nav-hover-ignore {
+		color: rgba(255,255,255,.55);
+	}
+}
+
+@media screen and (max-width: 768px) {
+	.navbar-nav .nav-link {
+		padding-left: 1rem;
+	}
+}

@@ -1,6 +1,7 @@
 {% load static %}
 {% load gravatar_tags %}
 {% load link_tags %}
+{% load django_bootstrap5 %}
 
 <!DOCTYPE html>
 <html lang="en" prefix="og: https://ogp.me/ns/{{ og_type }}#">
@@ -12,19 +13,14 @@
 
         <meta property="og:title" content="{{ page_title }}" />
         <meta name="twitter:title" content="{{ page_title }}" />
-
         <meta property="og:site_name" content="{{ site.name|safe }}">
-
         <meta property="og:type" content="{{ og_type }}" />
         <meta name="twitter:card" content="summary" />
-
         <link rel="canonical" href="{{ SCHEME }}://{{ site.domain }}{{ request.get_full_path }}">
         <meta property="og:url" content="{{ SCHEME }}://{{ site.domain }}{{ request.get_full_path }}">
-
         <meta name="description" content="{{ meta_description }}">
         <meta property="og:description" content="{{ meta_description }}">
         <meta name="twitter:description" content="{{ meta_description }}" />
-
         <meta name="keywords" content="{{ KEYWORDS|join:", " }}">
 
         {% if og_image %}
@@ -39,7 +35,7 @@
         {% block othermeta %}
         {% endblock %}
         
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+        {% bootstrap_css %}
         <link href="{% static 'plugins/css/ace.min.css' %}" type="text/css" media="all" rel="stylesheet" />
         <link href="{% static 'martor/css/martor.semantic.min.css' %}" type="text/css" media="all" rel="stylesheet" />
         <link href="{% static 'styles/bootstrap-icons.css' %}" type="text/css" media="all" rel="stylesheet" />
@@ -49,8 +45,8 @@
         {% endif %}
 
         <link href="{% static 'styles/style.css' %}" type="text/css" rel="stylesheet" />
-        <link href="{% static 'styles/base.css' %}" rel="stylesheet">
         <script src="https://vuejs.org/js/vue.min.js"></script>
+
         <script src="https://pagecdn.io/lib/ace/1.4.8/ace.js" type="text/javascript" charset="utf-8" onload=""></script>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
         <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js" integrity="sha384-y23I5Q6l+B6vatafAwxRu/0oK/79VlbSz7Q9aiSZUvyWYIYsd+qj+o24G5ZU2zJz" crossorigin="anonymous"></script>
@@ -75,101 +71,73 @@
     </head>
 
     <body>
-        <div class="mb-3">
-            <div class="d-flex" id="wrapper">
-                <div class="bg-light border-right" id="sidebar-wrapper">
-                    <div class="list-group">
-                        <div class="position-fixed list-group-flush">
-                            {% for name, link in NAVBAR.items %}
-                            <a href="{{ link }}" class="list-group-item list-group-item-action bg-light text-dark">{{ name }}</a>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
+        <nav class="navbar navbar-expand-md navbar-dark bg-dark border-bottom sticky-top p-0 container-fluid">
+            <a class="navbar-brand mr-auto ms-3" href="/">
+                <img src="{% static 'logos/lis.png' %}" height="30" alt="Long Inverted Solid mCTF logo">
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-content" aria-controls="navbar-content" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbar-content">
+              <ul class="navbar-nav h-100 w-100">
+                {% for name, link in NAVBAR.items %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ link }}">{{ name }}</a>
+                    </li>
+                {% endfor %}
+                <span class="flex-grow-1"></span>
 
-                <div id="page-content-wrapper">
-
-
-                    <div class="container-fluid">
-                        {% if messages %}
-                        <div class="mt-4">
-                            {% for message in messages %}
-                            <div class="alert alert-{{ message.level_tag }} alert-dismissible fade show" role="alert">
-                                <div {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-                        {% if request.in_contest %}
-                        <div class="alert alert-info mt-4" role="alert">
-                            <h4 class="alert-heading">{{ request.participation.contest.slug|contest }}</h4>
-                            <p>You are currently participating in {{ request.participation.contest.slug|contest }} as <a href="{{ request.participation.get_absolute_url }}">{{ request.participation.participant }}</a>.</p>
-                            <hr>
-                            <p class="mb-0" id="countdown">Loading countdown...</p>
-                        </div>
-                        {% endif %}
-                        <div class="mt-4 mb-6">
-                            {% block main %}
-                            {% endblock %}
-                        </div>
-                    </div>
-
-
-                    <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom fixed-bottom">
-                        <button class="btn btn-secondary" id="menu-toggle" onclick="toggleMenu()">
-                            <i class="bi bi-list"></i>
-                        </button>
-
-                        <a class="navbar-brand mx-auto" href="/">
-                            <img src="{% static 'logos/lis.png' %}" height="30" alt="Long Inverted Solid mCTF logo">
+                {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="profile-dropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <img src="{{ user.email|gravatar_url:20 }}" alt="User profile picture" class="img-thumbnail">
+                            &nbsp;
+                            <span>{{ user.username }}</span>
                         </a>
-
-                        <ul class="navbar-nav my-auto">
-                            {% if user.is_authenticated %}
-                            <li class="nav-item dropup">
-                                <a class="nav-link dropdown-toggle" href="#" id="profile-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <img src="{{ user.email|gravatar_url:20 }}" alt="User profile picture" class="img-thumbnail">
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="profile-dropdown">
-                                    <a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Logged in as {{ user.username }}</a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="{% url 'user_detail_redirect' %}">Profile</a>
-                                    {% if user.is_staff %}
-                                    <a class="dropdown-item" href="{% url 'admin:index' %}">Admin</a>
-                                    {% endif %}
-                                    <a class="dropdown-item" href="{% url 'account_logout' %}">Log out</a>
-                                </div>
-                            </li>
-                            {% else %}
-                            <li class="nav-item ml-4 my-auto">
-                                <div class="text-light">
-                                    <a class="font-weight-bold text-info" href="{% url 'account_login' %}">Log in</a> or <a class="font-weight-bold text-info" href="{% url 'account_signup' %}">Sign up</a>
-                                </div>
-                            </li>
+                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="profile-dropdown">
+                            <li><a class="dropdown-item" href="{% url 'user_detail_redirect' %}">Profile</a></li>
+                            {% if user.is_staff %}
+                                <li><a class="dropdown-item" href="{% url 'admin:index' %}">Admin</a></li>
                             {% endif %}
+                            <li><a class="dropdown-item" href="{% url 'account_logout' %}">Log out</a></li>
                         </ul>
-                    </nav>
-                </div>
-            </div>
-
-            {% block script %}
-            {% endblock %}
-
-            <script src="{% static 'scripts/base.js' %}" defer></script>
+                    </li>
+                {% else %}
+                    <li class="nav-link">
+                        <a class="text-light fw-400" href="{% url 'account_login' %}">Log in</a><span class="nav-hover-ignore"> or </span><a class="text-light fw-400" href="{% url 'account_signup' %}">Sign up</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        <main class="container mt-4 mb-5 px-4">
+            {% bootstrap_messages %}
             {% if request.in_contest %}
+                <div class="alert alert-info" role="alert">
+                    <h4 class="alert-heading" id="countdown">Loading countdown...</h4>
+                    <p class="mb-0">Currently participating in {{ request.participation.contest.slug|contest }} as <a href="{{ request.participation.get_absolute_url }}">{{ request.participation.participant }}</a>.</p>
+                </div>
+            {% endif %}
+            {% block main %}
+            {% endblock %}
+        </main>
+        <footer>
+            <small>mCTF by MCPT &nbsp;|&nbsp; <a href="https://github.com/mcpt/ctf">Source Code</a> &nbsp;|&nbsp; <a href="{{ TOS_URL }}">Terms of Service</a></small>
+        </footer>
+
+        {% block script %}
+        {% endblock %}
+
+        {% if request.in_contest %}
             <script src="{% static 'scripts/countdown.js' %}"></script>
             <script>
                 countdownTo = new Date({{ request.participation.contest.end_time|date:"U" }} * 1000);
                 setInterval(countdownTimer, 1000, countdownTo, "countdown");
             </script>
-            {% endif %}
-        </div>
+        {% endif %}
+
         <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+        {% bootstrap_javascript %}
         <script type="text/javascript" src="{% static 'plugins/js/highlight.min.js' %}"></script>
         <script>
             $('.martor-preview pre').each(function(i, block){

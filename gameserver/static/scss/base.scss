@@ -1,3 +1,14 @@
+:root {
+    --bs-body-bg: #e9ecef;
+}
 body {
     line-height: 1.5em;
+    font-size: 1em;
+    font-family: "Segoe UI", "Lucida Grande", Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-flow: column nowrap;
+}
+main {
+    flex-grow: 1;
 }
