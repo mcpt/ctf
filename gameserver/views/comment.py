@@ -14,7 +14,7 @@ class Comment(
 ):
     model = models.Comment
     context_object_name = "comment"
-    template_name = "gameserver/comment/detail.html"
+    template_name = "comment/detail.html"
 
     def get_title(self):
         return "Comment #" + str(self.get_object().pk)

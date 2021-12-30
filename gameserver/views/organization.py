@@ -14,7 +14,7 @@ from . import mixin
 class OrganizationList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     model = models.Organization
     context_object_name = "organizations"
-    template_name = "gameserver/organization/list.html"
+    template_name = "organization/list.html"
     title = "Organizations"
 
     def get_ordering(self):
@@ -26,7 +26,7 @@ class OrganizationDetail(
 ):
     model = models.Organization
     context_object_name = "organization"
-    template_name = "gameserver/organization/detail.html"
+    template_name = "organization/detail.html"
 
     def get_title(self):
         return "Organization " + self.get_object().name
@@ -55,7 +55,7 @@ class OrganizationDetail(
 class OrganizationMemberList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     model = models.Organization
     context_object_name = "users"
-    template_name = "gameserver/organization/member.html"
+    template_name = "organization/member.html"
 
     def get_ordering(self):
         return "-username"
@@ -81,7 +81,7 @@ class OrganizationMemberList(ListView, mixin.TitleMixin, mixin.MetaMixin):
 class OrganizationRequest(
     LoginRequiredMixin, CreateView, mixin.TitleMixin, mixin.MetaMixin
 ):
-    template_name = "gameserver/organization/form.html"
+    template_name = "organization/form.html"
     model = models.OrganizationRequest
     fields = ["reason"]
 
@@ -106,7 +106,7 @@ class OrganizationRequest(
 class OrganizationJoin(
     LoginRequiredMixin, FormView, mixin.TitleMixin, mixin.MetaMixin
 ):
-    template_name = "gameserver/organization/form.html"
+    template_name = "organization/form.html"
     form_class = forms.GroupJoinForm
     fields = ["access_code"]
 

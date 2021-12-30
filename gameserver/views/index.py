@@ -7,7 +7,7 @@ from . import mixin
 
 
 class Index(ListView, mixin.TitleMixin, mixin.MetaMixin):
-    template_name = "gameserver/info/index.html"
+    template_name = "info/index.html"
     model = models.BlogPost
     context_object_name = "posts"
 
@@ -34,7 +34,7 @@ class BlogPost(
 ):
     model = models.BlogPost
     context_object_name = "post"
-    template_name = "gameserver/info/blog_post.html"
+    template_name = "info/blog_post.html"
     og_type = "article"
 
     def get_title(self):
@@ -52,7 +52,7 @@ class Writeup(
 ):
     model = models.Writeup
     context_object_name = "post"
-    template_name = "gameserver/info/writeup.html"
+    template_name = "info/writeup.html"
     og_type = "article"
 
     def get_title(self):

@@ -19,7 +19,7 @@ logger = logging.getLogger("django")
 
 class ProblemList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     context_object_name = "problems"
-    template_name = "gameserver/problem/list.html"
+    template_name = "problem/list.html"
     title = "Problems"
 
     def get_queryset(self):
@@ -49,7 +49,7 @@ class ProblemDetail(
     mixin.CommentMixin,
 ):
     model = models.Problem
-    template_name = "gameserver/problem/detail.html"
+    template_name = "problem/detail.html"
     form_class = forms.FlagSubmissionForm
 
     def get_contest_object(self):
@@ -127,7 +127,7 @@ class ProblemDetail(
 
 class ProblemSubmissionList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     context_object_name = "submissions"
-    template_name = "gameserver/problem/submission_list.html"
+    template_name = "problem/submission_list.html"
     paginate_by = 50
 
     def get_queryset(self):

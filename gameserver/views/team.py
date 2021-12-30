@@ -20,7 +20,7 @@ from . import mixin
 class TeamList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     model = models.Team
     context_object_name = "teams"
-    template_name = "gameserver/team/list.html"
+    template_name = "team/list.html"
     title = "Teams"
 
     def get_ordering(self):
@@ -36,7 +36,7 @@ class TeamDetail(
 ):
     model = models.Team
     context_object_name = "team"
-    template_name = "gameserver/team/detail.html"
+    template_name = "team/detail.html"
     form_class = forms.GroupJoinForm
 
     def get_title(self):
@@ -72,7 +72,7 @@ class TeamDetail(
 class TeamCreate(
     LoginRequiredMixin, CreateView, mixin.TitleMixin, mixin.MetaMixin
 ):
-    template_name = "gameserver/team/create.html"
+    template_name = "team/create.html"
     model = models.Team
     fields = ("name", "description")
 
@@ -96,7 +96,7 @@ class TeamEdit(
     mixin.TitleMixin,
     mixin.MetaMixin,
 ):
-    template_name = "gameserver/team/form.html"
+    template_name = "team/form.html"
     title = "Update Team"
     model = models.Team
     form_class = forms.TeamUpdateForm
