@@ -1,5 +1,13 @@
-{% extends './superbase.html' %}
+{% extends 'card.html' %}
 
 {% block heading %}
 {% block head_title %}{% endblock %}
+{% endblock %}
+
+{% block after_card %}
+<style>
+	hr + h1 {
+		display: none;
+	}
+</style>
 {% endblock %}

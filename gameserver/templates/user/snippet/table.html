@@ -1,4 +1,7 @@
-<table class="table table-sm">
+{% load link_tags %}
+
+<div class="table-responsive table-list">
+<table class="table">
     <thead>
         <tr>
             <th scope="col">Rank</th>
@@ -9,7 +12,13 @@
     </thead>
     <tbody>
         {% for user in users %}
-        {% include './row.html' %}
+        <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td>{{ user.username|user }}</td>
+            <td>{{ user.points|floatformat }}</td>
+            <td>{{ user.flags }}</td>
+        </tr>
         {% endfor %}
     </tbody>
 </table>
+</div>

@@ -1,0 +1,31 @@
+.profile-info {
+	li {
+		font-size: 1rem;
+		line-height: 1.6;
+	}
+	svg.bi {
+		vertical-align: baseline;
+		margin-bottom: -2px;
+
+		&.bi-calendar3 {
+			margin-right: 1.5px;
+		}
+	}
+}
+
+.reverse-indent {
+	$indent: 4rem;
+	text-indent: -1 * $indent;
+	padding-left: $indent;
+}
+
+.btn-edit {
+	position: absolute;
+	top: 0;
+	right: 0;
+	padding: 0.5rem 1rem;
+
+	svg.bi {
+		height: 0.75rem;
+	}
+}

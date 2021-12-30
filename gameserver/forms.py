@@ -44,7 +44,7 @@ class ProfileUpdateForm(ModelForm):
         fields = [
             "description",
             "timezone",
-            "payment_pointer",
+            # "payment_pointer",
             "organizations",
         ]
         widgets = {"organizations": forms.CheckboxSelectMultiple()}
@@ -63,6 +63,8 @@ class ProfileUpdateForm(ModelForm):
         self.initial["organizations"] = [
             i.pk for i in user.organizations.all()
         ]
+        self.fields["description"].label = "Profile description"
+        self.fields["description"].widget.attrs['placeholder'] = "Description..."
 
 
 class TeamUpdateForm(ModelForm):

@@ -62,7 +62,7 @@ class UserDetail(
 
 class UserSubmissionList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     context_object_name = "submissions"
-    template_name = "user/submission_list.html"
+    template_name = "submission/list.html"
     paginate_by = 50
 
     def get_queryset(self):
@@ -77,6 +77,7 @@ class UserSubmissionList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["author"] = self.kwargs["slug"]
+        context["hide_pk"] = True
         return context
 
 

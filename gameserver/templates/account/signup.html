@@ -1,25 +1,31 @@
-{% extends './base.html' %}
-{% load crispy_forms_tags %}
+{% extends 'form.html' %}
 {% load i18n %}
+{% load static %}
+{% load account socialaccount %}
+{% load django_bootstrap5 %}
 
-{% block head_title %}{% trans "Signup" %}{% endblock %}
+{% block heading %}{% trans "Sign Up" %}{% endblock %}
 
-{% block content %}
-<p>{% blocktrans %}Already have an account? Then please <a href="{{ login_url }}">sign in</a>.{% endblocktrans %}</p>
+{% block before_form %}
+<p>{% blocktrans %}Already have an account? <a href="{{ login_url }}">Sign in</a>.{% endblocktrans %}</p>
+{% endblock %}
 
-<form class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
-    {% csrf_token %}
-    {{ form|crispy }}
-    {% if redirect_field_value %}
-    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
-    {% endif %}
-    <p>By clicking this button, you agree to our <a href="{{ TOS_URL }}">terms</a>.</p>
+{% block after_form %}
+    <p class="mb-0">By clicking this button, you agree to our <a href="{{ TOS_URL }}">terms</a>.</p>
     <p>
-    This site is protected by reCAPTCHA and the Google
-    <a href="https://policies.google.com/privacy">Privacy Policy</a> and
-    <a href="https://policies.google.com/terms">Terms of Service</a> apply.
+        This site is protected by reCAPTCHA and the Google
+        <a href="https://policies.google.com/privacy">Privacy Policy</a> and
+        <a href="https://policies.google.com/terms">Terms of Service</a> apply.
     </p>
-    <button type="submit" class="btn btn-primary mb-3 g-recaptcha">{% trans "Sign Up" %}</button>
 </form>
+{% endblock %}
 
+{% block submit_btn %}
+    {% bootstrap_button content='Sign Up' button_type='submit' extra_classes="g-recaptcha" %}
+{% endblock %}
+{% block alternate_btn %}{% endblock %}
+
+{# ? #}
+{% block deps %}
+<script src="{% static 'js/login.js' %}"></script>
 {% endblock %}

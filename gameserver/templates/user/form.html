@@ -1,17 +1,9 @@
-{% extends '../base.html' %}
-{% load crispy_forms_tags %}
+{% extends 'form.html' %}
+{% load bootstrap_icons %}
 
-{% block main %}
-<div class="card">
-    <div class="card-body">
-        <form method="post">
-            <h5 class="card-title">Edit profile</h5>
-            {% csrf_token %}
-            {{ form|crispy }}
-            <a href="https://gravatar.com">Edit profile photo</a><br><br>
-            <button type="submit" class="btn btn-primary mr-2">Submit</button>
-            <a href="{% url 'user_detail_redirect' %}" class="btn btn-primary" role="button" aria-pressed="true">Cancel</a>
-        </form>
-    </div>
-</div>
+{% block heading %}Edit profile{% endblock %}
+
+{% block after_form %}
+    <p><a href="https://gravatar.com">Edit profile photo at gravatar.com {% bs_icon "link-45deg" %}</a></p>
 {% endblock %}
+{% block cancel_redirect %}{% url 'user_detail_redirect' %}{% endblock %}

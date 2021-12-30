@@ -1,5 +1,15 @@
 @import "colours";
 
+.btn-light {
+    background-color: #f1efee;
+    border-color: #f1efee;
+
+    &:hover {
+        background-color: #{$gray-300};
+        border-color: #{$gray-300};
+    }
+}
+
 a, .btn-link {
     text-decoration: none;
 }
