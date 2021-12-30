@@ -7,7 +7,7 @@ from . import mixin
 
 
 class Index(ListView, mixin.TitleMixin, mixin.MetaMixin):
-    template_name = "info/index.html"
+    template_name = "home.html"
     model = models.BlogPost
     context_object_name = "posts"
 
