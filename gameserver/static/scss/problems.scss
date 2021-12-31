@@ -1,0 +1,22 @@
+@import "colours";
+
+:root {
+	--solved: #0a0;
+	--attempted: #0af;
+	--unsolved: #000;
+}
+
+.status {
+	&.solved::after {
+		color: var(--solved) !important;
+		content: "Solved";
+	}
+	&.attempted::after {
+		color: var(--attempted) !important;
+		content: "Attempted";
+	}
+	&.unsolved::after {
+		color: var(--unsolved) !important;
+		content: "Unsolved";
+	}
+}

@@ -7,16 +7,20 @@ register = template.Library()
 def problem_color(problem, user):
     if user.has_solved(problem):
         return "success"
+    if user.has_attempted(problem):
+        return "warning"
     else:
-        return "light"
+        return "unsolved"
 
 
 @register.filter
 def contest_problem_color(contest_problem, user):
-    if user.current_contest.has_solved(contest_problem):
+    if user.has_solved(contest_problem):
         return "success"
+    if user.has_attempted(contest_problem):
+        return "warning"
     else:
-        return "light"
+        return "unsolved"
 
 
 @register.filter

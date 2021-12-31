@@ -53,8 +53,10 @@ class User(AbstractUser):
         return reverse("user_detail", args=[self.username])
 
     def has_solved(self, problem):
-        solves = self.submissions.filter(problem=problem, is_correct=True)
-        return solves.count() > 0
+        return self.submissions.filter(problem=problem, is_correct=True).exists()
+
+    def has_attempted(self, problem):
+        return self.submissions.filter(problem=problem).exists()
 
     def _get_unique_correct_submissions(self):
         return self.submissions.filter(is_correct=True).values("problem", "problem__points").distinct()
