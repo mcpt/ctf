@@ -1,42 +1,46 @@
 {% extends '../base.html' %}
 {% load link_tags %}
-{% load humanize %}
-{% load martortags %}
-{% load crispy_forms_tags %}
 
 {% block main %}
-<div class="card mb-3">
-    <div class="card-body">
-        <h5 class="mt-0"><a href="{{ participation.participant.get_absolute_url }}">{{ participation.participant }}</a>'s Participation in {{ participation.contest.slug|contest }}</h5>
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h1 class="mt-0"><a href="{{ participation.participant.get_absolute_url }}">{{ participation.participant }}</a>'s Participation in {{ participation.contest.slug|contest }}</h1>
+                <hr class="mb-0">
+            </div>
+        </div>
+        {% include "snippets/group_detail/members.html" with member_list=participation.participants.all entity="Members" %}
+        {% if request.in_contest and request.participation.contest == participation.contest or contest.is_finished %}
+            <div class="card mb-3">
+                <h2 class="card-header fs-6">Submissions</h2>
+                <div class="card-body">
+                    {% include './snippet/submission/table.html' with contest_submissions=participation.submissions.all %}
+                </div>
+            </div>
+        {% endif %}
     </div>
-    <ul class="list-group list-group-flush">
-        <li class="list-group-item">Rank: #{{ participation.rank }}</li>
-        <li class="list-group-item">{{ participation.points }} Point{{ participation.points|pluralize }}</li>
-        <li class="list-group-item">{{ participation.num_flags_captured }} Flag{{ participation.num_flags_captured|pluralize }} Captured</li>
-        <li class="list-group-item">Time Taken: {{ participation.time_taken }}</li>
-    </ul>
+    <aside class="col">
+        <div class="card mb-3">
+            <div class="card-body participation-summary">
+                <div>
+                    <span>#{{ participation.rank }}</span>
+                    <span>rank</span>
+                </div>
+                <div>
+                    <span>{{ participation.points }}</span>
+                    <span>point{{ participation.points|pluralize }}</span>
+                </div>
+                <div>
+                    <span>{{ participation.num_flags_captured }}</span>
+                    <span>flag{{ participation.num_flags_captured|pluralize }} captured</span>
+                </div>
+                <div>
+                    <span>{{ participation.time_taken }}</span>
+                    <span>time taken</span>
+                </div>
+            </div>
+        </div>
+    </aside>
 </div>
-<div class="card mb-3">
-    <div class="card-header">
-        Members
-    </div>
-    <ul class="list-group list-group-flush">
-        {% for participant in participation.participants.all %}
-        <a class="list-group-item list-group-item-action" href="{{ participant.get_absolute_url }}">
-            {{ participant.username }}
-        </a>
-        {% endfor %}
-    </ul>
-</div>
-{% if request.in_contest and request.participation.contest == participation.contest or contest.is_finished %}
-<div class="card">
-    <div class="card-header">
-        Submissions
-    </div>
-    <div class="card-body">
-        {% include './snippet/submission/table.html' with contest_submissions=participation.submissions.all %}
-    </div>
-</div>
-{% endif %}
-{% include '../comment/snippet.html' %}
 {% endblock %}

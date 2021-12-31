@@ -17,5 +17,5 @@ function countdownTimer(dateObj, elemId) {
         location.reload(true);
     }
 
-    document.getElementById(elemId).innerHTML = remaining;
+    document.getElementById(elemId).textContent = remaining;
 }

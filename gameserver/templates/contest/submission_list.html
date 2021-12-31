@@ -1,15 +1,14 @@
-{% extends '../base.html' %}
+{% extends 'table-list.html' %}
 {% load link_tags %}
-{% load color_tags %}
 
-{% block main %}
-<div class="card">
-    <div class="card-body">
-        <h5 class="card-title">Submissions for {{ contest.slug|contest }}</h5>
+{% block heading %}Submissions for {{ contest.slug|contest }}{% endblock %}
 
-        {% include './snippet/submission/table.html' %}
+{% block th %}
+    {% include 'submission/snippet/thead.html' with hide_timestamp=True %}
+{% endblock %}
 
-        {% include 'paginator/snippet.html' %}
-    </div>
-</div>
+{% block trows %}
+    {% for contest_submission in contest_submissions %}
+        {% include './snippet/submission/row.html' %}
+    {% endfor %}
 {% endblock %}

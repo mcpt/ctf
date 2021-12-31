@@ -1,12 +1,26 @@
-{% extends '../base.html' %}
+{% extends 'table-list.html' %}
 {% load color_tags %}
 {% load link_tags %}
 
-{% block main %}
-<div class="card">
-    <div class="card-body">
-        <h5 class="card-title">Problems for {{ contest.slug|contest }}</h5>
-        {% include './snippet/problem/table.html' %}
-    </div>
-</div>
+{% block heading %}Problems for {{ contest.slug|contest }}{% endblock %}
+
+{% block th %}
+     {# todo: icon status #}
+    <th scope="col">Problem</th>
+    <th scope="col">Types</th>
+    <th scope="col">Points</th>
+{% endblock %}
+
+{% block trows %}
+    {% for contest_problem in contest_problems %}
+        <tr class="table-{{ contest_problem|contest_problem_color:user }}">
+        <td>{{ contest_problem.problem.slug|problem }}</td>
+            {% if contest_problem.problem.problem_type.all %}
+                <td>{{ contest_problem.problem.problem_type.all|join:", " }}</td>
+            {% else %}
+                <td class="font-italic">-</td>
+            {% endif %}
+            <td>{{ contest_problem.points }}</td>
+        </tr>
+    {% endfor %}
 {% endblock %}
