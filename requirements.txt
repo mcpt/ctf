@@ -7,7 +7,7 @@ defusedxml==0.7.1
 Django==3.2.9
 django-allauth==0.45.0
 django-bootstrap5==21.2
-django-bootstrap-icons-0.7.4
+django-bootstrap-icons==0.7.4
 django-crispy-forms==1.13.0
 django-recaptcha==2.0.6
 django-sass==1.1.0
