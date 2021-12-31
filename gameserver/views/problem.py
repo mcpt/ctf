@@ -69,7 +69,7 @@ class ProblemDetail(
         )
 
     def get_title(self):
-        return "" + self.get_object().name
+        return self.get_object().name
 
     def get_description(self):
         return self.get_object().summary
