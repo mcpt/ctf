@@ -17,7 +17,8 @@ a, .btn-link {
     font-size: 1rem;
 }
 
-$head-bg: $gray-900;
+// cards
+$head-bg: $primary-dark;
 $head-color: #fff;
 
 .card-header {
@@ -29,6 +30,9 @@ $head-color: #fff;
         color: #{$head-bg};
         border-color: transparent;
     }
+}
+.card-header:first-child, .card {
+    border-radius: 0;
 }
 
 // https://github.com/twbs/bootstrap/blob/main/scss/_tables.scss
@@ -53,4 +57,11 @@ $head-color: #fff;
         border-top: transparent;
     }
     @extend %table-hover;
+}
+
+button.btn-primary, input[type="submit"] {
+    background-color: #165dcc;
+    &:hover {
+        background-color: #265a88;
+    }
 }

@@ -22,3 +22,10 @@ h1.card-title + hr {
 #leave-form {
     display: none;
 }
+a {
+    color: $link;
+
+    &:hover {
+        color: $link-hover;
+    }
+}

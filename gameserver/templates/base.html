@@ -71,7 +71,7 @@
     </head>
 
     <body>
-        <nav class="navbar navbar-expand-md navbar-dark bg-dark border-bottom sticky-top p-0 container-fluid">
+        <nav class="navbar navbar-expand-md navbar-dark bg-dark sticky-top p-0 container-fluid">
             <a class="navbar-brand mr-auto ms-3 me-2" href="/">
                 <img src="{% static 'logos/lis.png' %}" height="40" alt="Long Inverted Solid mCTF logo">
             </a>
@@ -104,7 +104,7 @@
                     </li>
                 {% else %}
                     <li class="nav-link">
-                        <a class="text-light fw-400" href="{% url 'account_login' %}">Log in</a><span class="nav-hover-ignore"> or </span><a class="text-light fw-400" href="{% url 'account_signup' %}">Sign up</a>
+                        <a class="text-light fw-400" href="{% url 'account_login' %}"><b>Log in</b></a><span class="nav-hover-ignore"> or </span><a class="text-light fw-400" href="{% url 'account_signup' %}"><b>Sign up</b></a>
                     </li>
                 {% endif %}
             </ul>
