@@ -1,24 +1,44 @@
 {% extends 'table-list.html' %}
 {% load link_tags %}
 {% load color_tags %}
-{% load humanize %}
 {% load tz %}
 {% get_current_timezone as TIME_ZONE %}
+{% load bootstrap_icons %}
 
 {% block th %}
-    <th scope="col">Name</th>
+    <th scope="col">Contest</th>
     <th scope="col">Time</th>
-    <th scope="col">Length</th>
+    <th scope="col">Type</th>
     <th scope="col">Status</th>
 {% endblock %}
 
 {% block trows %}
     {% for contest in contests %}
         <tr class="table-{{ contest|contest_color }}">
-            <td>{{ contest.slug|contest }}</th>
-            <td>Starts on {{ contest.start_time }} ({{ TIME_ZONE }})</td>
-            <td>{{ contest.duration }} Long</td>
-            <td>
+            <td class="p-3 py-2">
+                <h4 class="mb-1">{{ contest.slug|contest }}</h4>
+                <p class="mb-1">{{ contest.summary }}</p>
+
+                {% if contest.tags.all %}
+                    <div class="mt-2">
+                        {% for tag in contest.tags.all %}
+                            <button type="button" class="btn btn-outline-secondary btn-sm">{{ tag }}</button>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </td>
+            <td class="pt-2">
+                <p class="text-muted m-0">{{ contest.start_time }} ({{ TIME_ZONE }})</p>
+                <p class="text-muted m-0">{{ contest.duration }} Long</p>
+            </td>
+            <td class="pt-2">
+                {% if contest.teams_allowed %}
+                    {% bs_icon 'people-fill' extra_classes="align-sub" %} Team
+                {% else %}
+                    {% bs_icon 'person-fill' extra_classes="align-sub" %} Individual
+                {% endif %}
+            </td>
+            <td class="pt-2">
                 {% if not contest.is_started %}
                     Upcoming
                 {% elif contest.is_ongoing %}
