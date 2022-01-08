@@ -2,9 +2,9 @@
 {% load humanize %}
 {% load martortags %}
 
-<ul class="list-unstyled row m-0 g-3">
+<div>
     {% for post in posts %}
-        <article class="card {% if forloop.first %}mt-0{% endif %}">
+        <article class="card {% if forloop.first %}mt-0{% endif %} mb-3">
             <div class="card-body">
                 <h2 class="card-title mb-1 fs-3"><a href="{% url 'blog_post' post.slug %}">{{ post.title }}</a></h2>
                 <p class="card-text mb-3 text-muted">{{ post.author.all|users }} posted {{ post.date_created|naturaltime }}</p>
@@ -12,4 +12,4 @@
             </div>
         </article>
     {% endfor %}
-</ul>
+</div>

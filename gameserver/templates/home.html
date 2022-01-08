@@ -33,8 +33,8 @@
         {% endif %}
         <section class="card mb-3">
             <h1 class="card-header fs-6">New Problems</h1>
-            <div class="card-body py-1">
-                <ul class="list-unstyled mb-0 py-2">
+            <div class="card-body pt-2 pb-3">
+                <ul class="list-unstyled mb-0">
                     {% for problem in problems %}
                         <li>{{ problem.slug|problem }}</li>
                     {% endfor %}
@@ -44,8 +44,8 @@
         {% if comments %}
             <section class="card mb-3">
                 <h1 class="card-header fs-6">New Comments</h1>
-                <div class="card-body py-1">
-                    <ul class="list-unstyled mb-0 py-2">
+                <div class="card-body pt-2 pb-3">
+                    <ul class="list-unstyled mb-0">
                         {% for comment in comments %}
                             <li>{{ comment|comment_html_short }}</li>
                         {% endfor %}
