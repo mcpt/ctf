@@ -5,7 +5,7 @@
 {% block heading %}Problems for {{ contest.slug|contest }}{% endblock %}
 
 {% block th %}
-     {# todo: icon status #}
+    <th scope="col">Status</th>
     <th scope="col">Problem</th>
     <th scope="col">Types</th>
     <th scope="col">Points</th>
@@ -13,8 +13,11 @@
 
 {% block trows %}
     {% for contest_problem in contest_problems %}
-        <tr class="table-{{ contest_problem|contest_problem_color:user }}">
-        <td>{{ contest_problem.problem.slug|problem }}</td>
+        <tr>
+            {% with status=contest_problem|contest_problem_status:user %}
+                <td>{% include "problem/snippet/status.html" %}</td>
+            {% endwith %}
+            <td>{{ contest_problem.problem.slug|problem }}</td2>
             {% if contest_problem.problem.problem_type.all %}
                 <td>{{ contest_problem.problem.problem_type.all|join:", " }}</td>
             {% else %}

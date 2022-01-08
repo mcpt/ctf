@@ -31,3 +31,33 @@ def contest_color(contest):
         return "primary"
     else:
         return "success"
+
+
+@register.filter
+def problem_status(problem, user):
+    if user.has_solved(problem):
+        return "solved"
+    if user.has_attempted(problem):
+        return "attempted"
+    else:
+        return "unsolved"
+
+
+@register.filter
+def submission_status(submission):
+    if submission.is_firstblood():
+        return "firstblood"
+    elif submission.is_correct:
+        return "solved"
+    else:
+        return "attempted"
+
+
+@register.filter
+def contest_problem_status(contest_problem, user):
+    if user.has_solved(contest_problem.problem):
+        return "solved"
+    if user.has_attempted(contest_problem.problem):
+        return "attempted"
+    else:
+        return "unsolved"

@@ -124,8 +124,10 @@ class ProblemDetail(
         context = super().get_context_data(**kwargs)
         context["contest_problem"] = self.get_contest_object()
         if self.request.user.is_authenticated:
-            context["solved"] = (self.request.user.has_solved(self.get_object())) or (self.request.in_contest and self.request.participation.has_solved(self.get_contest_object()))
-            context["attempted"] = (self.request.user.has_attempted(self.get_object())) or (self.request.in_contest and self.request.participation.has_attempted(self.get_contest_object()))
+            if (self.request.user.has_solved(self.get_object())) or (self.request.in_contest and self.request.participation.has_solved(self.get_contest_object())):
+                context["status"] = "solved"
+            elif (self.request.user.has_attempted(self.get_object())) or (self.request.in_contest and self.request.participation.has_attempted(self.get_contest_object())):
+                context["status"] = "attempted"
         return context
 
 class ProblemSubmissionList(ListView, mixin.TitleMixin, mixin.MetaMixin):

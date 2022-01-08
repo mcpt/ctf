@@ -3,6 +3,9 @@
 {% load link_tags %}
 
 {% block th %}
+    {% if user.is_authenticated %}
+        <th scope="col">Status</th>
+    {% endif %}
     <th scope="col">Problem</th>
     <th scope="col">Types</th>
     <th scope="col">Groups</th>
@@ -11,11 +14,12 @@
 
 {% block trows %}
     {% for problem in problems %}
-        {% if user.is_authenticated %}
-        <tr class="table-{{ problem|problem_color:user }}">
-        {% else %}
         <tr>
-        {% endif %}
+            {% if user.is_authenticated %}
+                {% with status=problem|problem_status:user %}
+                    <td>{% include "./snippet/status.html" %}</td>
+                {% endwith %}
+            {% endif %}
             <td>{{ problem.slug|problem }}</td>
             {% if problem.problem_type.all %}
                 <td>{{ problem.problem_type.all|join:", " }}</td>

@@ -1,3 +1,6 @@
+{% load color_tags %}
 <td>
-    {% include "problem/snippet/status.html" with firstblood=submission.is_firstblood solved=submission.is_correct attempted=True %}
+    {% with status=submission|submission_status %}
+        {% include "problem/snippet/status.html" %}
+    {% endwith %}
 </td>
