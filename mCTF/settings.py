@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
-    "crispy_forms",
     "captcha",
     "django_bootstrap5",
     "django_bootstrap_icons",
@@ -242,7 +241,6 @@ MARTOR_THEME = "semantic"
 
 SITE_ID = 1
 
-CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 SILENCED_SYSTEM_CHECKS = ["urls.W002"]
 

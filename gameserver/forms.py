@@ -95,13 +95,6 @@ class GroupJoinForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.group = kwargs.pop("group", None)
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
-            FieldWithButtons(
-                "access_code",
-                Submit("submit", "Submit", css_class="btn-primary"),
-            )
-        )
         super(GroupJoinForm, self).__init__(*args, **kwargs)
 
     def clean_access_code(self):
@@ -119,12 +112,6 @@ class FlagSubmissionForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.problem = kwargs.pop("problem", None)
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
-            FieldWithButtons(
-                "flag", Submit("submit", "Submit", css_class="btn-primary")
-            )
-        )
 
         super(FlagSubmissionForm, self).__init__(*args, **kwargs)
 

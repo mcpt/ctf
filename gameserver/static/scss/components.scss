@@ -79,3 +79,17 @@ button.btn-primary, input[type="submit"] {
 #leave-form {
     display: none;
 }
+
+.submit_code {
+    input {
+        border-top-right-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+    }
+    button {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+    .invalid-feedback {
+        display: none;
+    }
+}

@@ -1,7 +1,6 @@
 {% extends 'dual-column.html' %}
 {% load martortags %}
 {% load link_tags %}
-{% load crispy_forms_tags %}
 {% load static %}
 
 {% block content %}
@@ -54,10 +53,7 @@
             </ul>
             <hr>
             {% if user.is_authenticated %}
-            <form method="POST">
-                {% csrf_token %}
-                {% crispy form %}
-            </form>
+                {% include "snippets/form-code.html" with field=form.flag %}
             {% endif %}
             <p class="mt-2 mb-0 mx-1"><a href="{% url 'problem_submission_list' problem.slug %}" class="card-link">All Submissions</a></p>
         </div>
