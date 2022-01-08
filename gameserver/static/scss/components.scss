@@ -19,10 +19,10 @@ a, .btn-link {
 
 // cards
 $head-bg: $primary-dark;
-$head-color: #fff;
+$head-text: $white;
 
 .card-header {
-    color: #{$head-color};
+    color: #{$head-text};
     background-color: #{$head-bg};
 
     + .card-body .table-list thead {
@@ -46,7 +46,7 @@ $head-color: #fff;
 // custom 
 .table-list {
     thead {
-        --bs-table-color: #{$head-color};
+        --bs-table-color: #{$head-text};
         --bs-table-bg: #{$head-bg};
         color: var(--bs-table-color);
         border-color: var(--bs-table-border-color);
@@ -64,4 +64,8 @@ button.btn-primary, input[type="submit"] {
     &:hover {
         background-color: #265a88;
     }
+}
+
+#leave-form {
+    display: none;
 }
