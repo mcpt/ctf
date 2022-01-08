@@ -89,7 +89,6 @@ class OrganizationRequest(
         return context
 
 
-@method_decorator(require_POST, name="dispatch")
 class OrganizationJoin(
     LoginRequiredMixin, FormView, mixin.TitleMixin, mixin.MetaMixin
 ):

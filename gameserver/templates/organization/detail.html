@@ -25,10 +25,7 @@
                 {% else %}
                     <p>You are currently not in this organization.</p>
                     {% if not group.is_private or not group.access_code == "" %}
-                        <form action="{% url 'organization_join' group.slug %}" method="post">
-                            {% csrf_token %}
-                            <button class="btn btn-primary" type="submit">Join organization</button>
-                        </form>
+                        <a href="{% url 'organization_join' group.slug %}" class="btn btn-primary">Join organization</a>
                     {% else %}
                         {% if last_user_organization_request %}
                             <p>Your latest request to join this organization was {{ last_user_organization_request.date_created|naturaltime }}.</p>
