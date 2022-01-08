@@ -27,12 +27,18 @@ $head-text: $white;
 
     + .card-body .table-list thead {
         --bs-table-bg: #{$gray-200};
-        color: #{$head-bg};
+        color: $gray-800;
         border-color: transparent;
     }
 }
 .card-header:first-child, .card {
     border-radius: 0;
+}
+.card-body {
+    padding: 1.25rem;
+}
+.card-header {
+    padding-left: 0.75rem;
 }
 
 // https://github.com/twbs/bootstrap/blob/main/scss/_tables.scss
