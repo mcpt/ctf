@@ -3,22 +3,21 @@
 {% load tz %}
 {% load humanize %}
 
-<li class="card flex-row mt-2 p-3" style="margin-left: calc((4 - {{ depth }}) * (3rem))">
+<li class="card flex-row mt-2 p-3" style="margin-left: calc(({{ depth }}) * (2rem))">
     <div class="flex-shrink-0 col-1 mr-3">
         <img src="{{ comment.author.email|gravatar_url:32 }}" class="w-100" alt="{{ comment.author.username }}'s gravatar">
     </div>
     <div class="flex-grow-1 ms-3 py-1">
-        <h6 class="mt-0">{{ comment.pk|comment }}: {{ comment.author.username|user }} commented {{ comment.date_created|naturaltime }}</h6>
-        {{ comment.text|truncatechars:100|linebreaksbr }}
-        <a href="{% url 'comment' comment.pk %}"><i class="bi bi-reply"></i></a>
+        <h6 class="mt-0 text-muted">{{ comment.author.username|user }} commented {{ comment.date_created|naturaltime }}<a class="float-end" href="{% url 'comment' comment.pk %}"><i class="bi bi-reply" title="Reply to this comment"></i></a></h6>
+        {{ comment.text|linebreaksbr }}
     </div>
 </li>
-{% if depth != 0 %}
-    {% with new_depth=depth|add:"-1" %}
+{% if depth != max_depth %}
+    {% with new_depth=depth|add:"1" %}
         {% include './list.html' with comments=comment.comments.all hide_empty=True depth=new_depth %}
     {% endwith %}
 {% else %}
     {% if comments %}
-        <li class="text-end mt-1 me-1">(More comments)</li>
+        <li class="text-end mt-1 me-1 fst-italic"><small><a href="{% url 'comment' comment.pk %}">Continue thread →</a></small></li>
     {% endif %}
 {% endif %}

@@ -65,6 +65,10 @@ $head-text: $white;
     @extend %table-hover;
 }
 
+h6 .bi-reply::before {
+    vertical-align: text-top;
+}
+
 button.btn-primary, input[type="submit"] {
     background-color: #165dcc;
     &:hover {

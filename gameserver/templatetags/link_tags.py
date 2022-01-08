@@ -121,7 +121,7 @@ def comment_html_short(comment_obj):
         comment_obj
     )
     return format_html(
-        "{0}: {1} → {2}", comment_url, author_url, parent_url
+        "{1} → {2}", comment_url, author_url, parent_url
     )
 
 
