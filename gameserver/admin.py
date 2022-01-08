@@ -12,7 +12,7 @@ from . import models
 User = get_user_model()
 
 
-class ProblemFileInline(admin.TabularInline):
+class ProblemFileInline(admin.StackedInline):
     fields = ["artifact"]
     model = models.ProblemFile
     extra = 0

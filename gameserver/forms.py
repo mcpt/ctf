@@ -1,6 +1,4 @@
 from allauth.account.forms import SignupForm
-from captcha.fields import ReCaptchaField
-from captcha.widgets import ReCaptchaV3
 from crispy_forms.bootstrap import FieldWithButtons
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit
@@ -18,7 +16,6 @@ User = get_user_model()
 
 
 class MCTFSignupForm(SignupForm):
-    captcha = ReCaptchaField(widget=ReCaptchaV3, label="")
     timezone = forms.ChoiceField(
         choices=choices.timezone_choices, initial=settings.DEFAULT_TIMEZONE
     )
@@ -27,7 +24,6 @@ class MCTFSignupForm(SignupForm):
         "username",
         "password1",
         "password2",
-        "captcha",
         "timezone",
     ]
 
