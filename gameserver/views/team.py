@@ -70,6 +70,10 @@ class TeamDetail(
         self.get_object().members.add(self.request.user)
         return super().form_valid(form)
 
+    def form_invalid(self, form):
+        messages.error(self.request, "Your access code is incorrect.")
+        return super().form_invalid(form)
+
     def get_success_url(self):
         return reverse("team_detail", kwargs={"pk": self.get_object().pk})
 
@@ -126,4 +130,5 @@ class TeamLeave(LoginRequiredMixin, RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         team = get_object_or_404(models.Team, pk=kwargs["pk"])
         team.members.remove(self.request.user)
+        messages.info(self.request, "You have left this team.")
         return super().get_redirect_url(*args, **kwargs)

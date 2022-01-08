@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404, redirect
@@ -74,6 +75,7 @@ class OrganizationRequest(
     def form_valid(self, form):
         form.instance.organization = self.get_object()
         form.instance.user = self.request.user
+        messages.info(self.request, "Your request to join this organization has been submitted.")
         return super().form_valid(form)
 
     def get_object(self):
@@ -107,6 +109,7 @@ class OrganizationJoin(
 
     def form_valid(self, form):
         self.success()
+        messages.success(self.request, "You are now a member of this organization!")
         return super().form_valid(form)
 
     def get_success_url(self, *args, **kwargs):
@@ -139,4 +142,5 @@ class OrganizationLeave(LoginRequiredMixin, RedirectView):
             models.Organization, slug=kwargs["slug"]
         )
         self.request.user.organizations.remove(organization)
+        messages.info(self.request, "You have left this organization.")
         return super().get_redirect_url(*args, **kwargs)
