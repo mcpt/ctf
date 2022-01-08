@@ -3,15 +3,16 @@
 {% load link_tags %}
 {% load crispy_forms_tags %}
 {% load static %}
-{% load django_bootstrap5 %}
 
 {% block content %}
     <div class="card mb-3">
         <div class="card-body px-4 py-3">
-            {% if user.is_authenticated %}
-	        <span class="status {% if solved %}solved{% else %}{% if attempted %}attempted{% else %}unsolved{% endif %}{% endif %}"></span>
-            {% endif %}
-            <h1 class="card-title">{{ problem.name }}</h1>
+            <h1 class="card-title">
+                {% if user.is_authenticated %}
+                    {% include "problem/snippet/status.html" with hide_unsolved=True %}
+                {% endif %}
+                {{ problem.name }}
+            </h1>
             <hr>
             <p class="card-text">{{ problem.description|safe_markdown }}</p>
         </div>

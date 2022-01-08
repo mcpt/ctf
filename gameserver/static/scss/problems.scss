@@ -1,22 +1,25 @@
 @import "colours";
 
 :root {
-	--solved: #0a0;
-	--attempted: #0af;
-	--unsolved: #000;
+	--solved: #008000;
+	--attempted: #F44336;
+	--unsolved: #0af;
 }
 
 .status {
-	&.solved::after {
+	@at-root h1 & .bi {
+		width: auto;
+		height: 25px;
+		margin-right: -2px;
+		vertical-align: unset;
+	}
+	&[title="Solved"], &[title^="Captured"], &[title="First blood"] {
 		color: var(--solved) !important;
-		content: "Solved";
 	}
-	&.attempted::after {
+	&[title="Attempted"] {
 		color: var(--attempted) !important;
-		content: "Attempted";
 	}
-	&.unsolved::after {
+	&[title="Unsolved"] {
 		color: var(--unsolved) !important;
-		content: "Unsolved";
 	}
 }
