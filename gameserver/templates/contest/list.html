@@ -14,7 +14,7 @@
 
 {% block trows %}
     {% for contest in contests %}
-        <tr class="table-{{ contest|contest_color }}">
+        <tr>
             <td class="p-3 py-2">
                 <h4 class="mb-1">{{ contest.slug|contest }}</h4>
                 <p class="mb-1">{{ contest.summary }}</p>
@@ -40,11 +40,11 @@
             </td>
             <td class="pt-2">
                 {% if not contest.is_started %}
-                    Upcoming
+                    <button type="button" class="btn btn-info btn-sm">Upcoming</button>
                 {% elif contest.is_ongoing %}
-                    Ongoing
+                    <button type="button" class="btn btn-success btn-sm">Ongoing</button>
                 {% else %}
-                    Ended
+                    <button type="button" class="btn btn-light2 btn-sm">Ended</button>
                 {% endif %}
             </td>
         </tr>
