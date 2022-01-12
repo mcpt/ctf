@@ -5,11 +5,20 @@
 {% get_current_timezone as TIME_ZONE %}
 {% load bootstrap_icons %}
 
+{% block table_class %}contest-list{% endblock %}
+
 {% block th %}
     <th scope="col">Contest</th>
     <th scope="col">Time</th>
     <th scope="col">Type</th>
     <th scope="col">Status</th>
+{% endblock %}
+
+{% block colgroup %}
+    <col style="width: auto">
+    <col style="width: 33%">
+    <col style="width: 17%">
+    <col style="width: 11%">
 {% endblock %}
 
 {% block trows %}
@@ -18,14 +27,6 @@
             <td class="p-3 py-2">
                 <h4 class="mb-1">{{ contest.slug|contest }}</h4>
                 <p class="mb-1">{{ contest.summary }}</p>
-
-                {% if contest.tags.all %}
-                    <div class="mt-2">
-                        {% for tag in contest.tags.all %}
-                            <button type="button" class="btn btn-outline-secondary btn-sm">{{ tag }}</button>
-                        {% endfor %}
-                    </div>
-                {% endif %}
             </td>
             <td class="pt-2">
                 <p class="text-muted m-0">{{ contest.start_time }} ({{ TIME_ZONE }})</p>

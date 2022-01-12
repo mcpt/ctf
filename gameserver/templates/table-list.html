@@ -5,8 +5,12 @@
         <div class="col">
             {% block before_table %}
             {% endblock %}
-            <div class="table-responsive table-list">
+            <div class="table-responsive table-list {% block table_class %}{% endblock %}">
                 <table class="table">
+                    <colgroup>
+                        {% block colgroup %}
+                        {% endblock %}
+                    </colgroup>
                     <thead>
                         <tr>
                             {% block th %}

@@ -63,6 +63,27 @@ $head-text: $white;
         border-top: transparent;
     }
     @extend %table-hover;
+
+    @media screen and (max-width: 768px) {
+        &.contest-list {
+            tr {
+                display: flex;
+                flex-flow: column nowrap;
+            }
+            col {
+                width: 100% !important;
+            }
+            th:not(:first-child) {
+                display: none;
+            }
+            tr:not(:last-child) td:last-child {
+                border-bottom: 2px solid;
+            }
+            td[class^="p"] {
+                padding-left: 0.8rem !important;
+            }
+        }
+    }
 }
 
 h6 .bi-reply::before {
