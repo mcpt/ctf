@@ -1,7 +1,7 @@
 {% extends '../base.html' %}
 {% load link_tags %}
 {% load humanize %}
-{% load martortags %}
+{% load markdown_tags %}
 
 {% block main %}
 <div class="card mb-3">
@@ -10,7 +10,7 @@
         {% if organization.description == "" %}
         <p class="font-italic">This organization has not shared any information.</p>
         {% else %}
-        {{ organization.description|safe_markdown }}
+        {{ organization.description|markdown }}
         {% endif %}
     </div>
     <ul class="list-group list-group-flush">

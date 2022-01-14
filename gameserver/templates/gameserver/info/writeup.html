@@ -1,7 +1,7 @@
 {% extends '../base.html' %}
 {% load link_tags %}
 {% load humanize %}
-{% load martortags %}
+{% load markdown_tags %}
 {% load tz %}
 
 {% block main %}
@@ -11,7 +11,7 @@
 	{% if post.pointee == "E" %}
 	<a href="{{ post.url }}">External Link to Writeup</a>
 	{% else %}
-        <p class="card-text">{{ post.text|safe_markdown }}</p>
+        <p class="card-text">{{ post.text|markdown }}</p>
 	{% endif %}
     </div>
     <ul class="list-group list-group-flush">

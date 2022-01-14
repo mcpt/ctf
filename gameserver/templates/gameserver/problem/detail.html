@@ -1,6 +1,6 @@
 {% extends '../base.html' %}
 {% load gravatar_tags %}
-{% load martortags %}
+{% load markdown_tags %}
 {% load link_tags %}
 {% load crispy_forms_tags %}
 {% load static %}
@@ -11,7 +11,7 @@
         <div class="media">
             <div class="media-body">
                 <h5 class="mt-0">{{ problem.name }}</h5>
-                {{ problem.description|safe_markdown }}
+                {{ problem.description|markdown }}
             </div>
         </div>
         {% if problem.files.all %}
