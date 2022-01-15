@@ -64,6 +64,14 @@
             {% csrf_token %}
             <button type="submit" class="btn btn-primary">Leave contest</button>
         </form>
+	{% if request.user.current_contest.team == None %}
+	<p>or, change to participate as a team:</p>
+	<form method="post">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <button type="submit" class="btn btn-primary">Change Participation</button>
+        </form>
+	{% endif %}
         {% else %}
         <form method="post">
             {% csrf_token %}

@@ -146,11 +146,38 @@ class ContestJoinForm(forms.Form):
         )
         if user_participations.count() > 0:
             user_participation = user_participations.first()
-            if user_participation.team is None:
+            if user_participation.team is not None:
+                self.fields["participant"].required = True
+                self.fields["participant"].empty_label = None
                 self.fields[
                     "participant"
-                ].queryset = models.Team.objects.none()
-            else:
+                ].queryset = models.Team.objects.filter(
+                    pk=user_participation.team.pk
+                )
+
+class ContestChangeForm(forms.Form):
+    participant = forms.ModelChoiceField(
+        queryset=models.Team.objects.none(),
+        label="Participate as",
+        required=True,
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user", None)
+        self.contest = kwargs.pop("contest", None)
+        super(ContestChangeForm, self).__init__(*args, **kwargs)
+        if not self.user.is_authenticated:
+            return
+        if not self.contest.teams_allowed:
+            return
+        self.fields["participant"].queryset = self.user.teams.all()
+
+        user_participations = self.user.participations_for_contest(
+            self.contest
+        )
+        if user_participations.count() > 0:
+            user_participation = user_participations.first()
+            if user_participation.team is not None:
                 self.fields["participant"].required = True
                 self.fields["participant"].empty_label = None
                 self.fields[
