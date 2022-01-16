@@ -9,4 +9,4 @@ organization_request_status_choices = [
 ]
 
 timezone_choices = [(i, i) for i in pytz.all_timezones]
-timezone_choices.sort(key=lambda x:x[0])
+timezone_choices.sort(key=lambda x: x[0])

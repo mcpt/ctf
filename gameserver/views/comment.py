@@ -9,9 +9,7 @@ from .. import models
 from . import mixin
 
 
-class Comment(
-    DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin
-):
+class Comment(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin):
     model = models.Comment
     context_object_name = "comment"
     template_name = "gameserver/comment/detail.html"
@@ -52,8 +50,6 @@ def add_comment(request, parent_type, parent_id):
     else:
         raise NotImplementedError
     author = request.user
-    comment = models.Comment(
-        parent=parent, text=request.POST["text"], author=author
-    )
+    comment = models.Comment(parent=parent, text=request.POST["text"], author=author)
     comment.save()
     return redirect("comment", pk=comment.pk)

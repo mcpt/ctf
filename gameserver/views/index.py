@@ -16,22 +16,16 @@ class Index(ListView, mixin.TitleMixin, mixin.MetaMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["problems"] = models.Problem.objects.filter(
-            is_private=False
-        ).order_by("-date_created")[:5]
-        context["comments"] = models.Comment.objects.order_by("-date_created")[
-            :5
-        ]
+        context["problems"] = models.Problem.objects.filter(is_private=False).order_by("-date_created")[:5]
+        context["comments"] = models.Comment.objects.order_by("-date_created")[:5]
         moment = timezone.localtime()
-        context["contests"] = models.Contest.objects.filter(
-            start_time__lte=moment, end_time__gt=moment
-        ).order_by("-start_time")[:5]
+        context["contests"] = models.Contest.objects.filter(start_time__lte=moment, end_time__gt=moment).order_by(
+            "-start_time"
+        )[:5]
         return context
 
 
-class BlogPost(
-    DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin
-):
+class BlogPost(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin):
     model = models.BlogPost
     context_object_name = "post"
     template_name = "gameserver/info/blog_post.html"
@@ -47,9 +41,7 @@ class BlogPost(
         return self.get_object().summary
 
 
-class Writeup(
-    DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin
-):
+class Writeup(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin):
     model = models.Writeup
     context_object_name = "post"
     template_name = "gameserver/info/writeup.html"

@@ -48,7 +48,6 @@ cleaner = sanitizer.Cleaner(
         *["h{}".format(i) for i in range(1, 7)],
         "hr",
         "iframe",
-
         "code",
 
         # for pygments
