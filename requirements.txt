@@ -28,6 +28,6 @@ sqlparse==0.4.2
 urllib3==1.26.8
 
 # markdown
-mistune==2.0.1 # rendering
+mistune==2.0.2 # rendering
 Pygments==2.11.2 # syntax highlighting
 bleach==4.1.0 # sanitizing
