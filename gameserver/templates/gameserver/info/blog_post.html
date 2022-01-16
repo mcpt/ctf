@@ -1,7 +1,7 @@
 {% extends '../base.html' %}
 {% load link_tags %}
 {% load humanize %}
-{% load martortags %}
+{% load markdown_tags %}
 {% load tz %}
 
 {% block main %}
@@ -9,7 +9,7 @@
     <div class="card-body">
         <h5 class="card-title">{{ post.title }}</h5>
         <h6 class="card-subtitle mb-3 text-muted">{{ post.author.all|users }} posted {{ post.date_created|naturaltime }}</h6>
-        <p class="card-text">{{ post.text|safe_markdown }}</p>
+        <p class="card-text">{{ post.text|markdown }}</p>
     </div>
 </div>
 {% include '../comment/snippet.html' %}

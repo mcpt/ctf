@@ -1,7 +1,7 @@
 {% extends '../base.html' %}
 {% load link_tags %}
 {% load humanize %}
-{% load martortags %}
+{% load markdown_tags %}
 {% load crispy_forms_tags %}
 
 {% block main %}
@@ -11,7 +11,7 @@
         {% if team.description == "" %}
         <p class="font-italic">This team has not shared any information.</p>
         {% else %}
-        {{ team.description|safe_markdown }}
+        {{ team.description|markdown }}
         {% endif %}
         {% if request.user == team.owner %}
         <a href="{% url 'team_edit' team.pk %}" class="card-link">Edit team</a>
