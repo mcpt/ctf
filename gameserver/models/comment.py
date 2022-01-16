@@ -10,9 +10,7 @@ from .profile import User
 
 
 class Comment(models.Model):
-    parent_content_type = models.ForeignKey(
-        ContentType, on_delete=models.CASCADE
-    )
+    parent_content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     parent_object_id = models.PositiveIntegerField()
     parent = GenericForeignKey("parent_content_type", "parent_object_id")
     comments = GenericRelation(

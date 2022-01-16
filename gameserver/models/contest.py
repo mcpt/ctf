@@ -2,8 +2,7 @@ import uuid
 
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.db.models import Q, Sum, Max, Min, Count
-from django.db.models import OuterRef, Subquery
+from django.db.models import Count, Max, Min, OuterRef, Q, Subquery, Sum
 from django.db.models.functions import Coalesce
 from django.urls import reverse
 from django.utils import timezone
@@ -18,9 +17,7 @@ class ContestTag(abstract.Category):
 
 
 class Contest(models.Model):
-    organizers = models.ManyToManyField(
-        "User", related_name="contests_organized", blank=True
-    )
+    organizers = models.ManyToManyField("User", related_name="contests_organized", blank=True)
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True)
     description = models.TextField()
@@ -35,6 +32,7 @@ class Contest(models.Model):
     is_private = models.BooleanField(default=True)
 
     teams_allowed = models.BooleanField(default=True)
+    max_team_size = models.PositiveSmallIntegerField(null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -55,18 +53,31 @@ class Contest(models.Model):
         return self.end_time - self.start_time
 
     def ranks(self):
-        submissions_with_points = ContestSubmission.objects.filter(participation=OuterRef("pk")).order_by().values("submission__problem").distinct().annotate(sub_pk=Min("pk")).values('sub_pk')
+        submissions_with_points = (
+            ContestSubmission.objects.filter(participation=OuterRef("pk"))
+            .order_by()
+            .values("submission__problem")
+            .distinct()
+            .annotate(sub_pk=Min("pk"))
+            .values("sub_pk")
+        )
         return self.participations.annotate(
-                points=Coalesce(Sum("submission__problem__points", filter=Q(submission__in=Subquery(submissions_with_points))), 0),
-                flags=Coalesce(Count("submission__pk", filter=Q(submission__in=Subquery(submissions_with_points))), 0),
-                most_recent_solve_time=Coalesce(Max("submission__submission__date_created", filter=Q(submission__in=Subquery(submissions_with_points))), self.start_time),
-            ).order_by("-points", "most_recent_solve_time", "flags")
+            points=Coalesce(
+                Sum("submission__problem__points", filter=Q(submission__in=Subquery(submissions_with_points))), 0
+            ),
+            flags=Coalesce(Count("submission__pk", filter=Q(submission__in=Subquery(submissions_with_points))), 0),
+            most_recent_solve_time=Coalesce(
+                Max("submission__submission__date_created", filter=Q(submission__in=Subquery(submissions_with_points))),
+                self.start_time,
+            ),
+        ).order_by("-points", "most_recent_solve_time", "flags")
+
+    def team_allowed_to_join(self, team):
+        return self.teams_allowed and team.members.count() <= self.max_team_size
 
 
 class ContestParticipation(models.Model):
-    contest = models.ForeignKey(
-        Contest, on_delete=models.CASCADE, related_name="participations"
-    )
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE, related_name="participations")
     is_disqualified = models.BooleanField(default=False)
 
     team = models.ForeignKey(
@@ -77,9 +88,7 @@ class ContestParticipation(models.Model):
         blank=True,
     )
 
-    participants = models.ManyToManyField(
-        "User", related_name="contest_participations", blank=True
-    )
+    participants = models.ManyToManyField("User", related_name="contest_participations", blank=True)
 
     def participant(self):
         if self.team is None:
@@ -89,17 +98,23 @@ class ContestParticipation(models.Model):
 
     def _get_unique_correct_submissions(self):
         # Switch to ContestProblem -> Problem Later
-        return self.submissions.filter(submission__is_correct=True).values("submission__problem", "submission__problem__points").distinct()
+        return (
+            self.submissions.filter(submission__is_correct=True)
+            .values("submission__problem", "submission__problem__points")
+            .distinct()
+        )
 
     def points(self):
-        points = self._get_unique_correct_submissions().aggregate(points=Coalesce(Sum("submission__problem__points"), 0))["points"]
+        points = self._get_unique_correct_submissions().aggregate(
+            points=Coalesce(Sum("submission__problem__points"), 0)
+        )["points"]
         return points
 
     def num_flags_captured(self):
         return self._get_unique_correct_submissions().count()
 
     def last_solve(self):
-        submissions = self.submissions.filter(submission__is_correct=True).order_by('-submission__date_created')
+        submissions = self.submissions.filter(submission__is_correct=True).order_by("-submission__date_created")
         if submissions.count() >= 1:
             return submissions[0]
         else:
@@ -120,11 +135,9 @@ class ContestParticipation(models.Model):
         points = self.points()
         last_solve_time = self.last_solve_time()
         contest_ranks = self.contest.ranks()
-        return (
-            contest_ranks
-            .filter(Q(points__gt=points) | Q(most_recent_solve_time__lte=last_solve_time) & Q(points=points))
-            .count()
-        )
+        return contest_ranks.filter(
+            Q(points__gt=points) | Q(most_recent_solve_time__lte=last_solve_time) & Q(points=points)
+        ).count()
 
     def get_absolute_url(self):
         return reverse("contest_participation_detail", args=[self.pk])
@@ -138,16 +151,23 @@ class ContestParticipation(models.Model):
 
 
 class ContestProblem(models.Model):
-    problem = models.ForeignKey("Problem", on_delete=models.CASCADE, related_name="contests", related_query_name="contest")
-    contest = models.ForeignKey(Contest, on_delete=models.CASCADE, related_name="problems", related_query_name="problem")
+    problem = models.ForeignKey(
+        "Problem", on_delete=models.CASCADE, related_name="contests", related_query_name="contest"
+    )
+    contest = models.ForeignKey(
+        Contest, on_delete=models.CASCADE, related_name="problems", related_query_name="problem"
+    )
     points = models.PositiveSmallIntegerField()
 
 
 class ContestSubmission(models.Model):
     participation = models.ForeignKey(
-        ContestParticipation, on_delete=models.CASCADE, related_name="submissions", related_query_name="submission",
+        ContestParticipation,
+        on_delete=models.CASCADE,
+        related_name="submissions",
+        related_query_name="submission",
     )
-    problem = models.ForeignKey(ContestProblem, on_delete=models.CASCADE, related_name="submissions", related_query_name="submission")
-    submission = models.OneToOneField(
-        "Submission", on_delete=models.CASCADE, related_name="contest_submission"
+    problem = models.ForeignKey(
+        ContestProblem, on_delete=models.CASCADE, related_name="submissions", related_query_name="submission"
     )
+    submission = models.OneToOneField("Submission", on_delete=models.CASCADE, related_name="contest_submission")

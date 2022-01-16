@@ -18,6 +18,9 @@
     </div>
     <ul class="list-group list-group-flush">
         <li class="list-group-item">Organizers: {{ contest.organizers.all|users }}</li>
+	{% if contest.max_team_size %}
+        <li class="list-group-item">Maximum team size: {{ contest.max_team_size }}</li>
+	{% endif %}
         <li class="list-group-item">Starts on {{ contest.start_time }} ({{ TIME_ZONE }})</li>
         <li class="list-group-item">{{ contest.duration }} Long</li>
     </ul>

@@ -112,7 +112,9 @@ class ContestDetail(
             prev_participation = self.request.user.current_contest
             if prev_participation.team is not None:
                 raise RuntimeError("Cannot change from teams")
-            models.ContestSubmission.objects.filter(participation=prev_participation).update(participation=new_participation)
+            models.ContestSubmission.objects.filter(participation=prev_participation).update(
+                participation=new_participation
+            )
             prev_participation.delete()
             new_participation.save()
             new_participation.participants.add(self.request.user)
