@@ -99,9 +99,13 @@ class User(AbstractUser):
     def eligible_teams(self, contest):
         if contest is not None and contest.max_team_size is not None:
             return (
-                Team.objects.annotate(Count("members", distinct=True))
+                Team.objects
                 .filter(members__in=[self])
-                .filter(members__count__lte=contest.max_team_size)
+                #.annotate(Count("contest_participations__participants"))
+                #.filter(contest_participations__participants__count__lte=contest.max_team_size)
+                .distinct()
+                #.annotate(Count("members", distinct=True))
+                #.filter(members__count__lte=contest.max_team_size)
             )
         return self.teams
 

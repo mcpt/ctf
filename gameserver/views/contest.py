@@ -1,4 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.http import HttpResponseBadRequest
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q, Sum
 from django.shortcuts import get_object_or_404, redirect
@@ -85,20 +86,25 @@ class ContestDetail(
     def form_valid(self, form):
         if isinstance(form, forms.ContestJoinForm):
             team = form.cleaned_data["participant"]
+            contest = self.get_object()
             if team is not None:
                 contest_participation = models.ContestParticipation.objects.get_or_create(
-                    team=team, contest=self.get_object()
+                    team=team, contest=contest
                 )[0]
             else:
                 try:
                     contest_participation = models.ContestParticipation.objects.get(
                         team=None,
                         participants=self.request.user,
-                        contest=self.get_object(),
+                        contest=contest,
                     )
                 except models.ContestParticipation.DoesNotExist:
                     contest_participation = models.ContestParticipation(contest=self.get_object())
             contest_participation.save()
+            if contest_participation.participants.count() == contest.max_team_size:
+                return HttpResponseBadRequest(
+                    "This team is already full. Please choose another team."
+                )
             contest_participation.participants.add(self.request.user)
             self.request.user.current_contest = contest_participation
             self.request.user.save()
@@ -111,7 +117,7 @@ class ContestDetail(
             ]
             prev_participation = self.request.user.current_contest
             if prev_participation.team is not None:
-                raise RuntimeError("Cannot change from teams")
+                return HttpResponseBadRequest("Cannot change from teams")
             models.ContestSubmission.objects.filter(participation=prev_participation).update(
                 participation=new_participation
             )
