@@ -49,6 +49,7 @@ cleaner = sanitizer.Cleaner(
         "hr",
         "iframe",
         "code",
+
         # for pygments
         "div",
         "pre",
@@ -58,6 +59,7 @@ cleaner = sanitizer.Cleaner(
         **sanitizer.ALLOWED_ATTRIBUTES,
         "iframe": ["src", "frameborder", "class"],
         "img": ["alt", "src"],
+
         # for pygments
         **{key: ["class"] for key in {"div", "span"}},
     },
