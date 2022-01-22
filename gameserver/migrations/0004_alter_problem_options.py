@@ -6,12 +6,17 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('gameserver', '0003_alter_problem_options'),
+        ("gameserver", "0003_alter_problem_options"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='problem',
-            options={'permissions': (('change_problem_visibility', 'Change visibility of problems'), ('edit_all_problems', 'Edit all problems'))},
+            name="problem",
+            options={
+                "permissions": (
+                    ("change_problem_visibility", "Change visibility of problems"),
+                    ("edit_all_problems", "Edit all problems"),
+                )
+            },
         ),
     ]

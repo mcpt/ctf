@@ -5,11 +5,11 @@ from crispy_forms.bootstrap import FieldWithButtons
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit
 from django import forms
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.forms import ModelForm
-from django.conf import settings
 
 from . import models
 from .models import choices
@@ -19,9 +19,7 @@ User = get_user_model()
 
 class MCTFSignupForm(SignupForm):
     captcha = ReCaptchaField(widget=ReCaptchaV3, label="")
-    timezone = forms.ChoiceField(
-        choices=choices.timezone_choices, initial=settings.DEFAULT_TIMEZONE
-    )
+    timezone = forms.ChoiceField(choices=choices.timezone_choices, initial=settings.DEFAULT_TIMEZONE)
     field_order = [
         "email",
         "username",
@@ -53,18 +51,12 @@ class ProfileUpdateForm(ModelForm):
         user = kwargs.pop("user", None)
         super(ProfileUpdateForm, self).__init__(*args, **kwargs)
         if not user.has_perm("gameserver.edit_all_organization"):
-            self.fields[
-                "organizations"
-            ].queryset = models.Organization.objects.filter(
-                Q(is_private=False)
-                | Q(admins=user)
-                | Q(pk__in=user.organizations.all())
+            self.fields["organizations"].queryset = models.Organization.objects.filter(
+                Q(is_private=False) | Q(admins=user) | Q(pk__in=user.organizations.all())
             ).distinct()
-        self.initial["organizations"] = [
-            i.pk for i in user.organizations.all()
-        ]
+        self.initial["organizations"] = [i.pk for i in user.organizations.all()]
         self.fields["description"].label = "Profile description"
-        self.fields["description"].widget.attrs['placeholder'] = "Description..."
+        self.fields["description"].widget.attrs["placeholder"] = "Description..."
 
 
 class TeamUpdateForm(ModelForm):
@@ -87,7 +79,7 @@ class TeamUpdateForm(ModelForm):
 
 class GroupJoinForm(forms.Form):
     access_code = forms.CharField(
-        max_length=36, 
+        max_length=36,
         strip=True,
         widget=forms.TextInput(attrs={"placeholder": "Access Code"}),
         label="Enter the access code to join",
@@ -112,6 +104,8 @@ class FlagSubmissionForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.problem = kwargs.pop("problem", None)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(FieldWithButtons("flag", Submit("submit", "Submit", css_class="btn-primary")))
 
         super(FlagSubmissionForm, self).__init__(*args, **kwargs)
 
@@ -133,26 +127,14 @@ class ContestJoinForm(forms.Form):
         super(ContestJoinForm, self).__init__(*args, **kwargs)
         if not self.user.is_authenticated:
             return
-        self.fields[
-            "participant"
-        ].empty_label = f"Myself ({self.user.username})"
+        self.fields["participant"].empty_label = f"Myself ({self.user.username})"
         if self.contest.teams_allowed:
             self.fields["participant"].queryset = self.user.teams.all()
 
-        user_participations = self.user.participations_for_contest(
-            self.contest
-        )
+        user_participations = self.user.participations_for_contest(self.contest)
         if user_participations.count() > 0:
             user_participation = user_participations.first()
-            if user_participation.team is None:
-                self.fields[
-                    "participant"
-                ].queryset = models.Team.objects.none()
-            else:
+            if user_participation.team is not None:
                 self.fields["participant"].required = True
                 self.fields["participant"].empty_label = None
-                self.fields[
-                    "participant"
-                ].queryset = models.Team.objects.filter(
-                    pk=user_participation.team.pk
-                )
+                self.fields["participant"].queryset = models.Team.objects.filter(pk=user_participation.team.pk)

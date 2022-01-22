@@ -96,7 +96,7 @@ DATABASES = {
     }
 }
 
-DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 
 # Password validation
@@ -192,12 +192,6 @@ AWS_S3_FILE_OVERWRITE = False
 STATICFILES_STORAGE = ""
 
 
-# reCAPTCHA settings
-
-RECAPTCHA_PUBLIC_KEY = "<your recaptcha public key>"
-RECAPTCHA_PRIVATE_KEY = "<your recaptcha private key>"
-
-
 # Google Analytics settings
 
 GOOGLE_ANALYTICS_ON_ALL_VIEWS = False
@@ -235,7 +229,7 @@ PAYMENT_POINTERS = []  # Your Interledger Payment Pointers for Web Monetization
 
 # Martor settings
 
-MARTOR_THEME = "semantic"
+MARTOR_THEME = "bootstrap"
 
 # Other settings
 

@@ -25,10 +25,7 @@ def users(usernames, postfix=""):
     return format_html_join(
         ", ",
         '<a href="{0}{1}">{2}</a>',
-        (
-            (user_obj.get_absolute_url(), postfix, user_obj.username)
-            for user_obj in user_objs
-        ),
+        ((user_obj.get_absolute_url(), postfix, user_obj.username) for user_obj in user_objs),
     )
 
 
@@ -38,10 +35,7 @@ def userst(usernames, postfix=""):
     return format_html_join(
         ", ",
         "{0}",
-        (
-            (user_obj.username, )
-            for user_obj in user_objs
-        ),
+        ((user_obj.username,) for user_obj in user_objs),
     )
 
 
@@ -93,19 +87,13 @@ def comment_info(comment_obj):
 
 @register.filter
 def comment_html_nodate(comment_obj):
-    comment_url, author_url, comment_date, parent_url = comment_info(
-        comment_obj
-    )
-    return format_html(
-        "{0}: {1} commented on {2}", comment_url, author_url, parent_url
-    )
+    comment_url, author_url, comment_date, parent_url = comment_info(comment_obj)
+    return format_html("{0}: {1} commented on {2}", comment_url, author_url, parent_url)
 
 
 @register.filter
 def comment_html(comment_obj):
-    comment_url, author_url, comment_date, parent_url = comment_info(
-        comment_obj
-    )
+    comment_url, author_url, comment_date, parent_url = comment_info(comment_obj)
     return format_html(
         "{0}: {1} commented {2} on {3}",
         comment_url,
@@ -117,12 +105,8 @@ def comment_html(comment_obj):
 
 @register.filter
 def comment_html_short(comment_obj):
-    comment_url, author_url, comment_date, parent_url = comment_info(
-        comment_obj
-    )
-    return format_html(
-        "{1} → {2}", comment_url, author_url, parent_url
-    )
+    comment_url, author_url, comment_date, parent_url = comment_info(comment_obj)
+    return format_html("{1} → {2}", comment_url, author_url, parent_url)
 
 
 @register.filter

@@ -49,9 +49,10 @@ class Problem(models.Model):
 
     class Meta:
         permissions = (
-                ('change_problem_visibility', 'Change visibility of problems'),
-                ('edit_all_problems', 'Edit all problems'),
-                )
+            ("change_problem_visibility", "Change visibility of problems"),
+            ("edit_all_problems", "Edit all problems"),
+        )
+
 
 def problem_file_path(instance, filename):
     return f"problem/{instance.problem.slug}/{filename}"

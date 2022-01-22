@@ -1,5 +1,6 @@
 from django.conf import settings
 
+
 def settings_context(request):
     return {
         "GOOGLE_ANALYTICS_ON_ALL_VIEWS": settings.GOOGLE_ANALYTICS_ON_ALL_VIEWS,
