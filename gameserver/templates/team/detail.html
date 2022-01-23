@@ -8,7 +8,7 @@
         <div class="card mb-3">
             <h2 class="card-header fs-6">Participations</h2>
             <div class="card-body">
-                {% include '../contest/snippet/participation/table.html' with participations=team.contest_participations.all %}
+                {% include 'contest/snippet/participation/table.html' with participations=team.contest_participations.all %}
             </div>
         </div>
     {% endif %}

@@ -1,4 +1,4 @@
-{% extends '../card.html' %}
+{% extends 'card.html' %}
 {% load link_tags %}
 {% load humanize %}
 {% load martortags %}
@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block after_card %}
-    {% include '../comment/snippet.html' %}
+    {% include 'comment/snippet.html' %}
 {% endblock %}
 
 {% block othermeta %}

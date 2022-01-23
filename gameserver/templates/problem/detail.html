@@ -28,7 +28,7 @@
             </div>
         </div>
     {% endif %}
-    {% include '../comment/snippet.html' with is_private=problem.is_private entity="problem" %}
+    {% include 'comment/snippet.html' with is_private=problem.is_private entity="problem" %}
 {% endblock %}
     
 {% block aside %}
