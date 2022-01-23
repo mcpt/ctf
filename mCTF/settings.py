@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     "captcha",
     "django_bootstrap5",
     "django_bootstrap_icons",
-    "django_sass",
+    "sass_processor",
 ]
 
 MIDDLEWARE = [
@@ -137,9 +137,11 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "static"
-# STATICFILES_DIRS = [
-#     BASE_DIR / "assets",
-# ]
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'sass_processor.finders.CssFinder',
+]
 
 
 # Auth settings
@@ -236,6 +238,15 @@ PAYMENT_POINTERS = []  # Your Interledger Payment Pointers for Web Monetization
 # Martor settings
 
 MARTOR_THEME = "semantic"
+
+
+# Sass settings
+
+SASS_PROCESSOR_ROOT = STATIC_ROOT
+SASS_PROCESSOR_AUTO_INCLUDE = False
+SASS_PRECISION = 8
+SASS_OUTPUT_STYLE = 'compact'
+
 
 # Other settings
 

@@ -2,6 +2,7 @@
 {% load gravatar_tags %}
 {% load link_tags %}
 {% load django_bootstrap5 %}
+{% load sass_tags %}
 
 <!DOCTYPE html>
 <html lang="en" prefix="og: https://ogp.me/ns/{{ og_type }}#">
@@ -44,7 +45,7 @@
         {% include "ganalytics/snippet.html" %}
         {% endif %}
 
-        <link href="{% static 'styles/style.css' %}" type="text/css" rel="stylesheet" />
+        <link href="{% sass_src 'scss/main.scss' %}" type="text/css" rel="stylesheet" />
         <script src="https://vuejs.org/js/vue.min.js"></script>
 
         <script src="https://pagecdn.io/lib/ace/1.4.8/ace.js" type="text/javascript" charset="utf-8" onload=""></script>
