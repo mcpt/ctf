@@ -19,7 +19,7 @@ h1.card-title + hr {
     margin-top: 0;
 }
 
-a {
+a, a.page-link {
     color: $link;
 
     &:hover {
