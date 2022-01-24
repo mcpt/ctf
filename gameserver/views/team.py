@@ -78,9 +78,7 @@ class TeamDetail(
         return reverse("team_detail", kwargs={"pk": self.get_object().pk})
 
 
-class TeamCreate(
-    LoginRequiredMixin, CreateView, mixin.TitleMixin, mixin.MetaMixin
-):
+class TeamCreate(LoginRequiredMixin, CreateView, mixin.TitleMixin, mixin.MetaMixin):
     template_name = "team/create.html"
     model = models.Team
     fields = ("name", "description")

@@ -1,31 +1,19 @@
 {% extends 'form.html' %}
 {% load i18n %}
-{% load static %}
-{% load account socialaccount %}
 {% load django_bootstrap5 %}
 
 {% block heading %}{% trans "Sign Up" %}{% endblock %}
 
 {% block before_form %}
-<p>{% blocktrans %}Already have an account? <a href="{{ login_url }}">Sign in</a>.{% endblocktrans %}</p>
+<p>{% blocktrans %}Already have an account? <a href="{{ login_url }}">sign in</a>.{% endblocktrans %}</p>
 {% endblock %}
 
 {% block after_form %}
     <p class="mb-0">By clicking this button, you agree to our <a href="{{ TOS_URL }}">terms</a>.</p>
-    <p>
-        This site is protected by reCAPTCHA and the Google
-        <a href="https://policies.google.com/privacy">Privacy Policy</a> and
-        <a href="https://policies.google.com/terms">Terms of Service</a> apply.
-    </p>
 </form>
 {% endblock %}
 
 {% block submit_btn %}
-    {% bootstrap_button content='Sign Up' button_type='submit' extra_classes="g-recaptcha" %}
+    {% bootstrap_button content='Sign Up' button_type='submit' %}
 {% endblock %}
 {% block alternate_btn %}{% endblock %}
-
-{# ? #}
-{% block deps %}
-<script src="{% static 'js/login.js' %}"></script>
-{% endblock %}

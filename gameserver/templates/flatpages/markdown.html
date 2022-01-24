@@ -1,6 +1,6 @@
 {% extends 'card.html' %}
-{% load martortags %}
+{% load markdown_tags %}
 
 {% block title %}{{ flatpage.title }}{% endblock %}
 {% block heading %}{{ flatpage.title }}{% endblock %}
-{% block content %}{{ flatpage.content|safe_markdown }}{% endblock %}
+{% block content %}{{ flatpage.content|markdown }}{% endblock %}

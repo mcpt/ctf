@@ -22,9 +22,7 @@ class OrganizationList(ListView, mixin.TitleMixin, mixin.MetaMixin):
         return "-name"
 
 
-class OrganizationDetail(
-    DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin
-):
+class OrganizationDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin):
     model = models.Organization
     context_object_name = "group"
     template_name = "organization/detail.html"
@@ -39,22 +37,12 @@ class OrganizationDetail(
         context = super().get_context_data(**kwargs)
         context["member_count"] = self.get_object().member_count()
         if self.request.user.is_authenticated:
-            context[
-                "last_user_organization_request"
-            ] = models.OrganizationRequest.objects.filter(
+            context["last_user_organization_request"] = models.OrganizationRequest.objects.filter(
                 organization=self.get_object(), user=self.request.user
-            ).order_by(
-                "-date_created"
-            )[0]
-            context[
-                "organization_requests"
-            ] = models.OrganizationRequest.objects.filter(
+            ).order_by("-date_created")[0]
+            context["organization_requests"] = models.OrganizationRequest.objects.filter(
                 organization=self.get_object(), user=self.request.user
-            ).order_by(
-                "-date_created"
-            )[
-                :3
-            ]
+            ).order_by("-date_created")[:3]
         else:
             context["organization_requests"] = []
         context["entity"] = "organization"
@@ -64,7 +52,7 @@ class OrganizationDetail(
         return context
 
 
-# @method_decorator(require_POST, name="dispatch")
+
 class OrganizationRequest(
     LoginRequiredMixin, CreateView, mixin.TitleMixin, mixin.MetaMixin
 ):
@@ -138,9 +126,7 @@ class OrganizationLeave(LoginRequiredMixin, RedirectView):
     pattern_name = "organization_detail"
 
     def get_redirect_url(self, *args, **kwargs):
-        organization = get_object_or_404(
-            models.Organization, slug=kwargs["slug"]
-        )
+        organization = get_object_or_404(models.Organization, slug=kwargs["slug"])
         self.request.user.organizations.remove(organization)
         messages.info(self.request, "You have left this organization.")
         return super().get_redirect_url(*args, **kwargs)

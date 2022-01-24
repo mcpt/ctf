@@ -1,6 +1,5 @@
 {% extends 'dual-column.html' %}
 {% load humanize %}
-{% load martortags %}
 {% load link_tags %}
 
 {% block before_cols %}
@@ -8,11 +7,11 @@
     <div class="card-body">
         <p class="fs-6 m-0">Welcome to mCTF! Please register or try out a problem <a href="{% url 'problem_list' %}">here</a>.</p>
     </div>
-</div>    
+</div>
 {% endblock %}
 
 {% block content %}
-        <section class="card"> 
+        <section class="card">
             <h1 class="card-header fs-6">News</h1>
             <div class="card-body text-wrap">
                 {% include 'blogpost/list.html' %}

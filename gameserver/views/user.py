@@ -32,16 +32,12 @@ class UserList(ListView, mixin.TitleMixin, mixin.MetaMixin):
 
     def get(self, request, *args, **kwargs):
         if request.in_contest:
-            return redirect(
-                "contest_scoreboard", slug=request.participation.contest.slug
-            )
+            return redirect("contest_scoreboard", slug=request.participation.contest.slug)
         else:
             return super().get(request, *args, **kwargs)
 
 
-class UserDetail(
-    DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin
-):
+class UserDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin):
     model = models.User
     context_object_name = "profile"
     template_name = "user/detail.html"
@@ -66,9 +62,7 @@ class UserSubmissionList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     paginate_by = 50
 
     def get_queryset(self):
-        self.user = get_object_or_404(
-            models.User, username=self.kwargs["slug"]
-        )
+        self.user = get_object_or_404(models.User, username=self.kwargs["slug"])
         return models.Submission.objects.filter(user=self.user).order_by("-pk")
 
     def get_title(self):

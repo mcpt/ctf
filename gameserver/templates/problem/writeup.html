@@ -1,7 +1,7 @@
 {% extends 'dual-column.html' %}
 {% load link_tags %}
 {% load humanize %}
-{% load martortags %}
+{% load markdown_tags %}
 {% load tz %}
 
 {% block content %}
@@ -12,7 +12,7 @@
         	{% if post.pointee == "E" %}
             	<p><a href="{{ post.url }}">External Link to Writeup</a></p>
         	{% else %}
-                <p class="card-text">{{ post.text|safe_markdown }}</p>
+                <p class="card-text">{{ post.text|markdown }}</p>
         	{% endif %}
         </div>
     </div>

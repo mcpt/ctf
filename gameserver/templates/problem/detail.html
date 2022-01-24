@@ -1,5 +1,5 @@
 {% extends 'dual-column.html' %}
-{% load martortags %}
+{% load markdown_tags %}
 {% load link_tags %}
 {% load static %}
 
@@ -13,7 +13,7 @@
                 {{ problem.name }}
             </h1>
             <hr>
-            <p class="card-text">{{ problem.description|safe_markdown }}</p>
+            <p class="card-text">{{ problem.description|markdown }}</p>
         </div>
     </div>
     {% if problem.files.all %}
@@ -30,13 +30,13 @@
     {% endif %}
     {% include 'comment/snippet.html' with is_private=problem.is_private entity="problem" %}
 {% endblock %}
-    
+
 {% block aside %}
     <div class="card mb-3">
         <div class="card-body">
             <ul class="list-unstyled">
                 <li>
-                    <b>Points</b>: 
+                    <b>Points</b>:
                     {% if not contest_problem %}
                         {{ problem.points }}
                     {% else %}

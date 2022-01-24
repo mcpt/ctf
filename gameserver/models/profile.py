@@ -1,11 +1,10 @@
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
-from django.db.models import Q, Sum, Min, Count
+from django.db.models import Count, Min, OuterRef, Q, Subquery, Sum
 from django.db.models.functions import Coalesce
-from django.db.models import OuterRef, Subquery
 from django.urls import reverse
-from django.conf import settings
 
 from .choices import organization_request_status_choices, timezone_choices
 from .contest import ContestParticipation
@@ -19,9 +18,7 @@ def get_default_user_timezone():
 class User(AbstractUser):
     description = models.TextField(blank=True)
 
-    timezone = models.CharField(
-        max_length=50, choices=timezone_choices, default=get_default_user_timezone
-    )
+    timezone = models.CharField(max_length=50, choices=timezone_choices, default=get_default_user_timezone)
 
     organizations = models.ManyToManyField(
         "Organization",
@@ -69,9 +66,7 @@ class User(AbstractUser):
         return self._get_unique_correct_submissions().count()
 
     def participations_for_contest(self, contest):
-        return ContestParticipation.objects.filter(
-            Q(participants=self), contest=contest
-        )
+        return ContestParticipation.objects.filter(Q(participants=self), contest=contest)
 
     def remove_contest(self):
         self.current_contest = None
@@ -88,20 +83,38 @@ class User(AbstractUser):
 
     @classmethod
     def ranks(cls):
-        submissions_with_points = Submission.objects.filter(user=OuterRef("pk"), is_correct=True).order_by().values("problem").distinct().annotate(sub_pk=Min("pk")).values('sub_pk')
+        submissions_with_points = (
+            Submission.objects.filter(user=OuterRef("pk"), is_correct=True)
+            .order_by()
+            .values("problem")
+            .distinct()
+            .annotate(sub_pk=Min("pk"))
+            .values("sub_pk")
+        )
         return cls.objects.annotate(
-                points=Coalesce(Sum("submission__problem__points", filter=Q(submission__in=Subquery(submissions_with_points))), 0),
-                flags=Coalesce(Count("submission__pk", filter=Q(submission__in=Subquery(submissions_with_points))), 0),
-            ).order_by("-points", "flags")
+            points=Coalesce(
+                Sum("submission__problem__points", filter=Q(submission__in=Subquery(submissions_with_points))), 0
+            ),
+            flags=Coalesce(Count("submission__pk", filter=Q(submission__in=Subquery(submissions_with_points))), 0),
+        ).order_by("-points", "flags")
+
+    def eligible_teams(self, contest):
+        if contest is not None and contest.max_team_size is not None:
+            return (
+                Team.objects
+                .filter(members__in=[self])
+                #.annotate(Count("contest_participations__participants"))
+                #.filter(contest_participations__participants__count__lte=contest.max_team_size)
+                .distinct()
+                #.annotate(Count("members", distinct=True))
+                #.filter(members__count__lte=contest.max_team_size)
+            )
+        return self.teams
 
 
 class Organization(models.Model):
-    owner = models.ForeignKey(
-        User, on_delete=models.PROTECT, related_name="organizations_owning"
-    )
-    admins = models.ManyToManyField(
-        "User", related_name="organizations_maintaining"
-    )
+    owner = models.ForeignKey(User, on_delete=models.PROTECT, related_name="organizations_owning")
+    admins = models.ManyToManyField("User", related_name="organizations_maintaining")
     name = models.CharField(max_length=64)
     short_name = models.CharField(max_length=24)
     description = models.TextField(blank=True)
@@ -127,16 +140,10 @@ class Organization(models.Model):
 
 
 class OrganizationRequest(models.Model):
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="organizations_requested"
-    )
-    organization = models.ForeignKey(
-        Organization, on_delete=models.CASCADE, related_name="requests"
-    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="organizations_requested")
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name="requests")
     date_created = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(
-        max_length=1, choices=organization_request_status_choices, default="p"
-    )
+    status = models.CharField(max_length=1, choices=organization_request_status_choices, default="p")
     reason = models.TextField()
 
     def get_absolute_url(self):
@@ -147,10 +154,7 @@ class OrganizationRequest(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        if (
-            self.status == "a"
-            and self.organization not in self.user.organizations.all()
-        ):
+        if self.status == "a" and self.organization not in self.user.organizations.all():
             self.user.organizations.add(self.organization)
 
     def reviewed(self):
@@ -160,9 +164,7 @@ class OrganizationRequest(models.Model):
 
 
 class Team(models.Model):
-    owner = models.ForeignKey(
-        User, on_delete=models.PROTECT, related_name="teams_owning"
-    )
+    owner = models.ForeignKey(User, on_delete=models.PROTECT, related_name="teams_owning")
     name = models.CharField(max_length=64, unique=True)
     description = models.TextField(blank=True)
     access_code = models.CharField(max_length=36)

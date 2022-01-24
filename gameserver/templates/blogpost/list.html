@@ -1,6 +1,6 @@
 {% load link_tags %}
 {% load humanize %}
-{% load martortags %}
+{% load markdown_tags %}
 
 <div>
     {% for post in posts %}
@@ -8,7 +8,7 @@
             <div class="card-body">
                 <h2 class="card-title mb-1 fs-3"><a href="{% url 'blog_post' post.slug %}">{{ post.title }}</a></h2>
                 <p class="card-text mb-3 text-muted">{{ post.author.all|users }} posted {{ post.date_created|naturaltime }}</p>
-                <p class="card-text mb-1">{{ post.text|safe_markdown }}</p>
+                <p class="card-text mb-1">{{ post.text|markdown }}</p>
             </div>
         </article>
     {% endfor %}

@@ -1,6 +1,6 @@
 {% extends 'dual-column.html' %}
 {% load link_tags %}
-{% load martortags %}
+{% load markdown_tags %}
 {% load django_bootstrap5 %}
 
 {% block content %}
@@ -11,7 +11,7 @@
             {% if contest.description == "" %}
                 <p class="font-italic">The organizers have not yet shared any information about this contest.</p>
             {% else %}
-                {{ contest.description|safe_markdown }}
+                {{ contest.description|markdown }}
             {% endif %}
             <p>Organized by {{ contest.organizers.all|users }}</p>
         </div>
@@ -60,6 +60,15 @@
                             {% csrf_token %}
                             <button type="submit" class="btn btn-primary">Leave contest</button>
                         </form>
+                        {% if request.user.current_contest.team == None %}
+                            <br>
+                            <label class="form-label" for="{{ form.participant.auto_id }}">or, change to participate as a team:</label>
+                            <form method="post">
+                                {% csrf_token %}
+                                {% bootstrap_field form.participant show_label=False wrapper_class="mb-2" %}
+                                <button type="submit" class="btn btn-primary">Change Participation</button>
+                            </form>
+                        {% endif %}
                     {% else %}
                         <form method="post">
                             {% csrf_token %}

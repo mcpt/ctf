@@ -4,12 +4,12 @@ from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
+from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic import DetailView, FormView, ListView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import CreateView, FormMixin
-from django.http import HttpResponseForbidden
 
 from .. import forms, models
 from . import mixin
@@ -25,17 +25,13 @@ class ProblemList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     def get_queryset(self):
         queryset = models.Problem.objects.order_by("name")
         if self.request.user.is_authenticated:
-            return queryset.filter(
-                Q(is_private=False) | Q(author=self.request.user)
-            ).distinct()
+            return queryset.filter(Q(is_private=False) | Q(author=self.request.user)).distinct()
         else:
             return queryset.filter(is_private=False)
 
     def get(self, request, *args, **kwargs):
         if request.in_contest:
-            return redirect(
-                "contest_problem_list", slug=request.participation.contest.slug
-            )
+            return redirect("contest_problem_list", slug=request.participation.contest.slug)
         else:
             return super().get(request, *args, **kwargs)
 
@@ -103,7 +99,9 @@ class ProblemDetail(
         return submission
 
     def form_valid(self, form):
-        if (not self.request.user.has_solved(self.get_object())) or (self.request.in_contest and not self.request.participation.has_solved(self.get_contest_object())):
+        if (not self.request.user.has_solved(self.get_object())) or (
+            self.request.in_contest and not self.request.participation.has_solved(self.get_contest_object())
+        ):
             messages.success(self.request, "Your flag is correct!")
         else:
             messages.info(self.request, "Your flag is correct, but you have already solved this problem.")
@@ -116,9 +114,7 @@ class ProblemDetail(
         return super().form_invalid(form)
 
     def get_success_url(self):
-        return reverse(
-            "problem_detail", kwargs={"slug": self.get_object().slug}
-        )
+        return reverse("problem_detail", kwargs={"slug": self.get_object().slug})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -130,18 +126,15 @@ class ProblemDetail(
                 context["status"] = "attempted"
         return context
 
+
 class ProblemSubmissionList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     context_object_name = "submissions"
     template_name = "submission/list.html"
     paginate_by = 50
 
     def get_queryset(self):
-        self.problem = get_object_or_404(
-            models.Problem, slug=self.kwargs["slug"]
-        )
-        return models.Submission.objects.filter(problem=self.problem).order_by(
-            self.get_ordering()
-        )
+        self.problem = get_object_or_404(models.Problem, slug=self.kwargs["slug"])
+        return models.Submission.objects.filter(problem=self.problem).order_by(self.get_ordering())
 
     def get_ordering(self):
         return "-date_created"

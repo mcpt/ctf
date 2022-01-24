@@ -12,7 +12,7 @@ from . import models
 User = get_user_model()
 
 
-class ProblemFileInline(admin.TabularInline):
+class ProblemFileInline(admin.StackedInline):
     fields = ["artifact"]
     model = models.ProblemFile
     extra = 0
@@ -65,15 +65,16 @@ class ProblemAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        if request.user.is_superuser or request.user.has_perm('gameserver.edit_all_problems'):
+        if request.user.is_superuser or request.user.has_perm("gameserver.edit_all_problems"):
             return qs
         return qs.filter(author=request.user)
 
     def get_readonly_fields(self, request, obj=None):
         fields = self.readonly_fields
-        if not request.user.has_perm('gameserver.change_problem_visibility'):
-            fields += ('is_private',)
+        if not request.user.has_perm("gameserver.change_problem_visibility"):
+            fields += ("is_private",)
         return fields
+
 
 class OrganizationAdmin(admin.ModelAdmin):
     list_display = ["__str__", "owner", "member_count", "is_open"]
@@ -83,11 +84,7 @@ class OrganizationAdmin(admin.ModelAdmin):
             if obj is None:
                 return True
             else:
-                return (
-                    request.user in obj.admins.all()
-                    or request.user == obj.owner
-                    or request.user.is_superuser
-                )
+                return request.user in obj.admins.all() or request.user == obj.owner or request.user.is_superuser
         return False
 
     def has_change_permission(self, request, obj=None):
@@ -135,14 +132,10 @@ class OrganizationRequestAdmin(admin.ModelAdmin):
         return False
 
     def has_view_permission(self, request, obj=None):
-        return self.has_given_permission(
-            request, obj, "gameserver.view_organizationrequest"
-        )
+        return self.has_given_permission(request, obj, "gameserver.view_organizationrequest")
 
     def has_change_permission(self, request, obj=None):
-        status = self.has_given_permission(
-            request, obj, "gameserver.change_organizationrequest"
-        )
+        status = self.has_given_permission(request, obj, "gameserver.change_organizationrequest")
         if obj is not None:
             return status and not obj.reviewed()
         return status

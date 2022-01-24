@@ -1,10 +1,10 @@
 import random
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.views.generic.base import ContextMixin
-from django.conf import settings
 
 from .. import models
 
@@ -45,11 +45,7 @@ class MetaMixin(ContextMixin):
 
     def get_payment_pointers(self):
         authors = self.get_author()
-        author_payment_pointers = [
-            author.payment_pointer
-            for author in authors
-            if author.payment_pointer
-        ]
+        author_payment_pointers = [author.payment_pointer for author in authors if author.payment_pointer]
         if author_payment_pointers:
             return author_payment_pointers
         else:

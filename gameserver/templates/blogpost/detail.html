@@ -1,7 +1,7 @@
 {% extends 'card.html' %}
 {% load link_tags %}
 {% load humanize %}
-{% load martortags %}
+{% load markdown_tags %}
 {% load tz %}
 
 {% block heading %}{{ post.title }}{% endblock %}
@@ -9,7 +9,7 @@
     <p class="card-subtitle mt-1 mb-0 text-muted">{{ post.author.all|users }} posted {{ post.date_created|naturaltime }}</p>
 {% endblock %}
 {% block content %}
-    {{ post.text|safe_markdown }}
+    {{ post.text|markdown }}
 {% endblock %}
 
 {% block after_card %}
