@@ -144,7 +144,7 @@ class ContestProblemList(UserPassesTestMixin, ListView, mixin.TitleMixin, mixin.
         self.contest = get_object_or_404(models.Contest, slug=self.kwargs["slug"])
         return (
             self.request.in_contest and self.request.participation.contest == self.contest
-        ) or self.contest.is_finished
+        ) or self.contest.is_finished()
 
     def get_title(self):
         return "Problems for " + self.contest.name
@@ -167,7 +167,7 @@ class ContestSubmissionList(UserPassesTestMixin, ListView, mixin.TitleMixin, mix
         self.contest = get_object_or_404(models.Contest, slug=self.kwargs["slug"])
         return (
             self.request.in_contest and self.request.participation.contest == self.contest
-        ) or self.contest.is_finished
+        ) or self.contest.is_finished()
 
     def get_queryset(self):
         return models.ContestSubmission.objects.filter(participation__contest=self.contest).order_by(
