@@ -3,7 +3,6 @@
 {% load color_tags %}
 {% load tz %}
 {% get_current_timezone as TIME_ZONE %}
-{% load bootstrap_icons %}
 
 {% block table_class %}contest-list{% endblock %}
 
@@ -33,11 +32,7 @@
                 <p class="text-muted m-0">{{ contest.duration }} Long</p>
             </td>
             <td class="pt-2">
-                {% if contest.teams_allowed %}
-                    {% bs_icon 'people-fill' extra_classes="align-sub" %} Team
-                {% else %}
-                    {% bs_icon 'person-fill' extra_classes="align-sub" %} Individual
-                {% endif %}
+                {% include "./snippet/participant_type.html" %}
             </td>
             <td class="pt-2">
                 {% if not contest.is_started %}

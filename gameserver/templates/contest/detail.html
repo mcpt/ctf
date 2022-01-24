@@ -13,7 +13,6 @@
             {% else %}
                 {{ contest.description|markdown }}
             {% endif %}
-            <p>Organized by {{ contest.organizers.all|users }}</p>
         </div>
     </div>
     {% if not contest.is_private %}
@@ -23,9 +22,20 @@
 {% block aside %}
     <div class="card mb-3">
         <div class="card-body">
-            <p class="mb-0">Starts on</p>
+            <p class="mb-0">Start{% if contest.is_finished or contest.is_ongoing %}ed{% else %}s{% endif %} on</p>
             <h3><b>{{ contest.start_time }}</b> ({{ TIME_ZONE }})</h3>
             <h5>{{ contest.duration }} long</h5>
+        </div>
+    </div>
+    <div class="card mb-3">
+        <div class="card-body">
+            <p class="mb-0"><b>Organizers</b>: {{ contest.organizers.all|users }}</p>
+            <p class="mb-0">
+                <b>Type</b>: {% include "./snippet/participant_type.html" %}
+            </p>
+            {% if contest.max_team_size %}
+                <p class="mb-0"><b>Maximum team size</b>: {{ contest.max_team_size }}</p>
+            {% endif %}
         </div>
     </div>
 
@@ -58,7 +68,7 @@
                     {% if request.user.current_contest.contest == contest %}
                         <form method="post" action="{% url 'contest_leave' contest.slug %}">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-primary">Leave contest</button>
+                            <button type="submit" class="btn btn-danger">Leave contest</button>
                         </form>
                         {% if request.user.current_contest.team == None %}
                             <br>
@@ -72,7 +82,7 @@
                     {% else %}
                         <form method="post">
                             {% csrf_token %}
-                            {% bootstrap_form form %}
+                            {% bootstrap_field form.participant wrapper_class="mb-2" %}
                             <button type="submit" class="btn btn-primary">Join contest</button>
                         </form>
                     {% endif %}
