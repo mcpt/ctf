@@ -1,0 +1,31 @@
+{% extends 'card.html' %}
+
+{% block content %}
+    <div class="row">
+        <div class="col">
+            {% block before_table %}
+            {% endblock %}
+            <div class="table-responsive table-list {% block table_class %}{% endblock %}">
+                <table class="table">
+                    <colgroup>
+                        {% block colgroup %}
+                        {% endblock %}
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            {% block th %}
+                            {% endblock %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% block trows %}
+                        {% endblock %}
+                    </tbody>
+                </table>
+            </div>
+            {% include 'paginator/snippet.html' %}
+        </div>
+        {% block aside %}
+        {% endblock %}
+    </div>
+{% endblock %}

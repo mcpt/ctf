@@ -45,7 +45,9 @@ INSTALLED_APPS = [
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
-    "crispy_forms",
+    "django_bootstrap5",
+    "django_bootstrap_icons",
+    "sass_processor",
 ]
 
 MIDDLEWARE = [
@@ -66,7 +68,7 @@ ROOT_URLCONF = "mCTF.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": ["templates"],
+        # "DIRS": ["templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -133,6 +135,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "static"
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'sass_processor.finders.CssFinder',
+]
 
 
 # Auth settings
@@ -224,11 +232,19 @@ PAYMENT_POINTERS = []  # Your Interledger Payment Pointers for Web Monetization
 
 MARTOR_THEME = "bootstrap"
 
+
+# Sass settings
+
+SASS_PROCESSOR_ROOT = STATIC_ROOT
+SASS_PROCESSOR_AUTO_INCLUDE = False
+SASS_PRECISION = 8
+SASS_OUTPUT_STYLE = 'compact'
+
+
 # Other settings
 
 SITE_ID = 1
 
-CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 SILENCED_SYSTEM_CHECKS = ["urls.W002"]
 

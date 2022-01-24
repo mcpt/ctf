@@ -1,0 +1,151 @@
+{% load static %}
+{% load gravatar_tags %}
+{% load link_tags %}
+{% load django_bootstrap5 %}
+{% load sass_tags %}
+
+<!DOCTYPE html>
+<html lang="en" prefix="og: https://ogp.me/ns/{{ og_type }}#">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <title>{% block title %}{{ page_title }}{% endblock %}</title>
+
+        <meta property="og:title" content="{{ page_title }}" />
+        <meta name="twitter:title" content="{{ page_title }}" />
+        <meta property="og:site_name" content="{{ site.name|safe }}">
+        <meta property="og:type" content="{{ og_type }}" />
+        <meta name="twitter:card" content="summary" />
+        <link rel="canonical" href="{{ SCHEME }}://{{ site.domain }}{{ request.get_full_path }}">
+        <meta property="og:url" content="{{ SCHEME }}://{{ site.domain }}{{ request.get_full_path }}">
+        <meta name="description" content="{{ meta_description }}">
+        <meta property="og:description" content="{{ meta_description }}">
+        <meta name="twitter:description" content="{{ meta_description }}" />
+        <meta name="keywords" content="{{ KEYWORDS|join:", " }}">
+
+        {% if og_image %}
+        <meta property="og:image" content="{{ og_image }}">
+        <meta name="twitter:image" content="{{ og_image }}" />
+        {% endif %}
+
+        {% if meta_payment_pointer %}
+        <meta name="monetization" content="{{ meta_payment_pointer }}">
+        {% endif %}
+
+        {% block othermeta %}
+        {% endblock %}
+
+        {% bootstrap_css %}
+        <link href="{% static 'plugins/css/ace.min.css' %}" type="text/css" media="all" rel="stylesheet" />
+        <link href="{% static 'martor/css/martor.semantic.min.css' %}" type="text/css" media="all" rel="stylesheet" />
+        <link href="{% static 'styles/bootstrap-icons.css' %}" type="text/css" media="all" rel="stylesheet" />
+        <link href="{% static 'styles/pygments.css' %}" type="text/css" media="all" rel="stylesheet" />
+
+        {% if GOOGLE_ANALYTICS_ON_ALL_VIEWS %}
+        {% include "ganalytics/snippet.html" %}
+        {% endif %}
+
+        <link href="{% sass_src 'scss/main.scss' %}" type="text/css" rel="stylesheet" />
+        <script src="https://vuejs.org/js/vue.min.js"></script>
+
+        <script src="https://pagecdn.io/lib/ace/1.4.8/ace.js" type="text/javascript" charset="utf-8" onload=""></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
+        <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js" integrity="sha384-y23I5Q6l+B6vatafAwxRu/0oK/79VlbSz7Q9aiSZUvyWYIYsd+qj+o24G5ZU2zJz" crossorigin="anonymous"></script>
+        <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        {left: "$$", right: "$$", display: true},
+                        {left: "\\(", right: "\\)", display: false},
+                        {left: "\\[", right: "\\]", display: true}
+                    ],
+                    maxSize: 50,
+                });
+            });
+        </script>
+        {% if not GOOGLE_ANALYTICS_ON_ALL_VIEWS %}
+        {% include "ganalytics/snippet.html" %}
+        {% endif %}
+        {% block deps %}
+        {% endblock %}
+    </head>
+
+    <body>
+        <nav class="navbar navbar-expand-md navbar-dark bg-dark sticky-top p-0 container-fluid">
+            <a class="navbar-brand mr-auto ms-3 me-2" href="/">
+                <img src="{% static 'logos/lis.png' %}" height="40" alt="mCTF logo">
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-content" aria-controls="navbar-content" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbar-content">
+              <ul class="navbar-nav h-100 w-100">
+                {% for name, link in NAVBAR.items %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ link }}">{{ name }}</a>
+                    </li>
+                {% endfor %}
+                <span class="flex-grow-1"></span>
+
+                {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="profile-dropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <img src="{{ user.email|gravatar_url:20 }}" alt="User profile picture" class="img-thumbnail">
+                            &nbsp;
+                            <span>{{ user.username }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="profile-dropdown">
+                            <li><a class="dropdown-item" href="{% url 'user_detail_redirect' %}">Profile</a></li>
+                            {% if user.is_staff %}
+                                <li><a class="dropdown-item" href="{% url 'admin:index' %}">Admin</a></li>
+                            {% endif %}
+                            <li><a class="dropdown-item" href="{% url 'account_logout' %}">Log out</a></li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li class="nav-link">
+                        <a class="text-light fw-400" href="{% url 'account_login' %}"><b>Log in</b></a><span class="nav-hover-ignore"> or </span><a class="text-light fw-400" href="{% url 'account_signup' %}"><b>Sign up</b></a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        <main class="container mt-4 mb-5 px-4">
+            {% bootstrap_messages %}
+            {% if request.in_contest %}
+                <div class="alert alert-info" role="alert">
+                    <h4 class="alert-heading" id="countdown">Loading countdown...</h4>
+                    <p class="mb-0">Currently participating in {{ request.participation.contest.slug|contest }} as <a href="{{ request.participation.get_absolute_url }}">{{ request.participation.participant }}</a>.</p>
+                </div>
+            {% endif %}
+            {% block main %}
+            {% endblock %}
+        </main>
+        <footer>
+            <small>mCTF by MCPT &nbsp;|&nbsp; <a href="https://github.com/mcpt/ctf">Source Code</a> &nbsp;|&nbsp; <a href="{{ TOS_URL }}">Terms of Service</a></small>
+        </footer>
+
+        {% block script %}
+        {% endblock %}
+
+        {% if request.in_contest %}
+            <script src="{% static 'scripts/countdown.js' %}"></script>
+            <script>
+                countdownTo = new Date({{ request.participation.contest.end_time|date:"U" }} * 1000);
+                setInterval(countdownTimer, 1000, countdownTo, "countdown");
+            </script>
+        {% endif %}
+
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+        {% bootstrap_javascript %}
+        <script type="text/javascript" src="{% static 'plugins/js/highlight.min.js' %}"></script>
+        <script>
+            $('.martor-preview pre').each(function(i, block){
+                hljs.highlightBlock(block);
+            });
+        </script>
+    </body>
+
+</html>

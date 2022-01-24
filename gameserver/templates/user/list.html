@@ -1,0 +1,20 @@
+{% extends 'table-list.html' %}
+{% load link_tags %}
+
+{% block th %}
+    <th scope="col">Rank</th>
+    <th scope="col">Username</th>
+    <th scope="col">Points</th>
+    <th scope="col">Flags</th>
+{% endblock %}
+
+{% block trows %}
+    {% for user in users %}
+        <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td>{{ user.username|user }}</td>
+            <td>{{ user.points|floatformat }}</td>
+            <td>{{ user.flags }}</td>
+        </tr>
+    {% endfor %}
+{% endblock %}

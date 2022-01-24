@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load gravatar_tags %}
+{% load link_tags %}
+{% load humanize %}
+{% load bootstrap_icons %}
+
+{% block main %}
+<div class="card mb-3">
+    <div class="card-body position-relative">
+        {% if profile == user %}
+            <a class="btn btn-link btn-edit" href="{% url 'user_edit' %}">Edit {% bs_icon 'pencil' extra_classes="align-baseline" %}</a>
+        {% endif %}
+        <div class="row mb-3">
+            <div class="col">
+                <img src="{{ profile.email|gravatar_url:200 }}" class="mb-2 img-thumbnail" alt="{{ profile.username }}'s profile picture">
+            </div>
+            <div class="col-sm-10">
+                <h1>{{ profile.username }}</h1>
+                <hr class="mt-0">
+                <div class="row">
+                    <div class="col">
+                        <ul class="list-unstyled profile-info">
+                            <li><b>{% bs_icon 'calendar3' %}Joined</b> {{ profile.date_joined|naturalday }}</li>
+                            <li><b>{% bs_icon 'flag' %}Captured</b> {{ profile.num_flags_captured }} flag{{ profile.flags|pluralize }}</li>
+                            <li><b>{% bs_icon 'bullseye' %}Collected</b> {{ profile.points|floatformat }} point{{ profile.points|pluralize }}</li>
+                        </ul>
+                    </div>
+                    {% if profile.organizations.all or profile.teams.all %}
+                        <div class="col-lg-8">
+                            <ul class="list-unstyled profile-info">
+                                {% if profile.organizations.all %}
+                                    <li class="reverse-indent"><b>{% bs_icon 'building' %}From</b> 
+                                        {% for org in profile.organizations.all %}
+                                            <a href="{{ org.get_absolute_url }}">{{ org.name }}</a>{% if not forloop.last %},{% endif %}
+                                        {% endfor %}
+                                    </li>
+                                {% endif %}
+                                {% if profile.teams.all %}
+                                    <li class="reverse-indent"><b>{% bs_icon 'people' %}Team{{ profile.teams.all|pluralize }}</b> 
+                                        {% for team in profile.teams.all %}
+                                            <a href="{{ team.get_absolute_url }}">{{ team.name }}</a>{% if not forloop.last %},{% endif %}
+                                        {% endfor %}
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="row px-2">
+            <p>
+                {% if profile.description == "" %}
+                <i>This user has not shared any information.</i>
+                {% else %}
+                {{ profile.description }}
+                {% endif %}
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block othermeta %}
+<meta property="og:profile:username" content="{{ profile.username }}" />
+{% endblock %}

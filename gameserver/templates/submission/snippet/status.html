@@ -1,0 +1,6 @@
+{% load color_tags %}
+<td>
+    {% with status=submission|submission_status %}
+        {% include "problem/snippet/status.html" %}
+    {% endwith %}
+</td>

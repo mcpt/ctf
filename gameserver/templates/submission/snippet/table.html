@@ -1,0 +1,14 @@
+<div class="table-responsive table-list">
+<table class="table">
+    <thead>
+        <tr>
+            {% include "./thead.html" %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for submission in submissions %}
+        {% include './row.html' %}
+        {% endfor %}
+    </tbody>
+</table>
+</div>

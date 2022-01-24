@@ -1,0 +1,9 @@
+{% extends 'form.html' %}
+{% load bootstrap_icons %}
+
+{% block heading %}Edit profile{% endblock %}
+
+{% block after_form %}
+    <p><a href="https://gravatar.com">Edit profile photo at gravatar.com {% bs_icon "link-45deg" %}</a></p>
+{% endblock %}
+{% block cancel_redirect %}{% url 'user_detail_redirect' %}{% endblock %}

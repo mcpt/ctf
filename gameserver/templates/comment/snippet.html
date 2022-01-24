@@ -1,0 +1,21 @@
+
+<section class="card my-3">
+    {% if not is_private %}
+        <h5 class="card-header">Comments</h5>
+        <div class="card-body text-wrap">
+            {% include './list.html' with max_depth=6 depth=0 %}
+            {% if user.is_authenticated %}
+                {% include './form.html' %}
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="card-body">
+            <p class="card-text"><i>Comments are not available on a private {{ entity }}</i></p>
+        </div>
+    {% endif %}
+    {% if user.is_authenticated %}
+        <template id="comment-form">
+            {% include './form.html' %}
+        </template>
+    {% endif %}
+</section>

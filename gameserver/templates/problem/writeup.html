@@ -1,0 +1,42 @@
+{% extends 'dual-column.html' %}
+{% load link_tags %}
+{% load humanize %}
+{% load markdown_tags %}
+{% load tz %}
+
+{% block content %}
+    <div class="card mb-3">
+        <div class="card-body px-4 py-3">
+            <h1 class="card-title">{{ post.title }}</h1>
+            <hr>
+        	{% if post.pointee == "E" %}
+            	<p><a href="{{ post.url }}">External Link to Writeup</a></p>
+        	{% else %}
+                <p class="card-text">{{ post.text|markdown }}</p>
+        	{% endif %}
+        </div>
+    </div>
+    {% include 'comment/snippet.html' %}
+{% endblock %}
+
+{% block aside %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <ul class="list-unstyled mb-0">
+                <li><b>Writeup for</b> {{ post.target.slug|problem }}</li>
+                <hr>
+                <li><b>Author{{ post.author.all|pluralize:"s" }}</b>: {{ post.author.all|users }}</li>
+                <li><b>Created</b>: {{ post.date_created|naturaltime }}</li>
+                <li><b>Last Modified</b>: {{ post.date_created|naturaltime }}</li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+
+{% block othermeta %}
+<meta property="og:article:published_time" content="{{ post.date_created|date:"c" }}" />
+<meta property="og:article:modified_time" content="{{ post.date_last_modified|date:"c" }}" />
+{% for author in post.author.all %}
+<meta property="og:article:author" content="{{ SCHEME }}://{{ site.domain }}{{ author.get_absolute_url }}" />
+{% endfor %}
+{% endblock %}

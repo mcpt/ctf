@@ -1,0 +1,35 @@
+@import "colours";
+
+nav.navbar {
+	box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+nav.bg-dark {
+	background-color: $primary-dark !important;
+
+	a.nav-link {
+		color: rgba($white, 0.8) !important;
+
+		&:hover {
+			color: $white !important;
+		}
+	}
+}
+
+#navbar-content .nav-item:hover {
+	background-color: rgba(255,255,255,.15);	
+}
+.navbar-nav .nav-link {
+	font-weight: 400;
+	font-size: 1rem;
+	line-height: 2;
+
+	&:hover .nav-hover-ignore {
+		color: rgba(255,255,255,.55);
+	}
+}
+
+@media screen and (max-width: 768px) {
+	.navbar-nav .nav-link {
+		padding-left: 1rem;
+	}
+}

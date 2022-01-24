@@ -20,7 +20,7 @@ from . import mixin
 class TeamList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     model = models.Team
     context_object_name = "teams"
-    template_name = "gameserver/team/list.html"
+    template_name = "team/list.html"
     title = "Teams"
 
     def get_ordering(self):
@@ -35,8 +35,8 @@ class TeamDetail(
     mixin.CommentMixin,
 ):
     model = models.Team
-    context_object_name = "team"
-    template_name = "gameserver/team/detail.html"
+    context_object_name = "group"
+    template_name = "team/detail.html"
     form_class = forms.GroupJoinForm
 
     def get_title(self):
@@ -44,6 +44,11 @@ class TeamDetail(
 
     def get_description(self):
         return self.get_object().description
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["entity"] = "team"
+        return context
 
     def get_form_kwargs(self, *args, **kwargs):
         cur_kwargs = super().get_form_kwargs(*args, **kwargs)
@@ -65,12 +70,16 @@ class TeamDetail(
         self.get_object().members.add(self.request.user)
         return super().form_valid(form)
 
+    def form_invalid(self, form):
+        messages.error(self.request, "Your access code is incorrect.")
+        return super().form_invalid(form)
+
     def get_success_url(self):
         return reverse("team_detail", kwargs={"pk": self.get_object().pk})
 
 
 class TeamCreate(LoginRequiredMixin, CreateView, mixin.TitleMixin, mixin.MetaMixin):
-    template_name = "gameserver/team/create.html"
+    template_name = "team/create.html"
     model = models.Team
     fields = ("name", "description")
 
@@ -94,7 +103,7 @@ class TeamEdit(
     mixin.TitleMixin,
     mixin.MetaMixin,
 ):
-    template_name = "gameserver/team/form.html"
+    template_name = "team/form.html"
     title = "Update Team"
     model = models.Team
     form_class = forms.TeamUpdateForm
@@ -119,4 +128,5 @@ class TeamLeave(LoginRequiredMixin, RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         team = get_object_or_404(models.Team, pk=kwargs["pk"])
         team.members.remove(self.request.user)
+        messages.info(self.request, "You have left this team.")
         return super().get_redirect_url(*args, **kwargs)

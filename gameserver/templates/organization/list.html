@@ -1,0 +1,16 @@
+{% extends 'table-list.html' %}
+{% load link_tags %}
+
+{% block th %}
+    <th scope="col">Name</th>
+    <th scope="col">Members</th>
+{% endblock %}
+
+{% block trows %}
+    {% for organization in organizations %}
+        <tr>
+            <td>{{ organization.slug|organization }}</th>
+            <td>{{ organization.member_count }}</a></td>
+        </tr>
+    {% endfor %}
+{% endblock %}

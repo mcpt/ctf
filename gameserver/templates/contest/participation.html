@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load link_tags %}
+
+{% block main %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h1 class="mt-0"><a href="{{ participation.participant.get_absolute_url }}">{{ participation.participant }}</a>'s Participation in {{ participation.contest.slug|contest }}</h1>
+                <hr class="mb-0">
+            </div>
+        </div>
+        {% include "snippets/group_detail/members.html" with member_list=participation.participants.all entity="Members" %}
+        {% if request.in_contest and request.participation.contest == participation.contest or contest.is_finished %}
+            <div class="card mb-3">
+                <h2 class="card-header fs-6">Submissions</h2>
+                <div class="card-body">
+                    {% include './snippet/submission/table.html' with contest_submissions=participation.submissions.all %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    <aside class="col">
+        <div class="card mb-3">
+            <div class="card-body participation-summary">
+                <div>
+                    <span>#{{ participation.rank }}</span>
+                    <span>rank</span>
+                </div>
+                <div>
+                    <span>{{ participation.points }}</span>
+                    <span>point{{ participation.points|pluralize }}</span>
+                </div>
+                <div>
+                    <span>{{ participation.num_flags_captured }}</span>
+                    <span>flag{{ participation.num_flags_captured|pluralize }} captured</span>
+                </div>
+                <div>
+                    <span>{{ participation.time_taken }}</span>
+                    <span>time taken</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+</div>
+{% endblock %}

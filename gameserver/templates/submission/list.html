@@ -1,0 +1,22 @@
+{% extends 'table-list.html' %}
+{% load link_tags %}
+
+{% block heading %}
+    {% if problem %}
+        Submissions for {{ problem.slug|problem }}
+    {% elif author %}
+        Submissions by {{ author|user }}
+    {% else %}
+        All Submissions
+    {% endif %}
+{% endblock %}
+
+{% block th %}
+    {% include "./snippet/thead.html" with hide_pk=True %}
+{% endblock %}
+
+{% block trows %}
+    {% for submission in submissions %}
+        {% include './snippet/row.html' with hide_pk=True %}
+    {% endfor %}
+{% endblock %}

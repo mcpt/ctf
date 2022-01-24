@@ -1,0 +1,14 @@
+{% extends 'table-list.html' %}
+{% load link_tags %}
+
+{% block heading %}Submissions for {{ contest.slug|contest }}{% endblock %}
+
+{% block th %}
+    {% include 'submission/snippet/thead.html' with hide_timestamp=True %}
+{% endblock %}
+
+{% block trows %}
+    {% for contest_submission in contest_submissions %}
+        {% include './snippet/submission/row.html' %}
+    {% endfor %}
+{% endblock %}

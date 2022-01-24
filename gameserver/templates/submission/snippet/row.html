@@ -1,0 +1,17 @@
+{% load color_tags %}
+{% load link_tags %}
+{% load humanize %}
+
+<tr class="table-light">
+    {% if not hide_pk %}
+        <td>{{ submission.pk }}</td>
+    {% endif %}
+    {% include "./status.html" %}
+    {% if not problem %}
+        <td>{{ submission.problem.slug|problem }}</td>
+    {% endif %}
+    <td>{{ submission.user.username|user }}</td>
+    {% if not hide_timestamp %}
+        <td>{{ submission.date_created|naturaltime }}</td>
+    {% endif %}
+</tr>

@@ -1,0 +1,25 @@
+@import "colours";
+
+:root {
+	--solved: #008000;
+	--attempted: #F44336;
+	--unsolved: #0af;
+}
+
+.status {
+	@at-root h1 & .bi {
+		width: auto;
+		height: 25px;
+		margin-right: -2px;
+		vertical-align: unset;
+	}
+	&[title="Solved"], &[title^="Captured"], &[title="First blood"] {
+		color: var(--solved) !important;
+	}
+	&[title="Attempted"] {
+		color: var(--attempted) !important;
+	}
+	&[title="Unsolved"] {
+		color: var(--unsolved) !important;
+	}
+}

@@ -24,7 +24,7 @@ class UserDetailRedirect(RedirectView):
 class UserList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     model = models.User
     context_object_name = "users"
-    template_name = "gameserver/user/list.html"
+    template_name = "user/list.html"
     title = "Users"
 
     def get_queryset(self):
@@ -40,7 +40,7 @@ class UserList(ListView, mixin.TitleMixin, mixin.MetaMixin):
 class UserDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin):
     model = models.User
     context_object_name = "profile"
-    template_name = "gameserver/user/detail.html"
+    template_name = "user/detail.html"
     og_type = "profile"
 
     def get_slug_field(self):
@@ -58,7 +58,7 @@ class UserDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMix
 
 class UserSubmissionList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     context_object_name = "submissions"
-    template_name = "gameserver/user/submission_list.html"
+    template_name = "submission/list.html"
     paginate_by = 50
 
     def get_queryset(self):
@@ -71,11 +71,12 @@ class UserSubmissionList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["author"] = self.kwargs["slug"]
+        context["hide_pk"] = True
         return context
 
 
 class UserEdit(UpdateView, mixin.TitleMixin, mixin.MetaMixin):
-    template_name = "gameserver/user/form.html"
+    template_name = "user/form.html"
     form_class = forms.ProfileUpdateForm
     success_url = reverse_lazy("user_detail_redirect")
     title = "Update Profile"

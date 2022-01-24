@@ -104,6 +104,16 @@ def comment_html(comment_obj):
 
 
 @register.filter
+def comment_html_short(comment_obj):
+    comment_url, author_url, comment_date, parent_url = comment_info(
+        comment_obj
+    )
+    return format_html(
+        "{1} → {2}", comment_url, author_url, parent_url
+    )
+
+
+@register.filter
 def post(slug, postfix=""):
     post_obj = models.BlogPost.objects.get(slug=slug)
     return format_html(

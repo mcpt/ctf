@@ -1,0 +1,129 @@
+@import "colours";
+
+.btn-light {
+    background-color: #f1efee;
+    border-color: #f1efee;
+
+    &:hover {
+        background-color: #{$gray-300};
+        border-color: #{$gray-300};
+    }
+}
+
+a, .btn-link {
+    text-decoration: none;
+}
+.form-control, .form-select, .form-label {
+    font-size: 1rem;
+}
+
+// cards
+$head-bg: $primary-dark;
+$head-text: $white;
+
+.card-header {
+    color: #{$head-text};
+    background-color: #{$head-bg};
+
+    + .card-body .table-list thead {
+        --bs-table-bg: #{$gray-200};
+        color: $gray-800;
+        border-color: transparent;
+    }
+}
+.card-header:first-child, .card {
+    border-radius: 0;
+}
+.card-body {
+    padding: 1.25rem;
+}
+.card-header {
+    padding-left: 0.75rem;
+}
+
+// https://github.com/twbs/bootstrap/blob/main/scss/_tables.scss
+%table-hover {
+  tbody > tr:hover > * {
+    --bs-table-accent-bg: var(--bs-table-hover-bg);
+    color: var(--bs-table-hover-color);
+  }
+}
+
+// custom 
+.table-list {
+    thead {
+        --bs-table-color: #{$head-text};
+        --bs-table-bg: #{$head-bg};
+        color: var(--bs-table-color);
+        border-color: var(--bs-table-border-color);
+
+        text-transform: uppercase;
+    }
+    table > tbody:not(:first-child) {
+        border-top: transparent;
+    }
+    @extend %table-hover;
+
+    @media screen and (max-width: 768px) {
+        &.contest-list {
+            tr {
+                display: flex;
+                flex-flow: column nowrap;
+            }
+            col {
+                width: 100% !important;
+            }
+            th:not(:first-child) {
+                display: none;
+            }
+            tr:not(:last-child) td:last-child {
+                border-bottom: 2px solid;
+            }
+            td[class^="p"] {
+                padding-left: 0.8rem !important;
+            }
+        }
+    }
+}
+
+h6 .bi-reply::before {
+    vertical-align: text-top;
+}
+
+button.btn-primary, input[type="submit"] {
+    background-color: #165dcc;
+    &:hover {
+        background-color: #265a88;
+    }
+}
+
+#leave-form {
+    display: none;
+}
+
+.submit_code {
+    input {
+        border-top-right-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+    }
+    button {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+    .invalid-feedback {
+        display: none;
+    }
+}
+
+.align-sub {
+    vertical-align: sub;
+}
+
+.btn-light2 {
+    background-color: $gray-400;
+    border-color: $gray-400;
+    &:hover {
+        background-color: $gray-500;
+        border-color: $gray-500;
+    }
+}

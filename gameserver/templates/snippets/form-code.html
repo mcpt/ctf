@@ -1,0 +1,8 @@
+{% load django_bootstrap5 %}
+<form method="POST">
+    {% csrf_token %}
+    <div class="d-flex submit_code">
+        {% bootstrap_field field wrapper_class="mb-0 flex-grow-1" show_label=False %}
+        {% bootstrap_button "Submit" button_type="submit" %}
+    </div>
+</form>

@@ -1,0 +1,30 @@
+{% extends 'table-list.html' %}
+{% load link_tags %}
+
+{% block heading %}Scoreboard for {{ contest.slug|contest }}{% endblock %}
+
+{% block th %}
+    <th scope="col">Rank</th>
+    <th scope="col">Name</th>
+    <th scope="col">Type</th>
+    <th scope="col">Points</th>
+    <th scope="col">Flags</th>
+    <th scope="col">Time</th>
+{% endblock %}
+
+{% block trows %}
+    {% for participation in participations %}
+        <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td><a href="{{ participation.get_absolute_url }}">{{ participation.participant }}</a></td>
+            {% if participation.team %}
+                <td>Team</td>
+            {% else %}
+                <td>Individual</td>
+            {% endif %}
+            <td>{{ participation.points }}</td>
+            <td>{{ participation.flags }}</td>
+            <td>{{ participation.time_taken }}</td>
+        </tr>
+    {% endfor %}
+{% endblock %}

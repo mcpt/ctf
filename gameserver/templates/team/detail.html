@@ -1,0 +1,37 @@
+{% extends 'dual-column.html' %}
+{% load link_tags %}
+{% load django_bootstrap5 %}
+
+{% block content %}
+    {% include "snippets/group_detail/summary.html" %}
+    {% if team.contest_participations.all %}
+        <div class="card mb-3">
+            <h2 class="card-header fs-6">Participations</h2>
+            <div class="card-body">
+                {% include 'contest/snippet/participation/table.html' with participations=team.contest_participations.all %}
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block aside %}
+    {% include "snippets/group_detail/members.html" with member_list=group.members.all card_title="Team Members" %}
+    {% if user.is_authenticated %}
+        <div class="card my-3">
+            <div class="card-body">
+                {% if request.user in group.members.all %}
+                   {% include "snippets/group_detail/leave_form.html" with entity="team" %}
+                {% else %}
+                    <p class="mb-2">You are currently not in this team.</p>
+                    {% bootstrap_label "Enter the access code to join" label_class="text-muted fst-italic mb-2" label_for=form.access_code.auto_id %}
+                    {% include "snippets/form-code.html" with field=form.access_code %}
+                    <style>
+                        label[for='id_access_code'] {
+                            margin-bottom: 0.5rem;
+                        }
+                    </style>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

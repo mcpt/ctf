@@ -15,13 +15,13 @@ from . import mixin
 
 class ContestList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     context_object_name = "contests"
-    template_name = "gameserver/contest/list.html"
+    template_name = "contest/list.html"
     title = "Contests"
 
     def get_queryset(self):
         queryset = models.Contest.objects.order_by("-start_time")
         if self.request.user.is_authenticated:
-            return queryset.filter(Q(is_private=False) | Q(organizers=self.request.user))
+            return queryset.filter(Q(is_private=False) | Q(organizers=self.request.user)).distinct()
         else:
             return queryset.filter(is_private=False)
 
@@ -35,7 +35,7 @@ class ContestDetail(
 ):
     model = models.Contest
     context_object_name = "contest"
-    template_name = "gameserver/contest/detail.html"
+    template_name = "contest/detail.html"
 
     def get_title(self):
         return "" + self.get_object().name
@@ -49,6 +49,7 @@ class ContestDetail(
         context["participations"] = None
         if self.request.user.is_authenticated:
             context["participations"] = self.request.user.participations_for_contest(self.get_object())
+            context["user_has_team_participations"] = any([participation.team for participation in context["participations"]])
         return context
 
     def get_form(self):
@@ -138,13 +139,13 @@ class ContestLeave(LoginRequiredMixin, RedirectView):
 
 class ContestProblemList(UserPassesTestMixin, ListView, mixin.TitleMixin, mixin.MetaMixin):
     context_object_name = "contest_problems"
-    template_name = "gameserver/contest/problem_list.html"
+    template_name = "contest/problem_list.html"
 
     def test_func(self):
         self.contest = get_object_or_404(models.Contest, slug=self.kwargs["slug"])
         return (
             self.request.in_contest and self.request.participation.contest == self.contest
-        ) or self.contest.is_finished
+        ) or self.contest.is_finished()
 
     def get_title(self):
         return "Problems for " + self.contest.name
@@ -160,14 +161,14 @@ class ContestProblemList(UserPassesTestMixin, ListView, mixin.TitleMixin, mixin.
 
 class ContestSubmissionList(UserPassesTestMixin, ListView, mixin.TitleMixin, mixin.MetaMixin):
     context_object_name = "contest_submissions"
-    template_name = "gameserver/contest/submission_list.html"
+    template_name = "contest/submission_list.html"
     paginate_by = 50
 
     def test_func(self):
         self.contest = get_object_or_404(models.Contest, slug=self.kwargs["slug"])
         return (
             self.request.in_contest and self.request.participation.contest == self.contest
-        ) or self.contest.is_finished
+        ) or self.contest.is_finished()
 
     def get_queryset(self):
         return models.ContestSubmission.objects.filter(participation__contest=self.contest).order_by(
@@ -183,7 +184,7 @@ class ContestSubmissionList(UserPassesTestMixin, ListView, mixin.TitleMixin, mix
 class ContestScoreboard(ListView, mixin.TitleMixin, mixin.MetaMixin):
     model = models.ContestParticipation
     context_object_name = "participations"
-    template_name = "gameserver/contest/scoreboard.html"
+    template_name = "contest/scoreboard.html"
 
     def get_queryset(self):
         self.contest = get_object_or_404(models.Contest, slug=self.kwargs["slug"])
@@ -201,7 +202,7 @@ class ContestScoreboard(ListView, mixin.TitleMixin, mixin.MetaMixin):
 class ContestParticipationDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin):
     model = models.ContestParticipation
     context_object_name = "participation"
-    template_name = "gameserver/contest/participation.html"
+    template_name = "contest/participation.html"
 
     def get_title(self):
         return f"{self.get_object().__str__()}"

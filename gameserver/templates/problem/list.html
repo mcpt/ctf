@@ -1,0 +1,37 @@
+{% extends 'table-list.html' %}
+{% load color_tags %}
+{% load link_tags %}
+
+{% block th %}
+    {% if user.is_authenticated %}
+        <th scope="col">Status</th>
+    {% endif %}
+    <th scope="col">Problem</th>
+    <th scope="col">Types</th>
+    <th scope="col">Groups</th>
+    <th scope="col">Points</th>
+{% endblock %}
+
+{% block trows %}
+    {% for problem in problems %}
+        <tr>
+            {% if user.is_authenticated %}
+                {% with status=problem|problem_status:user %}
+                    <td>{% include "./snippet/status.html" %}</td>
+                {% endwith %}
+            {% endif %}
+            <td>{{ problem.slug|problem }}</td>
+            {% if problem.problem_type.all %}
+                <td>{{ problem.problem_type.all|join:", " }}</td>
+            {% else %}
+                <td class="font-italic">-</td>
+            {% endif %}
+            {% if problem.problem_group.all %}
+                <td>{{ problem.problem_group.all|join:", " }}</td>
+            {% else %}
+                <td class="font-italic">-</td>
+            {% endif %}
+            <td>{{ problem.points }}</td>
+        </tr>
+    {% endfor %}
+{% endblock %}

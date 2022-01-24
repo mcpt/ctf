@@ -1,7 +1,4 @@
 from allauth.account.forms import SignupForm
-from crispy_forms.bootstrap import FieldWithButtons
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Submit
 from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -38,7 +35,7 @@ class ProfileUpdateForm(ModelForm):
         fields = [
             "description",
             "timezone",
-            "payment_pointer",
+            # "payment_pointer",
             "organizations",
         ]
         widgets = {"organizations": forms.CheckboxSelectMultiple()}
@@ -51,6 +48,8 @@ class ProfileUpdateForm(ModelForm):
                 Q(is_private=False) | Q(admins=user) | Q(pk__in=user.organizations.all())
             ).distinct()
         self.initial["organizations"] = [i.pk for i in user.organizations.all()]
+        self.fields["description"].label = "Profile description"
+        self.fields["description"].widget.attrs['placeholder'] = "Description..."
 
 
 class TeamUpdateForm(ModelForm):
@@ -72,17 +71,15 @@ class TeamUpdateForm(ModelForm):
 
 
 class GroupJoinForm(forms.Form):
-    access_code = forms.CharField(max_length=36, strip=True)
+    access_code = forms.CharField(
+        max_length=36,
+        strip=True,
+        widget=forms.TextInput(attrs={"placeholder": "Access Code"}),
+        label="Enter the access code to join",
+    )
 
     def __init__(self, *args, **kwargs):
         self.group = kwargs.pop("group", None)
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
-            FieldWithButtons(
-                "access_code",
-                Submit("submit", "Submit", css_class="btn-primary"),
-            )
-        )
         super(GroupJoinForm, self).__init__(*args, **kwargs)
 
     def clean_access_code(self):
@@ -100,9 +97,6 @@ class FlagSubmissionForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.problem = kwargs.pop("problem", None)
-        self.helper = FormHelper()
-        self.helper.layout = Layout(FieldWithButtons("flag", Submit("submit", "Submit", css_class="btn-primary")))
-
         super(FlagSubmissionForm, self).__init__(*args, **kwargs)
 
     def clean_flag(self):
@@ -126,7 +120,7 @@ class ContestJoinForm(forms.Form):
         self.fields["participant"].empty_label = f"Myself ({self.user.username})"
         if self.contest.teams_allowed:
             self.fields["participant"].queryset = self.user.eligible_teams(self.contest)
-            
+
         user_participations = self.user.participations_for_contest(self.contest)
         if user_participations.count() > 0:
             user_participation = user_participations.first()

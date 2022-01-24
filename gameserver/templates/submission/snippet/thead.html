@@ -1,0 +1,11 @@
+{% if not hide_pk %}
+    <th scope="col">#</th>
+{% endif %}
+<th scope="col">Status</th>
+{% if not problem %}
+    <th scope="col">Problem</th>
+{% endif %}
+<th scope="col">User</th>
+{% if not hide_timestamp %}
+    <th scope="col">Submitted</th>
+{% endif %}

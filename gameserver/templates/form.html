@@ -1,0 +1,19 @@
+{% extends 'card.html' %}
+{% load django_bootstrap5 %}
+
+{% block content %}
+    {% block before_form %}{% endblock %}
+    <form method="post">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+
+        {% block after_form %}{% endblock %}
+
+        {% block submit_btn %}
+            <button type="submit" class="btn btn-primary ms-2 float-end">{% block submit_text %}Save{% endblock %}</button>
+        {% endblock %}
+        {% block alternate_btn %}
+            <a href="{% block cancel_redirect %}{% endblock %}" class="btn btn-light float-end" role="button" aria-pressed="true">Cancel</a>
+        {% endblock %}
+    </form>
+{% endblock %}

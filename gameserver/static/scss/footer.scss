@@ -1,0 +1,9 @@
+footer {
+	padding: 0.3rem;
+	background-color: var(--bs-gray-400) !important;
+	text-align: center;
+
+	span, small, a {
+		color: var(--bs-gray-600) !important;
+	}
+}

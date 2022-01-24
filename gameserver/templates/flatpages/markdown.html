@@ -1,0 +1,6 @@
+{% extends 'card.html' %}
+{% load markdown_tags %}
+
+{% block title %}{{ flatpage.title }}{% endblock %}
+{% block heading %}{{ flatpage.title }}{% endblock %}
+{% block content %}{{ flatpage.content|markdown }}{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block main %}
+    {% block before_cols %}{% endblock %}
+    <div class="row g-3">
+        <section class="col-md-8">
+        	{% block content %}
+        	{% endblock %}
+    	</section>
+        <aside class="col">
+        	{% block aside %}
+        	{% endblock %}
+        </aside>
+    </div>
+{% endblock %}

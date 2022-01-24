@@ -1,0 +1,7 @@
+{% load bootstrap_icons %}
+
+{% if contest.teams_allowed %}
+    {% bs_icon 'people-fill' extra_classes="align-sub" %} Team
+{% else %}
+    {% bs_icon 'person-fill' extra_classes="align-sub" %} Individual
+{% endif %}

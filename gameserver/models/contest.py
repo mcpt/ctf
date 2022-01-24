@@ -143,8 +143,10 @@ class ContestParticipation(models.Model):
         return reverse("contest_participation_detail", args=[self.pk])
 
     def has_solved(self, problem):
-        solves = self.submissions.filter(problem=problem, submission__is_correct=True)
-        return solves.count() > 0
+        return self.submissions.filter(problem=problem, submission__is_correct=True).exists()
+
+    def has_attempted(self, problem):
+        return self.submissions.filter(problem=problem).exists()
 
     def __str__(self):
         return f"{self.participant().__str__()}'s Participation in {self.contest.name}"

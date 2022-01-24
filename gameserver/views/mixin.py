@@ -23,7 +23,8 @@ class TitleMixin(ContextMixin):
         context["page_title"] = "mCTF"
         title = self.get_title()
         if title != "":
-            context["page_title"] = f"mCTF: {title}"
+            context["title"] = title
+            context["page_title"] = f"{title} - mCTF"
         return context
 
 

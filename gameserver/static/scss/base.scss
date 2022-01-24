@@ -1,0 +1,28 @@
+@import "colours";
+
+:root {
+    --bs-body-bg: #{$body-bg};
+}
+body {
+    line-height: 1.5em;
+    font-size: 1em;
+    font-family: "Segoe UI", "Lucida Grande", Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-flow: column nowrap;
+}
+main {
+    flex-grow: 1;
+}
+
+h1.card-title + hr {
+    margin-top: 0;
+}
+
+a, a.page-link {
+    color: $link;
+
+    &:hover {
+        color: $link-hover;
+    }
+}

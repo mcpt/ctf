@@ -19,13 +19,13 @@ logger = logging.getLogger("django")
 
 class ProblemList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     context_object_name = "problems"
-    template_name = "gameserver/problem/list.html"
+    template_name = "problem/list.html"
     title = "Problems"
 
     def get_queryset(self):
         queryset = models.Problem.objects.order_by("name")
         if self.request.user.is_authenticated:
-            return queryset.filter(Q(is_private=False) | Q(author=self.request.user))
+            return queryset.filter(Q(is_private=False) | Q(author=self.request.user)).distinct()
         else:
             return queryset.filter(is_private=False)
 
@@ -45,7 +45,7 @@ class ProblemDetail(
     mixin.CommentMixin,
 ):
     model = models.Problem
-    template_name = "gameserver/problem/detail.html"
+    template_name = "problem/detail.html"
     form_class = forms.FlagSubmissionForm
 
     def get_contest_object(self):
@@ -65,7 +65,7 @@ class ProblemDetail(
         )
 
     def get_title(self):
-        return "" + self.get_object().name
+        return self.get_object().name
 
     def get_description(self):
         return self.get_object().summary
@@ -119,12 +119,17 @@ class ProblemDetail(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["contest_problem"] = self.get_contest_object()
+        if self.request.user.is_authenticated:
+            if (self.request.user.has_solved(self.get_object())) or (self.request.in_contest and self.request.participation.has_solved(self.get_contest_object())):
+                context["status"] = "solved"
+            elif (self.request.user.has_attempted(self.get_object())) or (self.request.in_contest and self.request.participation.has_attempted(self.get_contest_object())):
+                context["status"] = "attempted"
         return context
 
 
 class ProblemSubmissionList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     context_object_name = "submissions"
-    template_name = "gameserver/problem/submission_list.html"
+    template_name = "submission/list.html"
     paginate_by = 50
 
     def get_queryset(self):
@@ -135,7 +140,7 @@ class ProblemSubmissionList(ListView, mixin.TitleMixin, mixin.MetaMixin):
         return "-date_created"
 
     def get_title(self):
-        return "Submissions for Problem " + self.problem.name
+        return "Submissions for " + self.problem.name
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

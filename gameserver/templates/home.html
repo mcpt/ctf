@@ -1,0 +1,55 @@
+{% extends 'dual-column.html' %}
+{% load humanize %}
+{% load link_tags %}
+
+{% block before_cols %}
+<div class="card mb-3">
+    <div class="card-body">
+        <p class="fs-6 m-0">Welcome to mCTF! Please register or try out a problem <a href="{% url 'problem_list' %}">here</a>.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+        <section class="card">
+            <h1 class="card-header fs-6">News</h1>
+            <div class="card-body text-wrap">
+                {% include 'blogpost/list.html' %}
+            </div>
+        </section>
+{% endblock %}
+
+{% block aside %}
+        {% if contests %}
+            <section class="card mb-3">
+                <h1 class="card-header fs-6">Ongoing Contests</h1>
+                <ul class="list-group list-group-flush">
+                    {% for contest in contests %}
+                        <li class="list-group-item">{{ contest.slug|contest }} <i>— ends in {{ contest.end_time|naturaltime }}</i></li>
+                    {% endfor %}
+                </ul>
+            </section>
+        {% endif %}
+        <section class="card mb-3">
+            <h1 class="card-header fs-6">New Problems</h1>
+            <div class="card-body pt-2 pb-3">
+                <ul class="list-unstyled mb-0">
+                    {% for problem in problems %}
+                        <li>{{ problem.slug|problem }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </section>
+        {% if comments %}
+            <section class="card mb-3">
+                <h1 class="card-header fs-6">New Comments</h1>
+                <div class="card-body pt-2 pb-3">
+                    <ul class="list-unstyled mb-0">
+                        {% for comment in comments %}
+                            <li>{{ comment|comment_html_short }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </section>
+        {% endif %}
+{% endblock %}

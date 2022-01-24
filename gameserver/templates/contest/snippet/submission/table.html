@@ -1,0 +1,17 @@
+<div class="table-responsive table-list">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Status</th>
+                <th scope="col">Problem</th>
+                <th scope="col">User</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for contest_submission in contest_submissions %}
+                {% include './row.html' %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
