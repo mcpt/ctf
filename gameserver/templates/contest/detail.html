@@ -70,19 +70,25 @@
                             {% csrf_token %}
                             <button type="submit" class="btn btn-danger">Leave contest</button>
                         </form>
-                        {% if request.user.current_contest.team == None %}
+                        {% if contest.teams_allowed and not user_has_team_participations %}
                             <br>
                             <label class="form-label" for="{{ form.participant.auto_id }}">or, change to participate as a team:</label>
                             <form method="post">
                                 {% csrf_token %}
                                 {% bootstrap_field form.participant show_label=False wrapper_class="mb-2" %}
+                                <p class="text-muted fst-italic mb-3" style="font-size: 0.75rem;line-height:1.6">Once you participate as part of a team, you cannot change back to individual participation.</p>
                                 <button type="submit" class="btn btn-primary">Change Participation</button>
                             </form>
                         {% endif %}
                     {% else %}
                         <form method="post">
                             {% csrf_token %}
-                            {% bootstrap_field form.participant wrapper_class="mb-2" %}
+                            {% if contest.teams_allowed and not user_has_team_participations %}
+                                {% bootstrap_field form.participant wrapper_class="mb-2" %}
+                                <p class="text-muted fst-italic" style="font-size: 0.75rem;line-height:1.6">Once you participate as part of a team, you cannot change back to individual participation.</p>
+                            {% else %}
+                                {% bootstrap_field form.participant wrapper_class="d-none" %}
+                            {% endif %}
                             <button type="submit" class="btn btn-primary">Join contest</button>
                         </form>
                     {% endif %}

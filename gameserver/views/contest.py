@@ -49,6 +49,7 @@ class ContestDetail(
         context["participations"] = None
         if self.request.user.is_authenticated:
             context["participations"] = self.request.user.participations_for_contest(self.get_object())
+            context["user_has_team_participations"] = any([participation.team for participation in context["participations"]])
         return context
 
     def get_form(self):
