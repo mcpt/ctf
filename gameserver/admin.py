@@ -5,7 +5,6 @@ from django.contrib.flatpages.admin import FlatPageAdmin
 from django.contrib.flatpages.models import FlatPage
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
-from martor.widgets import AdminMartorWidget
 
 from . import models
 
@@ -34,9 +33,6 @@ class ProblemAdmin(admin.ModelAdmin):
     inlines = [
         ProblemFileInline,
     ]
-    formfield_overrides = {
-        django.db.models.TextField: {"widget": AdminMartorWidget},
-    }
 
     def has_view_permission(self, request, obj=None):
         if request.user.has_perm("gameserver.view_problem"):

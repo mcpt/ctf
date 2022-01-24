@@ -14,7 +14,6 @@ django-sass-processor==1.1
 idna==3.3
 libsass==0.21.0
 Markdown==3.3.4
-martor==1.6.8
 oauthlib==3.1.1
 pycparser==2.21
 PyJWT==2.3.0

@@ -21,6 +21,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("gameserver.urls")),
     path("accounts/", include("allauth.urls")),
-    path("martor/", include("martor.urls")),
     path("/<path:url>", flatpage_views.flatpage),
 ]

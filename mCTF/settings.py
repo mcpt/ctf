@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     "django.contrib.flatpages",
     "django.contrib.humanize",
     "gameserver",
-    "martor",
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
@@ -229,11 +228,6 @@ KEYWORDS = [
 ]
 SCHEME = "https"
 PAYMENT_POINTERS = []  # Your Interledger Payment Pointers for Web Monetization
-
-
-# Martor settings
-
-MARTOR_THEME = "bootstrap"
 
 
 # Sass settings

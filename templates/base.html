@@ -38,7 +38,6 @@
 
         {% bootstrap_css %}
         <link href="{% static 'plugins/css/ace.min.css' %}" type="text/css" media="all" rel="stylesheet" />
-        <link href="{% static 'martor/css/martor.semantic.min.css' %}" type="text/css" media="all" rel="stylesheet" />
         <link href="{% static 'styles/bootstrap-icons.css' %}" type="text/css" media="all" rel="stylesheet" />
         <link href="{% static 'styles/pygments.css' %}" type="text/css" media="all" rel="stylesheet" />
 
@@ -141,11 +140,6 @@
         <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
         {% bootstrap_javascript %}
         <script type="text/javascript" src="{% static 'plugins/js/highlight.min.js' %}"></script>
-        <script>
-            $('.martor-preview pre').each(function(i, block){
-                hljs.highlightBlock(block);
-            });
-        </script>
     </body>
 
 </html>
