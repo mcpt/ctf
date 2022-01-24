@@ -2,6 +2,7 @@
 {% load link_tags %}
 {% load markdown_tags %}
 {% load django_bootstrap5 %}
+{% load tz %}
 
 {% block content %}
     <div class="card mb-3">
@@ -20,6 +21,7 @@
     {% endif %}
 {% endblock %}
 {% block aside %}
+    {% get_current_timezone as TIME_ZONE %}
     <div class="card mb-3">
         <div class="card-body">
             <p class="mb-0">Start{% if contest.is_finished or contest.is_ongoing %}ed{% else %}s{% endif %} on</p>

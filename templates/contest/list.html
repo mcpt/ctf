@@ -2,7 +2,6 @@
 {% load link_tags %}
 {% load color_tags %}
 {% load tz %}
-{% get_current_timezone as TIME_ZONE %}
 
 {% block table_class %}contest-list{% endblock %}
 
@@ -21,6 +20,7 @@
 {% endblock %}
 
 {% block trows %}
+    {% get_current_timezone as TIME_ZONE %}
     {% for contest in contests %}
         <tr>
             <td class="p-3 py-2">
