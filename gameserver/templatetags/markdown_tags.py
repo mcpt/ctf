@@ -3,6 +3,7 @@ import re
 import bleach.sanitizer as sanitizer
 import mistune
 from django import template
+from django.conf import settings
 from django.contrib.sites.models import Site
 from django.template.defaultfilters import stringfilter
 from django.utils.safestring import mark_safe
@@ -29,12 +30,11 @@ render = mistune.create_markdown(renderer=HighlightRenderer())
 
 register = template.Library()
 
-current_site = Site.objects.get_current()
 bodge_pattern = re.compile(f"\[([^\]]*)\]\(/")
 
 
 def bodge_replace(match):
-    return f"[{match.group(1)}](https://{current_site.domain}/"
+    return f"[{match.group(1)}]({settings.ROOT}/"
 
 
 # https://github.com/mozilla/bleach/blob/main/bleach/sanitizer.py#L13
