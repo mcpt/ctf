@@ -46,6 +46,11 @@ class User(AbstractUser):
         blank=True,
     )
 
+    full_name = models.CharField(max_length=80, blank=True)
+
+    school_name = models.CharField(max_length=80, blank=True)
+    school_contact = models.EmailField(blank=True)
+
     def get_absolute_url(self):
         return reverse("user_detail", args=[self.username])
 

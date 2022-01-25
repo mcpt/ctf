@@ -14,12 +14,18 @@ User = get_user_model()
 
 class MCTFSignupForm(SignupForm):
     timezone = forms.ChoiceField(choices=choices.timezone_choices, initial=settings.DEFAULT_TIMEZONE)
+    full_name = forms.CharField(max_length=80)
+    school_name = forms.CharField(max_length=80, required=False)
+    school_contact = forms.EmailField(required=False)
     field_order = [
+        "full_name",
         "email",
         "username",
         "password1",
         "password2",
         "timezone",
+        "school_name",
+        "school_contact",
     ]
 
     def save(self, request):
@@ -37,6 +43,8 @@ class ProfileUpdateForm(ModelForm):
             "timezone",
             # "payment_pointer",
             "organizations",
+            "school_name",
+            "school_contact"
         ]
         widgets = {"organizations": forms.CheckboxSelectMultiple()}
 
