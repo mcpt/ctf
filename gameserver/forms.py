@@ -31,6 +31,9 @@ class MCTFSignupForm(SignupForm):
     def save(self, request):
         user = super(MCTFSignupForm, self).save(request)
         user.timezone = self.cleaned_data["timezone"]
+        user.full_name = self.cleaned_data["full_name"]
+        user.school_name = self.cleaned_data["school_name"]
+        user.school_contact = self.cleaned_data["school_contact"]
         user.save()
         return user
 
