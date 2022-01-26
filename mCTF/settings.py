@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sites",
+    "django.contrib.redirects",
     "django.contrib.flatpages",
     "django.contrib.humanize",
     "gameserver",
@@ -60,6 +61,7 @@ MIDDLEWARE = [
     "gameserver.middleware.TimezoneMiddleware",
     "gameserver.middleware.ContestMiddleware",
     "django.contrib.flatpages.middleware.FlatpageFallbackMiddleware",
+    "gameserver.middleware.RedirectFallbackTemporaryMiddleware",
 ]
 
 ROOT_URLCONF = "mCTF.urls"
