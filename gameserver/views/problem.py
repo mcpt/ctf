@@ -24,7 +24,9 @@ class ProblemList(ListView, mixin.TitleMixin, mixin.MetaMixin):
 
     def get_queryset(self):
         queryset = models.Problem.objects.order_by("name")
-        if self.request.user.is_authenticated:
+        if self.request.user.is_superuser or self.request.user.has_perm("gameserver.edit_all_problems"):
+            return queryset
+        elif self.request.user.is_authenticated:
             return queryset.filter(Q(is_private=False) | Q(author=self.request.user)).distinct()
         else:
             return queryset.filter(is_private=False)
