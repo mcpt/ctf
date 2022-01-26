@@ -1,4 +1,4 @@
-{% extends 'form.html' %}
+{% extends 'form-small.html' %}
 {% load i18n %}
 {% load django_bootstrap5 %}
 
@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block after_form %}
-    <p class="mb-0">By clicking this button, you agree to our <a href="{{ TOS_URL }}">terms</a>.</p>
+    <p class="mb-3">By clicking this button, you agree to our <a href="{{ TOS_URL }}">terms</a>.</p>
 {% endblock %}
 
 {% block submit_btn %}

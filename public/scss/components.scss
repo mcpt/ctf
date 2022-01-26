@@ -17,6 +17,11 @@ a, .btn-link {
     font-size: 1rem;
 }
 
+.wd-small {
+    max-width: 540px;
+    width: 100%;
+}
+
 // cards
 $head-bg: $primary-dark;
 $head-text: $white;

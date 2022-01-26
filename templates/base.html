@@ -110,7 +110,7 @@
                 {% endif %}
             </ul>
         </nav>
-        <main class="container mt-4 mb-5 px-4">
+        <main class="container mt-4 mb-5 px-4 {% block container_classes %}{% endblock %}">
             {% bootstrap_messages %}
             {% if request.in_contest %}
                 <div class="alert alert-info" role="alert">
