@@ -239,7 +239,7 @@ SASS_OUTPUT_STYLE = 'compact'
 
 SITE_ID = 1
 
-ROOT = "https://ctf.nyiyui.ca"
+ROOT = "https://ctf.mcpt.ca"
 
 SILENCED_SYSTEM_CHECKS = ["urls.W002"]
 
