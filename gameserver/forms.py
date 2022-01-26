@@ -106,12 +106,16 @@ class FlagSubmissionForm(forms.Form):
         max_length=256,
         strip=True,
         label="",
-        widget=forms.TextInput(attrs={"placeholder": "mCTF{}"}),
+        widget=forms.TextInput(attrs={"placeholder": "flag"}),
     )
 
     def __init__(self, *args, **kwargs):
         self.problem = kwargs.pop("problem", None)
         super(FlagSubmissionForm, self).__init__(*args, **kwargs)
+
+        flag_format = self.problem.flag_format
+        if flag_format is not None:
+            self.fields["flag"].widget.attrs['placeholder'] = flag_format
 
     def clean_flag(self):
         if self.cleaned_data["flag"] != self.problem.flag:

@@ -1,4 +1,5 @@
 import uuid
+import re
 
 from django.db import models
 from django.urls import reverse
@@ -45,6 +46,15 @@ class Problem(models.Model):
         try:
             return ContestProblem.objects.get(problem=self, contest=participation.contest)
         except ContestProblem.DoesNotExist:
+            return None
+
+    @property
+    def flag_format(self):
+        flag_format_match = re.match(r"(.*)\{.*\}", self.flag)
+
+        if flag_format_match is not None:
+            return f"{flag_format_match.group(1)}{{}}"
+        else:
             return None
 
     class Meta:
