@@ -64,6 +64,8 @@ class ProblemDetail(
                 and self.request.participation.contest.problems.filter(problem=self.get_object()).exists()
             )
             or self.request.user in self.get_object().author.all()
+            or self.request.user.is_superuser
+            or self.request.user.has_perm("gameserver.edit_all_problems")
         )
 
     def get_title(self):
