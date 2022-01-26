@@ -35,6 +35,8 @@ def contest_color(contest):
 
 @register.filter
 def problem_status(problem, user):
+    if problem.is_private:
+        return "private"
     if user.has_solved(problem):
         return "solved"
     if user.has_attempted(problem):

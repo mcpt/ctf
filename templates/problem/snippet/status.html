@@ -1,6 +1,8 @@
 {% load bootstrap_icons %}
 
-{% if status == "firstblood" %}
+{% if status == "private" %}
+    <span class="status" title="Private">{% bs_icon 'lock' %}</span>
+{% elif status == "firstblood" %}
     <span class="status" title="First blood">{% bs_icon 'droplet' %}</span>
 {% elif status == "solved" %}
     <span class="status" title="Solved">{% bs_icon 'flag' %}</span>
