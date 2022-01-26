@@ -16,6 +16,10 @@ a, .btn-link {
 .form-control, .form-select, .form-label {
     font-size: 1rem;
 }
+.form-required label::after {
+    content: " *";
+    color: red;
+}
 
 .wd-small {
     max-width: 540px;
