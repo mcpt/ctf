@@ -41,10 +41,6 @@
         <link href="{% static 'styles/bootstrap-icons.css' %}" type="text/css" media="all" rel="stylesheet" />
         <link href="{% static 'styles/pygments.css' %}" type="text/css" media="all" rel="stylesheet" />
 
-        {% if GOOGLE_ANALYTICS_ON_ALL_VIEWS %}
-        {% include "ganalytics/snippet.html" %}
-        {% endif %}
-
         <link href="{% sass_src 'scss/main.scss' %}" type="text/css" rel="stylesheet" />
         <script src="https://vuejs.org/js/vue.min.js"></script>
 
@@ -64,9 +60,6 @@
                 });
             });
         </script>
-        {% if not GOOGLE_ANALYTICS_ON_ALL_VIEWS %}
-        {% include "ganalytics/snippet.html" %}
-        {% endif %}
         {% block deps %}
         {% endblock %}
     </head>

@@ -195,12 +195,6 @@ AWS_S3_FILE_OVERWRITE = False
 STATICFILES_STORAGE = ""
 
 
-# Google Analytics settings
-
-GOOGLE_ANALYTICS_ON_ALL_VIEWS = False
-GOOGLE_ANALYTICS_TRACKING_ID = None
-
-
 # NavBar settings
 
 NAVBAR = {
