@@ -33,6 +33,23 @@ class ProblemAdmin(admin.ModelAdmin):
     inlines = [
         ProblemFileInline,
     ]
+    list_display = [
+        "name",
+        "slug",
+        "get_authors",
+        "points",
+        "is_private",
+    ]
+    list_filter = [
+        "is_private",
+        "problem_type",
+        "problem_group",
+        "author",
+    ]
+    search_fields = [
+        "name",
+        "slug",
+    ]
 
     def has_view_permission(self, request, obj=None):
         if request.user.has_perm("gameserver.view_problem"):
@@ -70,6 +87,10 @@ class ProblemAdmin(admin.ModelAdmin):
         if not request.user.has_perm("gameserver.change_problem_visibility"):
             fields += ("is_private",)
         return fields
+
+    @admin.display(description="Authors")
+    def get_authors(self, obj):
+        return ", ".join([u.username for u in obj.author.all()])
 
 
 class OrganizationAdmin(admin.ModelAdmin):
@@ -161,9 +182,37 @@ class ContestAdmin(admin.ModelAdmin):
     inlines = [
         ContestProblemInline,
     ]
+    list_display = [
+        "name",
+        "get_organizers",
+        "start_time",
+        "end_time",
+    ]
+
+    @admin.display(description="Organizers")
+    def get_organizers(self, obj):
+        return ", ".join([u.username for u in obj.organizers.all()])
 
 
-admin.site.register(User)
+class UserAdmin(admin.ModelAdmin):
+    list_display = [
+        "username",
+        "full_name",
+        "is_staff",
+        "is_superuser",
+    ]
+    list_filter = [
+        "is_staff",
+        "is_superuser",
+        "groups"
+    ]
+    search_fields = [
+        "username",
+        "full_name",
+    ]
+
+
+admin.site.register(User, UserAdmin)
 admin.site.register(models.Problem, ProblemAdmin)
 admin.site.register(models.Submission)
 admin.site.register(models.ProblemType)
