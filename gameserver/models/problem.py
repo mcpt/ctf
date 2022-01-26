@@ -28,6 +28,7 @@ class Problem(models.Model):
     summary = models.CharField(max_length=150)
     slug = models.SlugField(unique=True)
     date_created = models.DateTimeField(auto_now_add=True)
+    testers = models.ManyToManyField(User, related_name="problems_testing", blank=True)
 
     points = models.PositiveSmallIntegerField()
 
