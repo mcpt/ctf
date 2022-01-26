@@ -56,8 +56,11 @@ class ProfileUpdateForm(ModelForm):
                 Q(is_private=False) | Q(admins=user) | Q(pk__in=user.organizations.all())
             ).distinct()
         self.initial["organizations"] = [i.pk for i in user.organizations.all()]
+        self.initial["school_name"] = user.school_name
+        self.initial["school_contact"] = user.school_contact
         self.fields["description"].label = "Profile description"
         self.fields["description"].widget.attrs['placeholder'] = "Description..."
+
 
 
 class TeamUpdateForm(ModelForm):
