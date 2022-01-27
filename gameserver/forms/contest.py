@@ -6,8 +6,8 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.forms import ModelForm
 
-from . import models
-from .models import choices
+from .. import models
+from ..models import choices
 
 User = get_user_model()
 
