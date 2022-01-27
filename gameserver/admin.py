@@ -51,6 +51,10 @@ class ProblemAdmin(admin.ModelAdmin):
         "name",
         "slug",
     ]
+    autocomplete_fields = [
+        "author",
+        "testers",
+    ]
 
     def has_view_permission(self, request, obj=None):
         if request.user.has_perm("gameserver.view_problem"):
