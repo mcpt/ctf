@@ -47,7 +47,7 @@ class ProfileUpdateForm(ModelForm):
             # "payment_pointer",
             "organizations",
             "school_name",
-            "school_contact"
+            "school_contact",
         ]
         widgets = {"organizations": forms.CheckboxSelectMultiple()}
 
@@ -62,4 +62,4 @@ class ProfileUpdateForm(ModelForm):
         self.initial["school_name"] = user.school_name
         self.initial["school_contact"] = user.school_contact
         self.fields["description"].label = "Profile description"
-        self.fields["description"].widget.attrs['placeholder'] = "Description..."
+        self.fields["description"].widget.attrs["placeholder"] = "Description..."

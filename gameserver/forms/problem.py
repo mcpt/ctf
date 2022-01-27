@@ -26,7 +26,7 @@ class FlagSubmissionForm(forms.Form):
 
         flag_format = self.problem.flag_format
         if flag_format is not None:
-            self.fields["flag"].widget.attrs['placeholder'] = flag_format
+            self.fields["flag"].widget.attrs["placeholder"] = flag_format
 
     def clean_flag(self):
         if self.cleaned_data["flag"] != self.problem.flag:
