@@ -24,7 +24,7 @@ class ProblemList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     title = "Problems"
 
     def get_queryset(self):
-        queryset = models.Problem.objects.order_by("name")
+        queryset = models.Problem.objects.order_by("points", "problem_type", "problem_group")
         if self.request.user.is_superuser or self.request.user.has_perm("gameserver.edit_all_problems"):
             return queryset
         elif self.request.user.is_authenticated:
