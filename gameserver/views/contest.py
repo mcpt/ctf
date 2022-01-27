@@ -50,6 +50,7 @@ class ContestDetail(
         if self.request.user.is_authenticated:
             context["participations"] = self.request.user.participations_for_contest(self.get_object())
             context["user_has_team_participations"] = any([participation.team for participation in context["participations"]])
+        context["top_participations"] = sorted(models.ContestParticipation.objects.filter(contest=self.get_object()), key=(lambda x: x.rank()))[:10]
         return context
 
     def get_form(self):
