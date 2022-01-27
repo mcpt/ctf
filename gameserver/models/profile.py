@@ -64,11 +64,11 @@ class User(AbstractUser):
         return self.submissions.filter(is_correct=True).values("problem", "problem__points").distinct()
 
     def points(self):
-        points = self._get_unique_correct_submissions().aggregate(points=Coalesce(Sum("problem__points"), 0))["points"]
+        points = self._get_unique_correct_submissions().filter(problem__is_private=False).aggregate(points=Coalesce(Sum("problem__points"), 0))["points"]
         return points
 
     def num_flags_captured(self):
-        return self._get_unique_correct_submissions().count()
+        return self._get_unique_correct_submissions().filter(problem__is_private=False).count()
 
     def participations_for_contest(self, contest):
         return ContestParticipation.objects.filter(Q(participants=self), contest=contest)
@@ -89,7 +89,7 @@ class User(AbstractUser):
     @classmethod
     def ranks(cls):
         submissions_with_points = (
-            Submission.objects.filter(user=OuterRef("pk"), is_correct=True)
+            Submission.objects.filter(user=OuterRef("pk"), is_correct=True, problem__is_private=False)
             .order_by()
             .values("problem")
             .distinct()
