@@ -3,7 +3,10 @@
 {% load color_tags %}
 
 {% block before_table %}
-    <p>Click on a team below and enter its access code to join it. Or, <a href="{% url 'team_create' %}">create a new team</a>.</p>
+    <div class="d-md-flex justify-content-between">
+        <p class="mb-2 w-initial">Click on a team below and enter its access code to join it.</p>
+        <a class="btn btn-primary mb-2 w-initial" href="{% url 'team_create' %}">Create Team</a>
+    </div>
 {% endblock %}
 
 {% block th %}

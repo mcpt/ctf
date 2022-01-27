@@ -16,6 +16,13 @@
             {% endif %}
         </div>
     </div>
+    <div class="card mb-3">
+        <div class="card-header">Scoreboard</div>
+        <div class="card-body">
+            {% include './snippet/participation/table.html' with participations=top_participations hide_contest_col=True %}
+            <p class="text-end mb-0"><a href="{% url 'contest_scoreboard' contest.slug %}">View full scoreboard</a></p>
+        </div>
+    </div>
     {% if not contest.is_private %}
         {% include 'comment/snippet.html' %}
     {% endif %}
@@ -24,8 +31,8 @@
     {% get_current_timezone as TIME_ZONE %}
     <div class="card mb-3">
         <div class="card-body">
-            <p class="mb-0">Start{% if contest.is_finished or contest.is_ongoing %}ed{% else %}s{% endif %} on</p>
-            <h3><b>{{ contest.start_time }}</b> ({{ TIME_ZONE }})</h3>
+            <p class="lh-base fs-3" style="font-weight:600"><span>{{ contest.start_time }} </span><span class="fw-light fst-italic text-muted mb-0">to </span>
+            <span>{{ contest.end_time }}</span></p>
             <h5>{{ contest.duration }} long</h5>
         </div>
     </div>
@@ -98,15 +105,14 @@
             </div>
         </div>
     {% endif %}
+    {% if request.in_contest and request.participation.contest == contest or contest.is_finished %}
     <div class="card mb-3">
         <div class="card-body">
             <ul class="list-unstyled m-0">
-                {% if request.in_contest and request.participation.contest == contest or contest.is_finished %}
                     <li><a href="{% url 'contest_problem_list' contest.slug %}">View problems</a></li>
                     <li><a href="{% url 'contest_submission_list' contest.slug %}">View submissions</a></li>
-                {% endif %}
-                <li><a href="{% url 'contest_scoreboard' contest.slug %}">View scoreboard</a></li>
             </ul>
         </div>
     </div>
+    {% endif %}
 {% endblock %}

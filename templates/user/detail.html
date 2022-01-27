@@ -21,7 +21,7 @@
                     <div class="col">
                         <ul class="list-unstyled profile-info">
                             <li><b>{% bs_icon 'calendar3' %}Joined</b> {{ profile.date_joined|naturalday }}</li>
-                            <li><b>{% bs_icon 'flag' %}Captured</b> {{ profile.num_flags_captured }} flag{{ profile.flags|pluralize }}</li>
+                            <li><b>{% bs_icon 'flag' %}Captured</b> {{ profile.num_flags_captured }} flag{{ profile.num_flags_captured|pluralize }}</li>
                             <li><b>{% bs_icon 'bullseye' %}Collected</b> {{ profile.points|floatformat }} point{{ profile.points|pluralize }}</li>
                         </ul>
                     </div>

@@ -23,4 +23,4 @@ class Submission(models.Model):
     is_correct = models.BooleanField(default=False)
 
     def is_firstblood(self):
-        return self == Submission.objects.filter(problem=self.problem, is_correct=True).order_by("pk").first()
+        return self == Submission.objects.filter(problem=self.problem, is_correct=True).exclude(user__in=self.problem.author.all()|self.problem.testers.all()).order_by("pk").first()
