@@ -24,8 +24,8 @@
     {% get_current_timezone as TIME_ZONE %}
     <div class="card mb-3">
         <div class="card-body">
-            <p class="mb-0">Start{% if contest.is_finished or contest.is_ongoing %}ed{% else %}s{% endif %} on</p>
-            <h3><b>{{ contest.start_time }}</b> ({{ TIME_ZONE }})</h3>
+            <p class="lh-base fs-3" style="font-weight:600"><span>{{ contest.start_time }} </span><span class="fw-light fst-italic text-muted mb-0">to </span>
+            <span>{{ contest.end_time }}</span></p>
             <h5>{{ contest.duration }} long</h5>
         </div>
     </div>
