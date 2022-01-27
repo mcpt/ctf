@@ -21,7 +21,7 @@
                         <td>{{ participation.contest.slug|contest }}</td>
                     {% endif %}
                     <td><a href="{{ participation.participant.get_absolute_url }}">{{ participation.participant }}</a></td>
-                    <td>{{ participation.points }}</td>
+                    <td>{{ participation.calc_points }}</td>
                 </tr>
             {% endfor %}
         </tbody>

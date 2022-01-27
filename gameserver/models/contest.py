@@ -104,7 +104,7 @@ class ContestParticipation(models.Model):
             .distinct()
         )
 
-    def points(self):
+    def calc_points(self):
         points = self._get_unique_correct_submissions().aggregate(
             points=Coalesce(Sum("submission__problem__points"), 0)
         )["points"]
@@ -132,7 +132,7 @@ class ContestParticipation(models.Model):
         return solve_time - self.contest.start_time
 
     def rank(self):
-        points = self.points()
+        points = self.calc_points()
         last_solve_time = self.last_solve_time()
         contest_ranks = self.contest.ranks()
         return contest_ranks.filter(
