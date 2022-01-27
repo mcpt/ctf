@@ -1,12 +1,13 @@
 import logging
 
 from django.contrib import messages
-from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
+from django.views import View
 from django.views.generic import DetailView, FormView, ListView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import CreateView, FormMixin
@@ -130,6 +131,31 @@ class ProblemDetail(
             elif (self.request.user.has_attempted(self.get_object())) or (self.request.in_contest and self.request.participation.has_attempted(self.get_contest_object())):
                 context["status"] = "attempted"
         return context
+
+
+class ProblemChallenge(LoginRequiredMixin, SingleObjectMixin, View):
+    model = models.Problem
+    raise_exception = True
+
+    def get_instance_owner(self):
+        problem = self.get_object()
+        if problem.challenge_spec is None:
+            return "nobody"
+        if problem.challenge_spec["perTeam"] is False:
+            return "everyone"
+        if self.request.in_contest and problem in self.request.participation.contest.problems:
+            return f"cp-{self.request.participation.pk}"
+        else:
+            return f"user-{self.request.user.pk}"
+
+    def get(self, request, *args, **kwargs):
+        return JsonResponse(self.get_object().fetch_challenge_instance(self.get_instance_owner()), safe=False)
+
+    def post(self, request, *args, **kwargs):
+        return JsonResponse(self.get_object().create_challenge_instance(self.get_instance_owner()), safe=False)
+
+    def delete(self, request, *args, **kwargs):
+        return JsonResponse(self.get_object().delete_challenge_instance(self.get_instance_owner()), safe=False)
 
 
 class ProblemSubmissionList(ListView, mixin.TitleMixin, mixin.MetaMixin):

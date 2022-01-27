@@ -30,6 +30,7 @@ class ProblemAdmin(admin.ModelAdmin):
         "problem_group",
         "problem_type",
         "is_private",
+        "challenge_spec",
     ]
     inlines = [
         ProblemFileInline,

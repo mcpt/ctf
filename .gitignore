@@ -1,4 +1,5 @@
 db.sqlite3
 **.pyc
-config.py
-/static
+mCTF/config.py
+static/**
+mCTF/cluster_ca.crt

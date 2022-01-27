@@ -235,6 +235,40 @@ SASS_PRECISION = 8
 SASS_OUTPUT_STYLE = 'compact'
 
 
+# Challenge Deployment settings
+
+CHALLENGE_CLUSTER = {
+    "connection": {
+        "host": None,
+        "token": "",
+        "caCert": BASE_DIR / "mCTF" / "cluster_ca.crt",
+    },
+    "namespace": "mctf-chall",
+    "domain": "{}.example.com",
+    "imagePullSecrets": {},
+    "runtimeClassNames": {
+        "default": None,
+        "gvisor": "runsc",
+        "kata": "kata",
+    },
+    "securityContexts": {
+        "default": {},
+        "redpwn": {
+            "seccompProfile": {"type": "Unconfined"},
+            "apparmorProfile": {"type": "Unconfined"},
+            "capabilities": {
+                "add": [
+                    "chown",
+                    "setuid",
+                    "setgid",
+                    "sys_admin",
+                ],
+            },
+        }
+    },
+}
+
+
 # Other settings
 
 SITE_ID = 1

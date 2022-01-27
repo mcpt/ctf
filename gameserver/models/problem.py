@@ -8,6 +8,8 @@ from . import abstract
 from .contest import ContestProblem
 from .profile import User
 
+from ..utils import challenge
+
 # Create your models here.
 
 
@@ -37,6 +39,8 @@ class Problem(models.Model):
 
     is_private = models.BooleanField(default=True)
 
+    challenge_spec = models.JSONField(null=True, blank=True)
+
     def __str__(self):
         return self.name
 
@@ -57,6 +61,18 @@ class Problem(models.Model):
             return f"{flag_format_match.group(1)}{{}}"
         else:
             return None
+    
+    def create_challenge_instance(self, instance_owner):
+        if self.challenge_spec is not None:
+            return challenge.create_challenge_instance(self.challenge_spec, self.slug, self.flag, instance_owner)
+    
+    def fetch_challenge_instance(self, instance_owner):
+        if self.challenge_spec is not None:
+            return challenge.fetch_challenge_instance(self.challenge_spec, self.slug, instance_owner)
+    
+    def delete_challenge_instance(self, instance_owner):
+        if self.challenge_spec is not None:
+            return challenge.delete_challenge_instance(self.challenge_spec, self.slug, instance_owner)
 
     class Meta:
         permissions = (
