@@ -22,7 +22,11 @@
                 {% if request.user in group.members.all %}
                    {% include "snippets/group_detail/leave_form.html" with entity="team" %}
                 {% else %}
-                    <p class="mb-2">You are currently not in this team.</p>
+                    {% if request.user == group.owner %}
+                        <p class="mb-2">While you are currently not in this team, you are still the owner of this team.</p>
+                    {% else %}
+                        <p class="mb-2">You are currently not in this team.</p>
+                    {% endif %}
                     {% bootstrap_label "Enter the access code to join" label_class="text-muted fst-italic mb-2" label_for=form.access_code.auto_id %}
                     {% include "snippets/form-code.html" with field=form.access_code %}
                     <style>

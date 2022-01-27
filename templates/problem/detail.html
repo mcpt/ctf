@@ -20,7 +20,7 @@
         <div class="card mb-3">
             <div class="card-header">Files</div>
             <div class="card-body">
-                <ul class="list-unstyled">
+                <ul class="list-unstyled mb-0">
                     {% for file in problem.files.all %}
                         <li><a href="{{ file.artifact.url }}">{{ file.file_name }}</a></li>
                     {% endfor %}

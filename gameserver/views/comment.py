@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView
@@ -48,7 +48,7 @@ def add_comment(request, parent_type, parent_id):
     elif parent_type == "contestparticipation":
         parent = get_object_or_404(models.ContestParticipation, pk=parent_id)
     else:
-        raise NotImplementedError
+        return HttpResponseBadRequest()
     author = request.user
     comment = models.Comment(parent=parent, text=request.POST["text"], author=author)
     comment.save()

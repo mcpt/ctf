@@ -1,4 +1,3 @@
-{% load markdown_tags %}
 <div class="card mb-3">
     <div class="card-body">
         <h1 class="mt-0">{{ group.name }}</h1>
@@ -6,7 +5,7 @@
         {% if group.description == "" %}
             <p class="font-italic">This {{ entity }} has not shared any information.</p>
         {% else %}
-            {{ group.description|markdown }}
+            {{ group.description }}
         {% endif %}
         {% if request.user == group.owner %}
             {# todo: interface for editing organizations? #}
