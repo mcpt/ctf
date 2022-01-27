@@ -15,8 +15,14 @@ User = get_user_model()
 class MCTFSignupForm(SignupForm):
     timezone = forms.ChoiceField(choices=choices.timezone_choices, initial=settings.DEFAULT_TIMEZONE)
     full_name = forms.CharField(max_length=80)
-    school_name = forms.CharField(max_length=80, required=False)
-    school_contact = forms.EmailField(required=False)
+    school_name = forms.CharField(
+        max_length=80, required=False, help_text=User._meta.get_field("school_name").help_text
+    )
+    school_contact = forms.EmailField(
+        required=False,
+        label=User._meta.get_field("school_contact").verbose_name.title(),
+        help_text=User._meta.get_field("school_contact").help_text,
+    )
     field_order = [
         "full_name",
         "email",
@@ -27,6 +33,11 @@ class MCTFSignupForm(SignupForm):
         "school_name",
         "school_contact",
     ]
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop("user", None)
+        super(MCTFSignupForm, self).__init__(*args, **kwargs)
+        self.fields["school_contact"].widget.attrs["placeholder"] = self.fields["school_contact"].label.capitalize()
 
     def save(self, request):
         user = super(MCTFSignupForm, self).save(request)
