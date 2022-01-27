@@ -55,7 +55,7 @@ def create_challenge_instance(challenge_spec, problem_id, problem_flag, instance
                     'containers': [{
                         'name': container['name'],
                         'image': container['image']['imageRef'],
-                        'imagePullPolicy': 'Always',
+                        'imagePullPolicy': 'IfNotPresent',
                         'ports': [{
                             'name': port['name'],
                             'containerPort': port['port'],
