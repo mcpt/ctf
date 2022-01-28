@@ -16,13 +16,15 @@
             {% endif %}
         </div>
     </div>
-    <div class="card mb-3 order-98">
-        <div class="card-header">Scoreboard</div>
-        <div class="card-body">
-            {% include './snippet/participation/table.html' with participations=top_participations hide_contest_col=True %}
-            <p class="text-end mb-0"><a href="{% url 'contest_scoreboard' contest.slug %}">View full scoreboard</a></p>
+    {% if contest.is_ongoing or contest.is_finished %}
+        <div class="card mb-3 order-98">
+            <div class="card-header">Scoreboard</div>
+            <div class="card-body">
+                {% include './snippet/participation/table.html' with participations=top_participations hide_contest_col=True %}
+                <p class="text-end mb-0"><a href="{% url 'contest_scoreboard' contest.slug %}">View full scoreboard</a></p>
+            </div>
         </div>
-    </div>
+    {% endif %}
     {% if not contest.is_private %}
         {% include 'comment/snippet.html' %}
     {% endif %}
