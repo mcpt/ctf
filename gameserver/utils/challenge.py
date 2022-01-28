@@ -192,15 +192,32 @@ def fetch_challenge_instance(challenge_spec, problem_id, instance_owner):
 
     endpoints = []
 
+    endpoints_name_connection_tmpl = {}
+    for container in challenge_spec['containers']:
+        for port in container['ports']:
+            if 'expose' in port and port['expose']:
+                if 'connection' in port:
+                    connection_tmpl = port['connection']
+                else:
+                    if port['protocol'] == 'HTTP':
+                        connection_tmpl = 'http://{host}'
+                    else:
+                        connection_tmpl = 'nc {host} {port}'
+                
+                endpoints_name_connection_tmpl[port['name']] = connection_tmpl
+
     try:
         nodeport_svc = service_v1.get(namespace=settings.CHALLENGE_CLUSTER['namespace'], name=f'{job.metadata.name}-tcp')
 
         for port in nodeport_svc.spec.ports:
+            host = settings.CHALLENGE_CLUSTER["domain"].format(instance_id)
+
             endpoints.append({
                 'name': port.name,
                 'protocol': port.protocol,
-                'host': settings.CHALLENGE_CLUSTER["domain"].format(instance_id),
+                'host': host,
                 'port': port.nodePort,
+                'connection': endpoints_name_connection_tmpl[port.name].format(host=host, port=port.nodePort),
             })
     except kubernetes.dynamic.exceptions.NotFoundError:
         pass
@@ -219,6 +236,7 @@ def fetch_challenge_instance(challenge_spec, problem_id, instance_owner):
                 'protocol': 'HTTP',
                 'host': rule.host,
                 'port': 80,
+                'connection': endpoints_name_connection_tmpl[port.name].format(host=rule.host, port=80),
             })
     except kubernetes.dynamic.exceptions.NotFoundError:
         pass
@@ -228,6 +246,7 @@ def fetch_challenge_instance(challenge_spec, problem_id, instance_owner):
             'name': instance_name,
             'problem': problem_id,
             'id': instance_id,
+            'owner': instance_owner,
         },
         'time': {
             'created_at': job.metadata.creationTimestamp,

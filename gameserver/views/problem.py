@@ -155,7 +155,10 @@ class ProblemChallenge(LoginRequiredMixin, SingleObjectMixin, View):
         return JsonResponse(self.get_object().create_challenge_instance(self.get_instance_owner()), safe=False)
 
     def delete(self, request, *args, **kwargs):
-        return JsonResponse(self.get_object().delete_challenge_instance(self.get_instance_owner()), safe=False)
+        instance_owner = self.get_instance_owner()
+        if instance_owner != "everyone" or request.user.is_superuser:
+            self.get_object().delete_challenge_instance(instance_owner)
+        return JsonResponse(None, safe=False)
 
 
 class ProblemSubmissionList(ListView, mixin.TitleMixin, mixin.MetaMixin):
