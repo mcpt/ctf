@@ -16,6 +16,18 @@
         <p class="card-text">{{ problem.description|markdown }}</p>
     </div>
 </div>
+{% if problem.challenge_spec %}
+    <div class="card mb-3">
+        <div class="card-header">Challenge Instance</div>
+        <div class="card-body">
+            {% if user.is_authenticated %}
+                {% include "problem/snippet/challenge.html" %}
+            {% else %}
+                <p>Sign in to solve this challenge!</p>
+            {% endif %}
+        </div>
+    </div>
+{% endif %}
 {% if problem.files.all %}
 <div class="card mb-3">
     <div class="card-header">Files</div>
@@ -79,3 +91,10 @@
 </div>
 {% endif %}
 {% endblock %}
+
+{% if problem.challenge_spec %}
+    {% block deps %}
+        <script src="{% static 'scripts/countdown.js' %}" defer></script>
+        <script src="{% static 'scripts/challenge.js' %}" defer></script>
+    {% endblock %}
+{% endif %}

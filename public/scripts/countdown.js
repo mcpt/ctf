@@ -1,6 +1,6 @@
-function countdownTimer(dateObj, elemId) {
+function countdownTimer(dateObj, elemId, expiry_msg="Time's up!", suffix=" left") {
     const difference = +dateObj - +new Date();
-    let remaining = "Time's up!";
+    let remaining = expiry_msg;
 
     if (difference > 0) {
         const parts = {
@@ -12,7 +12,7 @@ function countdownTimer(dateObj, elemId) {
         remaining = Object.keys(parts).map(part => {
             return `${parts[part]} ${part}`;
         }).join(" ");
-        remaining += ' left';
+        remaining += suffix;
     } else {
         location.reload(true);
     }

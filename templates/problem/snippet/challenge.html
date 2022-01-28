@@ -1,0 +1,22 @@
+<div id="chall__status">
+	<p class="mb-0">Checking challenge instance...</p>
+	<span id="chall__error"></span>
+</div>
+
+<template id="chall-none">
+	<p>You do not currently have a challenge instance running. Launch one to start!</p>
+	<button id="chall__verb" onclick="createChallenge()" class="btn btn-primary">Launch Instance</button>
+	<span id="chall__error"></span>
+</template>
+
+<template id="chall-live">
+	<p class="mb-1">This challenge is available at:</p>
+	<ul id="chall__endpoints"></ul>
+	<p>This instance will close in <span id="chall__expiry"></span>.</p>
+	<span id="chall__error"></span>
+</template>
+
+<template id="chall__delete">
+	<p>When you are finished with the challenge, you can delete your instance. You can recreate it again afterwards.</p>
+	<button id="chall__verb" onclick="deleteChallenge()" class="btn btn-danger">Delete Instance</button>
+</template>
