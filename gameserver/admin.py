@@ -52,10 +52,6 @@ class ProblemAdmin(admin.ModelAdmin):
         "name",
         "slug",
     ]
-    autocomplete_fields = [
-        "author",
-        "testers",
-    ]
 
     def has_view_permission(self, request, obj=None):
         if request.user.has_perm("gameserver.view_problem"):
@@ -93,6 +89,11 @@ class ProblemAdmin(admin.ModelAdmin):
         if not request.user.has_perm("gameserver.change_problem_visibility"):
             fields += ("is_private",)
         return fields
+
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        if db_field.name == "author":
+            kwargs["queryset"] = models.User.objects.filter(is_staff=True).order_by("username")
+        return super().formfield_for_manytomany(db_field, request, **kwargs)
 
     @admin.display(description="Authors")
     def get_authors(self, obj):
