@@ -35,10 +35,14 @@
         <ul class="list-unstyled mb-0">
             {% for file in problem.files.all %}
             <li>
-                <a href="{{ file.artifact.url }}">{{ file.file_name }}</a>
-                <ul>
-		    <li>SHA256 checksum: <code>{{ file.checksum }}</code></li>
-                </ul>
+                <details>
+                    <summary>
+                        <a href="{{ file.artifact.url }}">{{ file.file_name }}</a>
+                    </summary>
+                    <ul>
+                        <li>SHA256 checksum: <code>{{ file.checksum }}</code></li>
+                    </ul>
+                </details>
             </li>
             {% endfor %}
         </ul>
