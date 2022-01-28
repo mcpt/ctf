@@ -25,7 +25,7 @@
             <li>
                 <a href="{{ file.artifact.url }}">{{ file.file_name }}</a>
                 <ul>
-                    <li>sha256 {{ file.checksum }}</li>
+		    <li>SHA256 checksum: <code>{{ file.checksum }}</code></li>
                 </ul>
             </li>
             {% endfor %}
