@@ -1,5 +1,6 @@
 import uuid
 import re
+import hashlib
 
 from django.db import models
 from django.urls import reverse
@@ -88,9 +89,17 @@ def problem_file_path(instance, filename):
 class ProblemFile(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE, related_name="files")
     artifact = models.FileField(upload_to=problem_file_path, unique=True)
+    checksum = models.CharField(max_length=64)
 
     def __str__(self):
         return self.file_name()
 
     def file_name(self):
         return self.artifact.name.split("/")[-1]
+
+    def save(self, *args, **kwargs):
+        hash_sha256 = hashlib.sha256()
+        for chunk in self.artifact.chunks():
+            hash_sha256.update(chunk)
+        self.checksum = hash_sha256.hexdigest()
+        super().save(*args, **kwargs)

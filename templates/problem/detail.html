@@ -4,71 +4,78 @@
 {% load static %}
 
 {% block content %}
-    <div class="card mb-3">
-        <div class="card-body px-4 py-3">
-            <h1 class="card-title">
-                {% if user.is_authenticated %}
-                    {% include "problem/snippet/status.html" with hide_unsolved=True %}
-                {% endif %}
-                {{ problem.name }}
-            </h1>
-            <hr>
-            <p class="card-text">{{ problem.description|markdown }}</p>
-        </div>
+<div class="card mb-3">
+    <div class="card-body px-4 py-3">
+        <h1 class="card-title">
+            {% if user.is_authenticated %}
+            {% include "problem/snippet/status.html" with hide_unsolved=True %}
+            {% endif %}
+            {{ problem.name }}
+        </h1>
+        <hr>
+        <p class="card-text">{{ problem.description|markdown }}</p>
     </div>
-    {% if problem.files.all %}
-        <div class="card mb-3">
-            <div class="card-header">Files</div>
-            <div class="card-body">
-                <ul class="list-unstyled mb-0">
-                    {% for file in problem.files.all %}
-                        <li><a href="{{ file.artifact.url }}">{{ file.file_name }}</a></li>
-                    {% endfor %}
+</div>
+{% if problem.files.all %}
+<div class="card mb-3">
+    <div class="card-header">Files</div>
+    <div class="card-body">
+        <ul class="list-unstyled mb-0">
+            {% for file in problem.files.all %}
+            <li>
+                <a href="{{ file.artifact.url }}">{{ file.file_name }}</a>
+                <ul>
+                    <li>sha256 {{ file.checksum }}</li>
                 </ul>
-            </div>
-        </div>
-    {% endif %}
-    {% include 'comment/snippet.html' with is_private=contest_problem entity="problem" %}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endif %}
+{% include 'comment/snippet.html' with is_private=contest_problem entity="problem" %}
 {% endblock %}
 
 {% block aside %}
-    <div class="card mb-3">
-        <div class="card-body">
-            <ul class="list-unstyled">
-                <li>
-                    <b>Points</b>:
-                    {% if not contest_problem %}
-                        {{ problem.points }}
-                    {% else %}
-                        {{ contest_problem.points }}
-                    {% endif %}
-                </li>
-                <li><b>Author{{ problem.author.all|pluralize:"s" }}</b>: {{ problem.author.all|users }}</li>
-                {% if problem.problem_group.all and not user.current_contest %}
-                    <li><b>Group{{ problem.problem_group.all|pluralize:"s" }}:</b> {{ problem.problem_group.all|join:", " }}</li>
+<div class="card mb-3">
+    <div class="card-body">
+        <ul class="list-unstyled">
+            <li>
+                <b>Points</b>:
+                {% if not contest_problem %}
+                {{ problem.points }}
+                {% else %}
+                {{ contest_problem.points }}
                 {% endif %}
-                {% if problem.problem_type.all %}
-                    <li><b>Type{{ problem.problem_type.all|pluralize:"s" }}:</b> {{ problem.problem_type.all|join:", " }}</li>
-                {% endif %}
-            </ul>
-            <hr>
-            {% if user.is_authenticated %}
-                {% include "snippets/form-code.html" with field=form.flag %}
+            </li>
+            <li><b>Author{{ problem.author.all|pluralize:"s" }}</b>: {{ problem.author.all|users }}</li>
+            {% if problem.problem_group.all and not user.current_contest %}
+            <li><b>Group{{ problem.problem_group.all|pluralize:"s" }}:</b> {{ problem.problem_group.all|join:", " }}
+            </li>
             {% endif %}
-            <p class="mt-2 mb-0 mx-1"><a href="{% url 'problem_submission_list' problem.slug %}" class="card-link">All Submissions</a></p>
-        </div>
+            {% if problem.problem_type.all %}
+            <li><b>Type{{ problem.problem_type.all|pluralize:"s" }}:</b> {{ problem.problem_type.all|join:", " }}</li>
+            {% endif %}
+        </ul>
+        <hr>
+        {% if user.is_authenticated %}
+        {% include "snippets/form-code.html" with field=form.flag %}
+        {% endif %}
+        <p class="mt-2 mb-0 mx-1"><a href="{% url 'problem_submission_list' problem.slug %}" class="card-link">All
+                Submissions</a></p>
     </div>
-    {% if not contest_problem and problem.writeups.all %}
-        <div class="card mb-3">
-            <div class="card-header">Writeups</div>
-            <ul class="list-group list-group-flush">
-                {% for writeup in problem.writeups.all %}
-                    <a href="{{ writeup.get_absolute_url }}" class="list-group-item list-group-item-action">
-                    {{ writeup }}
-                    {% if writeup.pointee == "E" %}(external link){% endif %}
-                    </a>
-                {% endfor %}
-            </ul>
-        </div>
-    {% endif %}
+</div>
+{% if not contest_problem and problem.writeups.all %}
+<div class="card mb-3">
+    <div class="card-header">Writeups</div>
+    <ul class="list-group list-group-flush">
+        {% for writeup in problem.writeups.all %}
+        <a href="{{ writeup.get_absolute_url }}" class="list-group-item list-group-item-action">
+            {{ writeup }}
+            {% if writeup.pointee == "E" %}(external link){% endif %}
+        </a>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
 {% endblock %}
