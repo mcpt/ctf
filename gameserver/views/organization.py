@@ -39,7 +39,7 @@ class OrganizationDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.Co
         if self.request.user.is_authenticated:
             context["last_user_organization_request"] = models.OrganizationRequest.objects.filter(
                 organization=self.get_object(), user=self.request.user
-            ).order_by("-date_created")[0]
+            ).order_by("-date_created").first()
             context["organization_requests"] = models.OrganizationRequest.objects.filter(
                 organization=self.get_object(), user=self.request.user
             ).order_by("-date_created")[:3]
