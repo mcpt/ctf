@@ -16,7 +16,7 @@
             {% endif %}
         </div>
     </div>
-    <div class="card mb-3">
+    <div class="card mb-3 order-98">
         <div class="card-header">Scoreboard</div>
         <div class="card-body">
             {% include './snippet/participation/table.html' with participations=top_participations hide_contest_col=True %}
@@ -29,7 +29,7 @@
 {% endblock %}
 {% block aside %}
     {% get_current_timezone as TIME_ZONE %}
-    <div class="card mb-3">
+    <div class="card mb-3 order-neg2">
         <div class="card-body">
             <p class="lh-base fs-3" style="font-weight:600"><span>{{ contest.start_time }} </span><span class="fw-light fst-italic text-muted mb-0">to </span>
             <span>{{ contest.end_time }}</span></p>
@@ -49,7 +49,7 @@
     </div>
 
     {% if request.user.is_authenticated and contest.is_started %}
-        <div class="card mb-3">
+        <div class="card mb-3 order-96">
             <div class="card-header">
                 Participation
             </div>

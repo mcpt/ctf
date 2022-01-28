@@ -1,9 +1,7 @@
-{% extends 'base.html' %}
+{% extends 'dual-column.html' %}
 {% load link_tags %}
 
-{% block main %}
-<div class="row">
-    <div class="col-md-8">
+{% block content %}
         <div class="card mb-3">
             <div class="card-body">
                 <h1 class="mt-0"><a href="{{ participation.participant.get_absolute_url }}">{{ participation.participant }}</a>'s Participation in {{ participation.contest.slug|contest }}</h1>
@@ -19,9 +17,9 @@
                 </div>
             </div>
         {% endif %}
-    </div>
-    <aside class="col">
-        <div class="card mb-3">
+{% endblock %}
+{% block aside %}
+        <div class="card mb-3 order-neg1">
             <div class="card-body participation-summary">
                 <div>
                     <span>#{{ participation.rank }}</span>
@@ -41,6 +39,4 @@
                 </div>
             </div>
         </div>
-    </aside>
-</div>
 {% endblock %}

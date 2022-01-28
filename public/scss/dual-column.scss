@@ -1,0 +1,32 @@
+.dual-column {
+    > * > * {
+        width: 100%;
+    }
+    > section > .card:first-child {
+        order: -1;
+    }
+    @media screen and (max-width: 1000px) {
+        margin: 0 !important;
+
+        > section, > aside {
+            display: contents;
+        }
+    }
+}
+
+@for $i from 0 through 5 {
+    .order-#{$i} {
+        order: $i;
+    }
+}
+.order-neg1 {
+    order: -1;
+}
+.order-neg2 {
+    order: -2;
+}
+@for $i from 96 through 100 {
+    .order-#{$i} {
+        order: $i;
+    }
+}

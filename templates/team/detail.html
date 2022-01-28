@@ -17,7 +17,7 @@
 {% block aside %}
     {% include "snippets/group_detail/members.html" with member_list=group.members.all card_title="Team Members" %}
     {% if user.is_authenticated %}
-        <div class="card my-3">
+        <div class="card mb-3">
             <div class="card-body">
                 {% if request.user in group.members.all %}
                    {% include "snippets/group_detail/leave_form.html" with entity="team" %}

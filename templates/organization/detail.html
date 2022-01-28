@@ -5,7 +5,7 @@
 
 {% block content %}
     {% include "snippets/group_detail/summary.html" %}
-    <div class="card">
+    <div class="card order-96">
         <h2 class="card-header fs-6">Members</h2>
         <div class="card-body">
             <p>Total: {{ member_count }}</p>
@@ -18,7 +18,7 @@
     {% include "snippets/group_detail/members.html" with member_list=membered_admins card_title="Organization Admins" member_type="admins" %}
 
     {% if user.is_authenticated %}
-        <div class="card my-3">
+        <div class="card mb-3">
             <div class="card-body">
                 {% if group in user.organizations.all %}
                     {% include "snippets/group_detail/leave_form.html" with entity="organization" %}
