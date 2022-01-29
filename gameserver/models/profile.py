@@ -131,6 +131,10 @@ class Organization(models.Model):
 
     def __str__(self):
         return self.name
+    
+    @property
+    def is_private(self):
+        return not self.is_public
 
     def get_absolute_url(self):
         return reverse("organization_detail", args=[self.slug])

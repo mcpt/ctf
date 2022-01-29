@@ -1,15 +1,15 @@
 <section class="card mb-3 order-99">
-    {% if is_public %}
+    {% if disable %}
+    <div class="card-body">
+        <p class="card-text"><i>Comments have been disabled</i></p>
+    </div>
+    {% else %}
     <div class="card-header">Comments</div>
     <div class="card-body text-wrap">
         {% include './list.html' with max_depth=6 depth=0 %}
         {% if user.is_authenticated %}
         {% include './form.html' %}
         {% endif %}
-    </div>
-    {% else %}
-    <div class="card-body">
-        <p class="card-text"><i>Comments have been disabled</i></p>
     </div>
     {% endif %}
     {% if user.is_authenticated %}

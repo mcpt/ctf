@@ -44,6 +44,19 @@ class Problem(models.Model):
 
     def __str__(self):
         return self.name
+    
+    @property
+    def is_private(self):
+        return not self.is_public
+    
+    @property
+    def flag_format(self):
+        flag_format_match = re.match(r"(.*)\{.*\}", self.flag)
+
+        if flag_format_match is not None:
+            return f"{flag_format_match.group(1)}{{}}"
+        else:
+            return None
 
     def get_absolute_url(self):
         return reverse("problem_detail", args=[self.slug])
@@ -52,15 +65,6 @@ class Problem(models.Model):
         try:
             return ContestProblem.objects.get(problem=self, contest=participation.contest)
         except ContestProblem.DoesNotExist:
-            return None
-
-    @property
-    def flag_format(self):
-        flag_format_match = re.match(r"(.*)\{.*\}", self.flag)
-
-        if flag_format_match is not None:
-            return f"{flag_format_match.group(1)}{{}}"
-        else:
             return None
     
     def is_accessible_by(self, user):

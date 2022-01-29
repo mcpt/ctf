@@ -25,9 +25,7 @@
     </div>
 </div>
 {% endif %}
-{% if contest.is_public %}
-{% include 'comment/snippet.html' %}
-{% endif %}
+{% include 'comment/snippet.html' with disable=contest.is_private %}
 {% endblock %}
 {% block aside %}
 {% get_current_timezone as TIME_ZONE %}

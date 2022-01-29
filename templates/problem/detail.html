@@ -49,7 +49,9 @@
     </div>
 </div>
 {% endif %}
-{% include 'comment/snippet.html' with is_public=contest_problem entity="problem" %}
+{% if not contest_problem %}
+{% include 'comment/snippet.html' with disable=problem.is_private entity="problem" %}
+{% endif %}
 {% endblock %}
 
 {% block aside %}
