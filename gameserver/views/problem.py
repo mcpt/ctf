@@ -145,6 +145,10 @@ class ProblemChallenge(LoginRequiredMixin, SingleObjectMixin, View):
         else:
             return f"user-{self.request.user.pk}"
 
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super().dispatch(request, *args, **kwargs)
+
     def get(self, request, *args, **kwargs):
         return JsonResponse(
             self.object.fetch_challenge_instance(self.get_instance_owner()), safe=False
