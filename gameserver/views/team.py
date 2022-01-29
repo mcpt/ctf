@@ -39,10 +39,10 @@ class TeamDetail(
     form_class = forms.GroupJoinForm
 
     def get_title(self):
-        return "Team " + self.get_object().name
+        return "Team " + self.object.name
 
     def get_description(self):
-        return self.get_object().description
+        return self.object.description
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -51,7 +51,7 @@ class TeamDetail(
 
     def get_form_kwargs(self, *args, **kwargs):
         cur_kwargs = super().get_form_kwargs(*args, **kwargs)
-        cur_kwargs["group"] = self.get_object()
+        cur_kwargs["group"] = self.object
         return cur_kwargs
 
     def post(self, request, *args, **kwargs):
@@ -66,7 +66,7 @@ class TeamDetail(
 
     def form_valid(self, form):
         messages.success(self.request, "You are now a member of this team!")
-        self.get_object().members.add(self.request.user)
+        self.object.members.add(self.request.user)
         return super().form_valid(form)
 
     def form_invalid(self, form):
@@ -74,7 +74,7 @@ class TeamDetail(
         return super().form_invalid(form)
 
     def get_success_url(self):
-        return reverse("team_detail", kwargs={"pk": self.get_object().pk})
+        return reverse("team_detail", kwargs={"pk": self.object.pk})
 
 
 class TeamCreate(LoginRequiredMixin, CreateView, mixin.TitleMixin, mixin.MetaMixin):
@@ -116,11 +116,11 @@ class TeamEdit(
 
     def get_form_kwargs(self):
         kwargs = super(UpdateView, self).get_form_kwargs()
-        kwargs["team"] = self.get_object()
+        kwargs["team"] = self.object
         return kwargs
 
     def get_success_url(self):
-        return self.get_object().get_absolute_url()
+        return self.object.get_absolute_url()
 
 
 @method_decorator(require_POST, name="dispatch")

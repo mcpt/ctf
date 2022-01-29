@@ -49,7 +49,7 @@ class ProblemDetail(
 
     def get_contest_object(self):
         if self.request.in_contest:
-            return self.get_object().get_contest_problem(self.request.participation)
+            return self.object.get_contest_problem(self.request.participation)
         else:
             return None
 
@@ -57,23 +57,23 @@ class ProblemDetail(
         return self.get_object().is_accessible_by(self.request.user)
 
     def get_title(self):
-        return self.get_object().name
+        return self.object.name
 
     def get_description(self):
-        return self.get_object().summary
+        return self.object.summary
 
     def get_author(self):
-        return self.get_object().author.all()
+        return self.object.author.all()
 
     def get_form_kwargs(self, *args, **kwargs):
         cur_kwargs = super().get_form_kwargs(*args, **kwargs)
-        cur_kwargs["problem"] = self.get_object()
+        cur_kwargs["problem"] = self.object
         return cur_kwargs
 
     def post(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return HttpResponseForbidden()
-        self.object = self.get_object()
+        self.object = self.object
         form = self.get_form()
         if form.is_valid():
             return self.form_valid(form)
@@ -82,7 +82,7 @@ class ProblemDetail(
 
     def _create_submission_object(self, is_correct=False):
         submission = models.Submission.objects.create(
-            user=self.request.user, problem=self.get_object(), is_correct=is_correct
+            user=self.request.user, problem=self.object, is_correct=is_correct
         )
         if self.request.in_contest:
             models.ContestSubmission.objects.create(
@@ -93,7 +93,7 @@ class ProblemDetail(
         return submission
 
     def form_valid(self, form):
-        if (not self.request.user.has_solved(self.get_object())) or (
+        if (not self.request.user.has_solved(self.object)) or (
             self.request.in_contest
             and not self.request.participation.has_solved(self.get_contest_object())
         ):
@@ -111,18 +111,18 @@ class ProblemDetail(
         return super().form_invalid(form)
 
     def get_success_url(self):
-        return reverse("problem_detail", kwargs={"slug": self.get_object().slug})
+        return reverse("problem_detail", kwargs={"slug": self.object.slug})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["contest_problem"] = self.get_contest_object()
         if self.request.user.is_authenticated:
-            if (self.request.user.has_solved(self.get_object())) or (
+            if (self.request.user.has_solved(self.object)) or (
                 self.request.in_contest
                 and self.request.participation.has_solved(self.get_contest_object())
             ):
                 context["status"] = "solved"
-            elif (self.request.user.has_attempted(self.get_object())) or (
+            elif (self.request.user.has_attempted(self.object)) or (
                 self.request.in_contest
                 and self.request.participation.has_attempted(self.get_contest_object())
             ):
@@ -135,7 +135,7 @@ class ProblemChallenge(LoginRequiredMixin, SingleObjectMixin, View):
     raise_exception = True
 
     def get_instance_owner(self):
-        problem = self.get_object()
+        problem = self.object
         if problem.challenge_spec is None:
             return "nobody"
         if problem.challenge_spec["perTeam"] is False:
@@ -147,23 +147,23 @@ class ProblemChallenge(LoginRequiredMixin, SingleObjectMixin, View):
 
     def get(self, request, *args, **kwargs):
         return JsonResponse(
-            self.get_object().fetch_challenge_instance(self.get_instance_owner()), safe=False
+            self.object.fetch_challenge_instance(self.get_instance_owner()), safe=False
         )
 
     def post(self, request, *args, **kwargs):
-        if self.get_object().is_accessible_by(request.user):
+        if self.object.is_accessible_by(request.user):
             return JsonResponse(
-                self.get_object().create_challenge_instance(self.get_instance_owner()), safe=False
+                self.object.create_challenge_instance(self.get_instance_owner()), safe=False
             )
         else:
             return HttpResponseForbidden()
 
     def delete(self, request, *args, **kwargs):
         instance_owner = self.get_instance_owner()
-        if self.get_object().is_accessible_by(request.user) and (
+        if self.object.is_accessible_by(request.user) and (
             instance_owner != "everyone" or request.user.is_superuser
         ):
-            self.get_object().delete_challenge_instance(instance_owner)
+            self.object.delete_challenge_instance(instance_owner)
             return JsonResponse(None, safe=False)
         else:
             return HttpResponseForbidden()

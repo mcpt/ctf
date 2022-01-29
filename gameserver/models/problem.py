@@ -76,9 +76,7 @@ class Problem(models.Model):
 
         if (
             user.current_contest is not None
-            and self.request.participation.contest.problems.filter(
-                problem=self.get_object()
-            ).exists()
+            and self.request.participation.contest.problems.filter(problem=self).exists()
         ):
             return True
 

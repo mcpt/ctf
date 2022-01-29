@@ -48,13 +48,13 @@ class UserDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMix
         return "username"
 
     def get_title(self):
-        return "User " + self.get_object().username
+        return "User " + self.object.username
 
     def get_description(self):
-        return self.get_object().description
+        return self.object.description
 
     def get_author(self):
-        return [self.get_object()]
+        return [self.object]
 
 
 class UserSubmissionList(SingleObjectMixin, ListView, mixin.TitleMixin, mixin.MetaMixin):

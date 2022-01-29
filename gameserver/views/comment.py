@@ -15,13 +15,13 @@ class Comment(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin)
     template_name = "comment/detail.html"
 
     def get_title(self):
-        return "Comment #" + str(self.get_object().pk)
+        return "Comment #" + str(self.object.pk)
 
     def get_description(self):
-        return self.get_object().text
+        return self.object.text
 
     def get_author(self):
-        return [self.get_object().author]
+        return [self.object.author]
 
 
 @require_POST

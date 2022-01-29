@@ -28,30 +28,30 @@ class OrganizationDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.Co
     template_name = "organization/detail.html"
 
     def get_title(self):
-        return "Organization " + self.get_object().name
+        return "Organization " + self.object.name
 
     def get_description(self):
-        return self.get_object().description
+        return self.object.description
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["member_count"] = self.get_object().member_count()
+        context["member_count"] = self.object.member_count()
         if self.request.user.is_authenticated:
             context["last_user_organization_request"] = (
                 models.OrganizationRequest.objects.filter(
-                    organization=self.get_object(), user=self.request.user
+                    organization=self.object, user=self.request.user
                 )
                 .order_by("-date_created")
                 .first()
             )
             context["organization_requests"] = models.OrganizationRequest.objects.filter(
-                organization=self.get_object(), user=self.request.user
+                organization=self.object, user=self.request.user
             ).order_by("-date_created")[:3]
         else:
             context["organization_requests"] = []
         context["entity"] = "organization"
-        context["membered_admins"] = (
-            self.get_object().admins.filter(organizations=self.get_object()).order_by("username")
+        context["membered_admins"] = self.object.admins.filter(organizations=self.object).order_by(
+            "username"
         )
         return context
 
@@ -62,7 +62,7 @@ class OrganizationRequest(LoginRequiredMixin, CreateView, mixin.TitleMixin, mixi
     fields = ["reason"]
 
     def form_valid(self, form):
-        form.instance.organization = self.get_object()
+        form.instance.organization = self.object
         form.instance.user = self.request.user
         messages.info(self.request, "Your request to join this organization has been submitted.")
         return super().form_valid(form)
@@ -71,11 +71,11 @@ class OrganizationRequest(LoginRequiredMixin, CreateView, mixin.TitleMixin, mixi
         return models.Organization.objects.get(slug=self.kwargs["slug"])
 
     def get_title(self):
-        return "Request to join Organization " + self.get_object().name
+        return "Request to join Organization " + self.object.name
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["organization"] = self.get_object()
+        context["organization"] = self.object
         context["is_join_request"] = True
         return context
 
@@ -86,13 +86,14 @@ class OrganizationJoin(LoginRequiredMixin, FormView, mixin.TitleMixin, mixin.Met
     fields = ["access_code"]
 
     def post(self, *args, **kwargs):
-        if not self.get_object().is_public:
+        self.object = self.get_object()
+        if not self.object.is_public:
             self.success()
-            return redirect(self.get_object())
+            return redirect(self.object)
         return super().post(*args, **kwargs)
 
     def success(self):
-        self.request.user.organizations.add(self.get_object())
+        self.request.user.organizations.add(self.object)
 
     def form_valid(self, form):
         self.success()
@@ -100,22 +101,22 @@ class OrganizationJoin(LoginRequiredMixin, FormView, mixin.TitleMixin, mixin.Met
         return super().form_valid(form)
 
     def get_success_url(self, *args, **kwargs):
-        return self.get_object().get_absolute_url()
+        return self.object.get_absolute_url()
 
     def get_object(self):
         return models.Organization.objects.get(slug=self.kwargs["slug"])
 
     def get_title(self):
-        return "Join Organization " + self.get_object().name
+        return "Join Organization " + self.object.name
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["organization"] = self.get_object()
+        context["organization"] = self.object
         return context
 
     def get_form_kwargs(self, *args, **kwargs):
         cur_kwargs = super().get_form_kwargs(*args, **kwargs)
-        cur_kwargs["group"] = self.get_object()
+        cur_kwargs["group"] = self.object
         return cur_kwargs
 
 

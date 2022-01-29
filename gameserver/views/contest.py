@@ -39,23 +39,21 @@ class ContestDetail(
         return self.get_object().is_accessible_by(self.request.user)
 
     def get_title(self):
-        return "" + self.get_object().name
+        return "" + self.object.name
 
     def get_description(self):
-        return self.get_object().summary
+        return self.object.summary
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["form"] = self.get_form()
         context["participations"] = None
         if self.request.user.is_authenticated:
-            context["participations"] = self.request.user.participations_for_contest(
-                self.get_object()
-            )
+            context["participations"] = self.request.user.participations_for_contest(self.object)
             context["user_has_team_participations"] = any(
                 [participation.team for participation in context["participations"]]
             )
-        context["top_participations"] = self.get_object().ranks()[:10]
+        context["top_participations"] = self.object.ranks()[:10]
         return context
 
     def get_form(self):
@@ -69,13 +67,13 @@ class ContestDetail(
     def get_form_kwargs(self, *args, **kwargs):
         cur_kwargs = super().get_form_kwargs(*args, **kwargs)
         cur_kwargs["user"] = self.request.user
-        cur_kwargs["contest"] = self.get_object()
+        cur_kwargs["contest"] = self.object
         return cur_kwargs
 
     def post(self, request, *args, **kwargs):
-        if not request.user.is_authenticated or not self.get_object().is_ongoing:
-            return HttpResponseForbidden()
         self.object = self.get_object()
+        if not request.user.is_authenticated or not self.object.is_ongoing:
+            return HttpResponseForbidden()
         form = self.get_form()
         if form.is_valid():
             return self.form_valid(form)
@@ -85,11 +83,11 @@ class ContestDetail(
     def form_valid(self, form):
         if (
             self.request.user.current_contest is not None
-            and self.request.user.current_contest.contest == self.get_object()
+            and self.request.user.current_contest.contest == self.object
         ):
             team = form.cleaned_data["participant"]
             new_participation = models.ContestParticipation.objects.get_or_create(
-                team=team, contest=self.get_object()
+                team=team, contest=self.object
             )[0]
             prev_participation = self.request.user.current_contest
             if prev_participation.team is not None:
@@ -105,7 +103,7 @@ class ContestDetail(
             return super().form_valid(form)
         else:
             team = form.cleaned_data["participant"]
-            contest = self.get_object()
+            contest = self.object
             if team is not None:
                 contest_participation = models.ContestParticipation.objects.get_or_create(
                     team=team, contest=contest
@@ -118,7 +116,7 @@ class ContestDetail(
                         contest=contest,
                     )
                 except models.ContestParticipation.DoesNotExist:
-                    contest_participation = models.ContestParticipation(contest=self.get_object())
+                    contest_participation = models.ContestParticipation(contest=self.object)
             contest_participation.save()
             if contest_participation.participants.count() == contest.max_team_size:
                 return HttpResponseBadRequest(
@@ -202,7 +200,7 @@ class ContestParticipationDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin, 
     template_name = "contest/participation.html"
 
     def get_title(self):
-        return f"{self.get_object().__str__()}"
+        return f"{self.object.__str__()}"
 
     def get_description(self):
-        return self.get_object().__str__()
+        return self.object.__str__()

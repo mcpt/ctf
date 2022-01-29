@@ -35,13 +35,13 @@ class BlogPost(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin
     og_type = "article"
 
     def get_title(self):
-        return "" + self.get_object().title
+        return "" + self.object.title
 
     def get_author(self):
-        return self.get_object().author.all()
+        return self.object.author.all()
 
     def get_description(self):
-        return self.get_object().summary
+        return self.object.summary
 
 
 class Writeup(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin):
@@ -51,10 +51,10 @@ class Writeup(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin)
     og_type = "article"
 
     def get_title(self):
-        return "" + self.get_object().title
+        return "" + self.object.title
 
     def get_author(self):
-        return self.get_object().author.all()
+        return self.object.author.all()
 
     def get_description(self):
-        return self.get_object().summary
+        return self.object.summary

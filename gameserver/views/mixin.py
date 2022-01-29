@@ -76,6 +76,6 @@ class CommentMixin(ContextMixin):
         contenttype = ContentType.objects.get_for_model(self.model)
         context["comments"] = models.Comment.objects.filter(
             parent_content_type=contenttype,
-            parent_object_id=self.get_object().pk,
+            parent_object_id=self.object.pk,
         )
         return context
