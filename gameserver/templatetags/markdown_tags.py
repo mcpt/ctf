@@ -26,7 +26,7 @@ class HighlightRenderer(mistune.HTMLRenderer):
         return "<pre><code>" + mistune.escape(code) + "</code></pre>"
 
 
-render = mistune.create_markdown(renderer=HighlightRenderer())
+render = mistune.create_markdown(renderer=HighlightRenderer(escape=False))
 
 register = template.Library()
 
@@ -58,7 +58,7 @@ cleaner = sanitizer.Cleaner(
     attributes={
         **sanitizer.ALLOWED_ATTRIBUTES,
         "iframe": ["src", "frameborder", "class"],
-        "img": ["alt", "src"],
+        "img": ["alt", "src", "style", "class"],
 
         # for pygments
         **{key: ["class"] for key in {"div", "span"}},
