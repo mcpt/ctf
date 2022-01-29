@@ -11,6 +11,7 @@ from pygments import highlight
 from pygments.formatters import html
 from pygments.lexers import get_lexer_by_name
 from pygments.util import ClassNotFound
+from . import bleach_allowlist
 
 
 class HighlightRenderer(mistune.HTMLRenderer):
@@ -62,7 +63,7 @@ cleaner = sanitizer.Cleaner(
         # for pygments
         **{key: ["class"] for key in {"div", "span"}},
     },
-    styles=["markdown-embed"],
+    styles=[*bleach_allowlist.all_styles, "markdown-embed"],
     protocols=[
         "https",
         "mailto",
