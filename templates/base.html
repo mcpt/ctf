@@ -37,7 +37,6 @@
         {% endblock %}
 
         {% bootstrap_css %}
-        <link href="{% static 'plugins/css/ace.min.css' %}" type="text/css" media="all" rel="stylesheet" />
         <link href="{% static 'styles/bootstrap-icons.css' %}" type="text/css" media="all" rel="stylesheet" />
         <link href="{% static 'styles/pygments.css' %}" type="text/css" media="all" rel="stylesheet" />
 
@@ -90,7 +89,7 @@
             {% bootstrap_messages %}
             {% if request.in_contest %}
                 <div class="alert alert-info" role="alert">
-                    <h4 class="alert-heading" id="countdown">Loading countdown...</h4>
+                    <h4 class="alert-heading" id="contestCountdown">Loading countdown...</h4>
                     <p class="mb-0">Currently participating in {{ request.participation.contest.slug|contest }} as <a href="{{ request.participation.get_absolute_url }}">{{ request.participation.participant }}</a>.</p>
                 </div>
             {% endif %}
@@ -108,14 +107,13 @@
             <script src="{% static 'scripts/countdown.js' %}"></script>
             <script>
                 countdownTo = new Date({{ request.participation.contest.end_time|date:"U" }} * 1000);
-                setInterval(countdownTimer, 1000, countdownTo, "countdown");
+                setInterval(countdownTimer, 1000, countdownTo, "contestCountdown", () => {location.reload(true);});
             </script>
         {% endif %}
 
         <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
         {% bootstrap_javascript %}
-        <script type="text/javascript" src="{% static 'plugins/js/highlight.min.js' %}"></script>
     </body>
 
 </html>
