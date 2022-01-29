@@ -63,7 +63,7 @@ class UserSubmissionList(ListView, mixin.TitleMixin, mixin.MetaMixin):
 
     def get_queryset(self):
         self.user = get_object_or_404(models.User, username=self.kwargs["slug"])
-        return models.Submission.objects.filter(user=self.user).order_by("-pk")
+        return models.Submission.get_visible_submissions(self.request.user).filter(user=self.user).order_by("-pk")
 
     def get_title(self):
         return "Submissions by User " + self.user.username

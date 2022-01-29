@@ -24,13 +24,7 @@ class ProblemList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     title = "Problems"
 
     def get_queryset(self):
-        queryset = models.Problem.objects.order_by("points", "problem_type", "problem_group")
-        if self.request.user.is_superuser or self.request.user.has_perm("gameserver.edit_all_problems"):
-            return queryset
-        elif self.request.user.is_authenticated:
-            return queryset.filter(Q(is_public=True) | Q(author=self.request.user) | Q(testers=self.request.user)).distinct()
-        else:
-            return queryset.filter(is_public=True)
+        return models.Problem.get_visible_problems(self.request.user).order_by("points", "problem_type", "problem_group")
 
     def get(self, request, *args, **kwargs):
         if request.in_contest:
@@ -58,17 +52,7 @@ class ProblemDetail(
             return None
 
     def test_func(self):
-        return (
-            self.get_object().is_public
-            or (
-                self.request.in_contest
-                and self.request.participation.contest.problems.filter(problem=self.get_object()).exists()
-            )
-            or self.request.user in self.get_object().author.all()
-            or self.request.user in self.get_object().testers.all()
-            or self.request.user.is_superuser
-            or self.request.user.has_perm("gameserver.edit_all_problems")
-        )
+        return self.get_object().is_accessible_by(self.request.user)
 
     def get_title(self):
         return self.get_object().name
@@ -152,13 +136,18 @@ class ProblemChallenge(LoginRequiredMixin, SingleObjectMixin, View):
         return JsonResponse(self.get_object().fetch_challenge_instance(self.get_instance_owner()), safe=False)
 
     def post(self, request, *args, **kwargs):
-        return JsonResponse(self.get_object().create_challenge_instance(self.get_instance_owner()), safe=False)
+        if self.get_object().is_accessible_by(request.user):
+            return JsonResponse(self.get_object().create_challenge_instance(self.get_instance_owner()), safe=False)
+        else:
+            return HttpResponseForbidden()
 
     def delete(self, request, *args, **kwargs):
         instance_owner = self.get_instance_owner()
-        if instance_owner != "everyone" or request.user.is_superuser:
+        if self.get_object().is_accessible_by(request.user) and (instance_owner != "everyone" or request.user.is_superuser):
             self.get_object().delete_challenge_instance(instance_owner)
-        return JsonResponse(None, safe=False)
+            return JsonResponse(None, safe=False)
+        else:
+            return HttpResponseForbidden()
 
 
 class ProblemSubmissionList(ListView, mixin.TitleMixin, mixin.MetaMixin):
@@ -168,10 +157,7 @@ class ProblemSubmissionList(ListView, mixin.TitleMixin, mixin.MetaMixin):
 
     def get_queryset(self):
         self.problem = get_object_or_404(models.Problem, slug=self.kwargs["slug"])
-        return models.Submission.objects.filter(problem=self.problem).order_by(self.get_ordering())
-
-    def get_ordering(self):
-        return "-date_created"
+        return models.Submission.get_visible_submissions(self.request.user).filter(problem=self.problem).order_by("-pk")
 
     def get_title(self):
         return "Submissions for " + self.problem.name

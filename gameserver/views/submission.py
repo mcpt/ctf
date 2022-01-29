@@ -15,12 +15,7 @@ class SubmissionList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     title = "Submissions"
 
     def get_queryset(self):
-        queryset = models.Submission.objects.order_by("-date_created")
-        if self.request.user.is_authenticated:
-            queryset = queryset.filter(Q(problem__is_public=True) | Q(user=self.request.user))
-        else:
-            queryset = queryset.filter(problem__is_public=True)
-        return queryset
+        return models.Submission.get_visible_submissions(self.request.user).order_by("-date_created")
 
     def get(self, request, *args, **kwargs):
         if request.in_contest:

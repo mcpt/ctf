@@ -63,6 +63,49 @@ class Problem(models.Model):
         else:
             return None
     
+    def is_accessible_by(self, user):
+        if self.is_public:
+            return True
+        
+        if not user.is_authenticated:
+            return False
+        
+        if user.current_contest is not None and self.request.participation.contest.problems.filter(problem=self.get_object()).exists():
+            return True
+        
+        return self.is_editable_by(user)
+    
+    def is_editable_by(self, user):
+        if user.is_superuser or user.has_perm("gameserver.edit_all_problems"):
+            return True
+        
+        if user.is_authenticated:
+            if self.author.filter(id=user.id).exists() or self.testers.filter(id=user.id).exists():
+                return True
+        
+        return False
+    
+    @classmethod
+    def get_public_problems(cls):
+        return cls.objects.filter(is_public=True)
+    
+    @classmethod
+    def get_visible_problems(cls, user):
+        if not user.is_authenticated:
+            return cls.get_public_problems()
+        
+        if user.is_superuser or user.has_permission("gameserver.edit_all_problems"):
+            return cls.objects
+        
+        return queryset.filter(Q(is_public=True) | Q(author=self.request.user) | Q(testers=self.request.user)).distinct()
+    
+    @classmethod
+    def get_editable_problems(cls, user):
+        if user.is_superuser or user.has_permission("gameserver.edit_all_problems"):
+            return cls.objects
+        
+        return cls.objects.filter(author=user).distinct()
+    
     def create_challenge_instance(self, instance_owner):
         if self.challenge_spec is not None:
             return challenge.create_challenge_instance(self.challenge_spec, self.slug, self.flag, instance_owner)
