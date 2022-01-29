@@ -89,6 +89,50 @@ class Contest(models.Model):
     def team_allowed_to_join(self, team):
         return self.teams_allowed and team.members.count() <= self.max_team_size
 
+    def is_accessible_by(self, user):
+        if not user.is_authenticated:
+            return False
+
+        if self.is_public:
+            return True
+
+        return self.is_editable_by(user)
+
+    def is_editable_by(self, user):
+        if not user.is_authenticated:
+            return False
+
+        if user.is_superuser or user.has_perm("gameserver.edit_all_contests"):
+            return True
+
+        return self.organizers.filter(pk=user.pk).exists()
+
+    @classmethod
+    def get_visible_contests(cls, user):
+        if not user.is_authenticated:
+            return cls.objects.filter(is_public=True)
+
+        if user.is_superuser or user.has_perm("gameserver.edit_all_contests"):
+            return cls.objects.all()
+
+        return cls.objects.filter(Q(is_public=True) | Q(organizers=user))
+
+    @classmethod
+    def get_editable_contests(cls, user):
+        if not user.is_authenticated:
+            return cls.objects.none()
+
+        if user.is_superuser or user.has_perm("gameserver.edit_all_contests"):
+            return cls.objects.all()
+
+        return cls.objects.filter(organizers=user)
+
+    class Meta:
+        permissions = (
+            ("change_contest_visibility", "Change visibility of contests"),
+            ("edit_all_contests", "Edit all contests"),
+        )
+
 
 class ContestParticipation(models.Model):
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE, related_name="participations")

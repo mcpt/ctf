@@ -169,23 +169,25 @@ class ProblemChallenge(LoginRequiredMixin, SingleObjectMixin, View):
             return HttpResponseForbidden()
 
 
-class ProblemSubmissionList(ListView, mixin.TitleMixin, mixin.MetaMixin):
-    context_object_name = "submissions"
+class ProblemSubmissionList(SingleObjectMixin, ListView, mixin.TitleMixin, mixin.MetaMixin):
     template_name = "submission/list.html"
     paginate_by = 50
 
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object(queryset=models.Problem.objects.all())
+        return super().get(request, *args, **kwargs)
+
     def get_queryset(self):
-        self.problem = get_object_or_404(models.Problem, slug=self.kwargs["slug"])
         return (
             models.Submission.get_visible_submissions(self.request.user)
-            .filter(problem=self.problem)
+            .filter(problem=self.object)
             .order_by("-pk")
         )
 
     def get_title(self):
-        return "Submissions for " + self.problem.name
+        return "Submissions for " + self.object.name
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["problem"] = self.problem
+        context["problem"] = self.object
         return context

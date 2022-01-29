@@ -7,6 +7,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import RedirectView
+from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import CreateView, FormMixin, FormView
 
 from .. import forms, models
@@ -19,14 +20,11 @@ class ContestList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     title = "Contests"
 
     def get_queryset(self):
-        queryset = models.Contest.objects.order_by("-start_time")
-        if self.request.user.is_authenticated:
-            return queryset.filter(Q(is_public=True) | Q(organizers=self.request.user)).distinct()
-        else:
-            return queryset.filter(is_public=True)
+        return models.Contest.get_visible_contests(self.request.user).order_by("-start_time")
 
 
 class ContestDetail(
+    UserPassesTestMixin,
     DetailView,
     FormMixin,
     mixin.TitleMixin,
@@ -36,6 +34,9 @@ class ContestDetail(
     model = models.Contest
     context_object_name = "contest"
     template_name = "contest/detail.html"
+
+    def test_func(self):
+        return self.get_object().is_accessible_by(self.request.user)
 
     def get_title(self):
         return "" + self.get_object().name
@@ -142,65 +143,56 @@ class ContestLeave(LoginRequiredMixin, RedirectView):
         return super().get_redirect_url(*args, **kwargs)
 
 
-class ContestProblemList(UserPassesTestMixin, ListView, mixin.TitleMixin, mixin.MetaMixin):
-    context_object_name = "contest_problems"
-    template_name = "contest/problem_list.html"
-
+class ContestDetailsMixin(UserPassesTestMixin, SingleObjectMixin):
     def test_func(self):
-        self.contest = get_object_or_404(models.Contest, slug=self.kwargs["slug"])
-        return (
-            self.request.in_contest and self.request.participation.contest == self.contest
-        ) or self.contest.is_finished()
-
-    def get_title(self):
-        return "Problems for " + self.contest.name
-
-    def get_queryset(self):
-        return self.contest.problems.all()
+        self.object = self.get_object(queryset=models.Contest.objects.all())
+        return (self.request.in_contest and self.request.participation.contest == self.object) or (
+            self.object.is_finished() and self.object.is_accessible_by(self.request.user)
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["contest"] = self.contest
+        context["contest"] = self.object
         return context
 
 
-class ContestSubmissionList(UserPassesTestMixin, ListView, mixin.TitleMixin, mixin.MetaMixin):
-    context_object_name = "contest_submissions"
+class ContestProblemList(ContestDetailsMixin, ListView, mixin.TitleMixin, mixin.MetaMixin):
+    template_name = "contest/problem_list.html"
+
+    def get_title(self):
+        return "Problems for " + self.object.name
+
+    def get_queryset(self):
+        return self.object.problems.all()
+
+
+class ContestSubmissionList(ContestDetailsMixin, ListView, mixin.TitleMixin, mixin.MetaMixin):
     template_name = "contest/submission_list.html"
     paginate_by = 50
 
-    def test_func(self):
-        self.contest = get_object_or_404(models.Contest, slug=self.kwargs["slug"])
-        return (
-            self.request.in_contest and self.request.participation.contest == self.contest
-        ) or self.contest.is_finished()
-
     def get_queryset(self):
-        return models.ContestSubmission.objects.filter(
-            participation__contest=self.contest
-        ).order_by("-submission__date_created")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["contest"] = self.contest
-        return context
+        return models.ContestSubmission.objects.filter(participation__contest=self.object).order_by(
+            "-submission__date_created"
+        )
 
 
-class ContestScoreboard(ListView, mixin.TitleMixin, mixin.MetaMixin):
+class ContestScoreboard(SingleObjectMixin, ListView, mixin.TitleMixin, mixin.MetaMixin):
     model = models.ContestParticipation
-    context_object_name = "participations"
     template_name = "contest/scoreboard.html"
 
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object(queryset=models.Contest.objects.all())
+        return super().get(request, *args, **kwargs)
+
     def get_queryset(self):
-        self.contest = get_object_or_404(models.Contest, slug=self.kwargs["slug"])
-        return self.contest.ranks()
+        return self.object.ranks()
 
     def get_title(self):
-        return "Scoreboard for " + self.contest.name
+        return "Scoreboard for " + self.object.name
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["contest"] = self.contest
+        context["contest"] = self.object
         return context
 
 

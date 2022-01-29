@@ -94,27 +94,6 @@ class Problem(models.Model):
 
         return False
 
-    @classmethod
-    def get_public_problems(cls):
-        return cls.objects.filter(is_public=True)
-
-    @classmethod
-    def get_visible_problems(cls, user):
-        if not user.is_authenticated:
-            return cls.get_public_problems()
-
-        if user.is_superuser or user.has_perm("gameserver.edit_all_problems"):
-            return cls.objects
-
-        return cls.objects.filter(Q(is_public=True) | Q(author=user) | Q(testers=user)).distinct()
-
-    @classmethod
-    def get_editable_problems(cls, user):
-        if user.is_superuser or user.has_perm("gameserver.edit_all_problems"):
-            return cls.objects
-
-        return cls.objects.filter(author=user).distinct()
-
     def create_challenge_instance(self, instance_owner):
         if self.challenge_spec is not None:
             return challenge.create_challenge_instance(
@@ -132,6 +111,27 @@ class Problem(models.Model):
             return challenge.delete_challenge_instance(
                 self.challenge_spec, self.slug, instance_owner
             )
+
+    @classmethod
+    def get_public_problems(cls):
+        return cls.objects.filter(is_public=True)
+
+    @classmethod
+    def get_visible_problems(cls, user):
+        if not user.is_authenticated:
+            return cls.get_public_problems()
+
+        if user.is_superuser or user.has_perm("gameserver.edit_all_problems"):
+            return cls.objects.all()
+
+        return cls.objects.filter(Q(is_public=True) | Q(author=user) | Q(testers=user)).distinct()
+
+    @classmethod
+    def get_editable_problems(cls, user):
+        if user.is_superuser or user.has_perm("gameserver.edit_all_problems"):
+            return cls.objects.all()
+
+        return cls.objects.filter(author=user).distinct()
 
     class Meta:
         permissions = (

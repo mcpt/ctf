@@ -16,7 +16,7 @@
 {% endblock %}
 
 {% block trows %}
-    {% for submission in submissions %}
+    {% for submission in page_obj %}
         {% include './snippet/row.html' with hide_pk=True %}
     {% endfor %}
 {% endblock %}

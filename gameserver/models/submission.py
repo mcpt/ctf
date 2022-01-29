@@ -38,7 +38,7 @@ class Submission(models.Model):
             return cls.objects.filter(problem__is_public=True)
 
         if user.is_superuser or user.has_perm("gameserver.edit_all_problems"):
-            return cls.objects
+            return cls.objects.all()
 
         return cls.objects.filter(
             Q(problem__is_public=True)
