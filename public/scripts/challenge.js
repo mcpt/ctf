@@ -7,24 +7,21 @@ function clearTimer() {
 }
 
 function getCookie(name) {
-    let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
         const cookies = document.cookie.split(';');
         for (let i = 0; i < cookies.length; i++) {
             const cookie = cookies[i].trim();
             // Does this cookie string begin with the name we want?
             if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
+                return decodeURIComponent(cookie.substring(name.length + 1));
             }
         }
     }
-    return cookieValue;
+    return null;
 }
 
 async function getChallenge() {
-    toggleError(false);
-    updateButtonStatus("Refreshing", " status...", "chall__refresh");
+    updateInterimStatus("Refreshing", " status...", "chall__refresh");
     try {
         const json = await fetchChallenge("GET");
         if (json) {
@@ -38,8 +35,7 @@ async function getChallenge() {
 }
 
 async function createChallenge() {
-    toggleError(false);
-    updateButtonStatus("Launching");
+    updateInterimStatus("Launching");
 
     try {
         const json = await fetchChallenge("POST");
@@ -53,8 +49,7 @@ async function createChallenge() {
     }
 }
 async function deleteChallenge() {
-    toggleError(false);
-    updateButtonStatus("Deleting");
+    updateInterimStatus("Deleting");
 
     try {
         const json = await fetchChallenge("DELETE");
@@ -95,7 +90,6 @@ function setNoneStatus() {
 }
 
 function setLiveStatus(json) {
-
     clearTimer();
     clearStatus();
 
@@ -127,7 +121,8 @@ function setLiveStatus(json) {
     challengeTimerSetInterval = setInterval(displayTime, 1000);
 }
 
-function updateButtonStatus(verbing, suffix = " instance...", elemId = "chall__verb") {
+function updateInterimStatus(verbing, suffix = " instance...", elemId = "chall__verb") {
+    toggleError(false);
     try {
         const btn = document.getElementById(elemId);
         btn.textContent = verbing + suffix;
