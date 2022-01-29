@@ -37,25 +37,26 @@ class OrganizationDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.Co
         context = super().get_context_data(**kwargs)
         context["member_count"] = self.get_object().member_count()
         if self.request.user.is_authenticated:
-            context["last_user_organization_request"] = models.OrganizationRequest.objects.filter(
-                organization=self.get_object(), user=self.request.user
-            ).order_by("-date_created").first()
+            context["last_user_organization_request"] = (
+                models.OrganizationRequest.objects.filter(
+                    organization=self.get_object(), user=self.request.user
+                )
+                .order_by("-date_created")
+                .first()
+            )
             context["organization_requests"] = models.OrganizationRequest.objects.filter(
                 organization=self.get_object(), user=self.request.user
             ).order_by("-date_created")[:3]
         else:
             context["organization_requests"] = []
         context["entity"] = "organization"
-        context["membered_admins"] = self.get_object().admins.filter(
-            organizations=self.get_object()
-        ).order_by("username")
+        context["membered_admins"] = (
+            self.get_object().admins.filter(organizations=self.get_object()).order_by("username")
+        )
         return context
 
 
-
-class OrganizationRequest(
-    LoginRequiredMixin, CreateView, mixin.TitleMixin, mixin.MetaMixin
-):
+class OrganizationRequest(LoginRequiredMixin, CreateView, mixin.TitleMixin, mixin.MetaMixin):
     template_name = "organization/form-join.html"
     model = models.OrganizationRequest
     fields = ["reason"]
@@ -79,9 +80,7 @@ class OrganizationRequest(
         return context
 
 
-class OrganizationJoin(
-    LoginRequiredMixin, FormView, mixin.TitleMixin, mixin.MetaMixin
-):
+class OrganizationJoin(LoginRequiredMixin, FormView, mixin.TitleMixin, mixin.MetaMixin):
     template_name = "organization/form-join.html"
     form_class = forms.GroupJoinForm
     fields = ["access_code"]

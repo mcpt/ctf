@@ -15,7 +15,9 @@ class SubmissionList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     title = "Submissions"
 
     def get_queryset(self):
-        return models.Submission.get_visible_submissions(self.request.user).order_by("-date_created")
+        return models.Submission.get_visible_submissions(self.request.user).order_by(
+            "-date_created"
+        )
 
     def get(self, request, *args, **kwargs):
         if request.in_contest:

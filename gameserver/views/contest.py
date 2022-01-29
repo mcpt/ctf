@@ -1,7 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.http import HttpResponseBadRequest
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q, Sum
+from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
@@ -48,8 +48,12 @@ class ContestDetail(
         context["form"] = self.get_form()
         context["participations"] = None
         if self.request.user.is_authenticated:
-            context["participations"] = self.request.user.participations_for_contest(self.get_object())
-            context["user_has_team_participations"] = any([participation.team for participation in context["participations"]])
+            context["participations"] = self.request.user.participations_for_contest(
+                self.get_object()
+            )
+            context["user_has_team_participations"] = any(
+                [participation.team for participation in context["participations"]]
+            )
         context["top_participations"] = self.get_object().ranks()[:10]
         return context
 
@@ -83,9 +87,9 @@ class ContestDetail(
             and self.request.user.current_contest.contest == self.get_object()
         ):
             team = form.cleaned_data["participant"]
-            new_participation = models.ContestParticipation.objects.get_or_create(team=team, contest=self.get_object())[
-                0
-            ]
+            new_participation = models.ContestParticipation.objects.get_or_create(
+                team=team, contest=self.get_object()
+            )[0]
             prev_participation = self.request.user.current_contest
             if prev_participation.team is not None:
                 return HttpResponseBadRequest("Cannot change from teams")
@@ -172,9 +176,9 @@ class ContestSubmissionList(UserPassesTestMixin, ListView, mixin.TitleMixin, mix
         ) or self.contest.is_finished()
 
     def get_queryset(self):
-        return models.ContestSubmission.objects.filter(participation__contest=self.contest).order_by(
-            "-submission__date_created"
-        )
+        return models.ContestSubmission.objects.filter(
+            participation__contest=self.contest
+        ).order_by("-submission__date_created")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

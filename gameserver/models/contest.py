@@ -36,7 +36,7 @@ class Contest(models.Model):
 
     def __str__(self):
         return self.name
-    
+
     @property
     def is_private(self):
         return not self.is_public
@@ -67,11 +67,21 @@ class Contest(models.Model):
         )
         return self.participations.annotate(
             points=Coalesce(
-                Sum("submission__problem__points", filter=Q(submission__in=Subquery(submissions_with_points))), 0
+                Sum(
+                    "submission__problem__points",
+                    filter=Q(submission__in=Subquery(submissions_with_points)),
+                ),
+                0,
             ),
-            flags=Coalesce(Count("submission__pk", filter=Q(submission__in=Subquery(submissions_with_points))), 0),
+            flags=Coalesce(
+                Count("submission__pk", filter=Q(submission__in=Subquery(submissions_with_points))),
+                0,
+            ),
             most_recent_solve_time=Coalesce(
-                Max("submission__submission__date_created", filter=Q(submission__in=Subquery(submissions_with_points))),
+                Max(
+                    "submission__submission__date_created",
+                    filter=Q(submission__in=Subquery(submissions_with_points)),
+                ),
                 self.start_time,
             ),
         ).order_by("-points", "most_recent_solve_time", "flags")
@@ -118,7 +128,9 @@ class ContestParticipation(models.Model):
         return self._get_unique_correct_submissions().count()
 
     def last_solve(self):
-        submissions = self.submissions.filter(submission__is_correct=True).order_by("-submission__date_created")
+        submissions = self.submissions.filter(submission__is_correct=True).order_by(
+            "-submission__date_created"
+        )
         if submissions.count() >= 1:
             return submissions[0]
         else:
@@ -174,6 +186,11 @@ class ContestSubmission(models.Model):
         related_query_name="submission",
     )
     problem = models.ForeignKey(
-        ContestProblem, on_delete=models.CASCADE, related_name="submissions", related_query_name="submission"
+        ContestProblem,
+        on_delete=models.CASCADE,
+        related_name="submissions",
+        related_query_name="submission",
     )
-    submission = models.OneToOneField("Submission", on_delete=models.CASCADE, related_name="contest_submission")
+    submission = models.OneToOneField(
+        "Submission", on_delete=models.CASCADE, related_name="contest_submission"
+    )

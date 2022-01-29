@@ -105,7 +105,11 @@ class OrganizationAdmin(admin.ModelAdmin):
             if obj is None:
                 return True
             else:
-                return request.user in obj.admins.all() or request.user == obj.owner or request.user.is_superuser
+                return (
+                    request.user in obj.admins.all()
+                    or request.user == obj.owner
+                    or request.user.is_superuser
+                )
         return False
 
     def has_change_permission(self, request, obj=None):
@@ -205,11 +209,7 @@ class UserAdmin(admin.ModelAdmin):
         "is_staff",
         "is_superuser",
     ]
-    list_filter = [
-        "is_staff",
-        "is_superuser",
-        "groups"
-    ]
+    list_filter = ["is_staff", "is_superuser", "groups"]
     search_fields = [
         "username",
         "full_name",

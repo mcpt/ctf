@@ -1,15 +1,14 @@
-import uuid
-import re
 import hashlib
+import re
+import uuid
 
 from django.db import models
 from django.urls import reverse
 
+from ..utils import challenge
 from . import abstract
 from .contest import ContestProblem
 from .profile import User
-
-from ..utils import challenge
 
 # Create your models here.
 
@@ -44,11 +43,11 @@ class Problem(models.Model):
 
     def __str__(self):
         return self.name
-    
+
     @property
     def is_private(self):
         return not self.is_public
-    
+
     @property
     def flag_format(self):
         flag_format_match = re.match(r"(.*)\{.*\}", self.flag)
@@ -66,61 +65,74 @@ class Problem(models.Model):
             return ContestProblem.objects.get(problem=self, contest=participation.contest)
         except ContestProblem.DoesNotExist:
             return None
-    
+
     def is_accessible_by(self, user):
         if self.is_public:
             return True
-        
+
         if not user.is_authenticated:
             return False
-        
-        if user.current_contest is not None and self.request.participation.contest.problems.filter(problem=self.get_object()).exists():
+
+        if (
+            user.current_contest is not None
+            and self.request.participation.contest.problems.filter(
+                problem=self.get_object()
+            ).exists()
+        ):
             return True
-        
+
         return self.is_editable_by(user)
-    
+
     def is_editable_by(self, user):
         if user.is_superuser or user.has_perm("gameserver.edit_all_problems"):
             return True
-        
+
         if user.is_authenticated:
             if self.author.filter(id=user.id).exists() or self.testers.filter(id=user.id).exists():
                 return True
-        
+
         return False
-    
+
     @classmethod
     def get_public_problems(cls):
         return cls.objects.filter(is_public=True)
-    
+
     @classmethod
     def get_visible_problems(cls, user):
         if not user.is_authenticated:
             return cls.get_public_problems()
-        
+
         if user.is_superuser or user.has_permission("gameserver.edit_all_problems"):
             return cls.objects
-        
-        return queryset.filter(Q(is_public=True) | Q(author=self.request.user) | Q(testers=self.request.user)).distinct()
-    
+
+        return queryset.filter(
+            Q(is_public=True) | Q(author=self.request.user) | Q(testers=self.request.user)
+        ).distinct()
+
     @classmethod
     def get_editable_problems(cls, user):
         if user.is_superuser or user.has_permission("gameserver.edit_all_problems"):
             return cls.objects
-        
+
         return cls.objects.filter(author=user).distinct()
-    
+
     def create_challenge_instance(self, instance_owner):
         if self.challenge_spec is not None:
-            return challenge.create_challenge_instance(self.challenge_spec, self.slug, self.flag, instance_owner)
-    
+            return challenge.create_challenge_instance(
+                self.challenge_spec, self.slug, self.flag, instance_owner
+            )
+
     def fetch_challenge_instance(self, instance_owner):
         if self.challenge_spec is not None:
-            return challenge.fetch_challenge_instance(self.challenge_spec, self.slug, instance_owner)
-    
+            return challenge.fetch_challenge_instance(
+                self.challenge_spec, self.slug, instance_owner
+            )
+
     def delete_challenge_instance(self, instance_owner):
         if self.challenge_spec is not None:
-            return challenge.delete_challenge_instance(self.challenge_spec, self.slug, instance_owner)
+            return challenge.delete_challenge_instance(
+                self.challenge_spec, self.slug, instance_owner
+            )
 
     class Meta:
         permissions = (

@@ -1,8 +1,9 @@
 import zoneinfo
+
 from django.conf import settings
-from django.utils import timezone
 from django.contrib.redirects.middleware import RedirectFallbackMiddleware
 from django.http import HttpResponseRedirect
+from django.utils import timezone
 
 
 class TimezoneMiddleware:
@@ -30,6 +31,7 @@ class ContestMiddleware:
             request.in_contest = False
             request.participation = None
         return self.get_response(request)
+
 
 class RedirectFallbackTemporaryMiddleware(RedirectFallbackMiddleware):
     response_redirect_class = HttpResponseRedirect

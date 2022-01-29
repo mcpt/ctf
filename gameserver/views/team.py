@@ -10,8 +10,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import RedirectView
-from django.views.generic.edit import (CreateView, FormMixin, FormView,
-                                       UpdateView)
+from django.views.generic.edit import CreateView, FormMixin, FormView, UpdateView
 
 from .. import forms, models
 from . import mixin
@@ -93,7 +92,10 @@ class TeamCreate(LoginRequiredMixin, CreateView, mixin.TitleMixin, mixin.MetaMix
         model.save()
         model.members.add(self.request.user)
 
-        messages.info(self.request, f"Successfully created team {model.name}! The access code to join this team is {model.access_code}; you can change this by editing the team.")
+        messages.info(
+            self.request,
+            f"Successfully created team {model.name}! The access code to join this team is {model.access_code}; you can change this by editing the team.",
+        )
         return super().form_valid(form)
 
 

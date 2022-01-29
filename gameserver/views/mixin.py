@@ -45,7 +45,9 @@ class MetaMixin(ContextMixin):
 
     def get_payment_pointers(self):
         authors = self.get_author()
-        author_payment_pointers = [author.payment_pointer for author in authors if author.payment_pointer]
+        author_payment_pointers = [
+            author.payment_pointer for author in authors if author.payment_pointer
+        ]
         if author_payment_pointers:
             return author_payment_pointers
         else:

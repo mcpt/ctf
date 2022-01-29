@@ -3,6 +3,7 @@ from django import template
 from django.shortcuts import reverse
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
+
 from gameserver import models
 
 register = template.Library()
@@ -104,12 +105,8 @@ def comment_html(comment_obj):
 
 @register.filter
 def comment_html_short(comment_obj):
-    comment_url, author_url, comment_date, parent_url = comment_info(
-        comment_obj
-    )
-    return format_html(
-        "{0} → {1}", author_url, parent_url
-    )
+    comment_url, author_url, comment_date, parent_url = comment_info(comment_obj)
+    return format_html("{0} → {1}", author_url, parent_url)
 
 
 @register.filter

@@ -17,7 +17,9 @@ urlpatterns = [
         views.ProblemDetail.as_view(),
         name="problem_detail",
     ),
-    path("problem/<slug:slug>/challenge", views.ProblemChallenge.as_view(), name="problem_challenge"),
+    path(
+        "problem/<slug:slug>/challenge", views.ProblemChallenge.as_view(), name="problem_challenge"
+    ),
     path(
         "problem/<slug:slug>/submissions",
         views.ProblemSubmissionList.as_view(),
