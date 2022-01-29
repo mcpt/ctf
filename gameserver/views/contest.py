@@ -46,7 +46,6 @@ class ContestDetail(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["form"] = self.get_form()
         context["participations"] = None
         if self.request.user.is_authenticated:
             context["participations"] = self.request.user.participations_for_contest(self.object)

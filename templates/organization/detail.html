@@ -8,7 +8,7 @@
 <div class="card order-96">
     <h2 class="card-header fs-6">Members</h2>
     <div class="card-body">
-        <p>Total: {{ member_count }}</p>
+        <p>Total: {{ group.member_count }}</p>
         {% include "user/snippet/table.html" with users=group.members.all %}
     </div>
 </div>

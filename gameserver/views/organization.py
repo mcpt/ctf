@@ -35,7 +35,6 @@ class OrganizationDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.Co
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["member_count"] = self.object.member_count()
         if self.request.user.is_authenticated:
             context["last_user_organization_request"] = (
                 models.OrganizationRequest.objects.filter(
