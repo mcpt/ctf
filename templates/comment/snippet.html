@@ -1,7 +1,6 @@
-
 <section class="card mb-3 order-99">
     {% if not is_private %}
-        <h5 class="card-header">Comments</h5>
+        <div class="card-header">Comments</div>
         <div class="card-body text-wrap">
             {% include './list.html' with max_depth=6 depth=0 %}
             {% if user.is_authenticated %}
