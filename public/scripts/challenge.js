@@ -22,38 +22,26 @@ function getCookie(name) {
 
 async function getChallenge() {
     updateInterimStatus("Refreshing", " status...", "chall__refresh");
-    try {
-        const json = await fetchChallenge("GET");
-        if (json) {
-            setLiveStatus(json)
-        } else {
-            setNoneStatus();
-        }
-    } catch (e) {
-        toggleError();
-    }
+    updateChallenge("GET", setLiveStatus, setNoneStatus);
 }
-
 async function createChallenge() {
     updateInterimStatus("Launching");
-
-    try {
-        const json = await fetchChallenge("POST");
-        if (json) {
-            setLiveStatus(json)
-        } else {
-            getChallenge();
-        }
-    } catch (e) {
-        toggleError();
-    }
+    updateChallenge("POST", setLiveStatus, getChallenge);
 }
 async function deleteChallenge() {
     updateInterimStatus("Deleting");
+    updateChallenge("DELETE", setNoneStatus);
+}
 
+async function updateChallenge(method, handleSuccess, handleFailure) {
+    if (handleFailure === undefined) handleFailure = handleSuccess;
     try {
-        const json = await fetchChallenge("DELETE");
-        setNoneStatus();
+        const json = await fetchChallenge(method);
+        if (json) {
+            handleSuccess(json)
+        } else {
+            handleFailure();
+        }
     } catch (e) {
         toggleError();
     }
