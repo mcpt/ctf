@@ -31,7 +31,6 @@ class Contest(models.Model):
 
     is_public = models.BooleanField(default=True)
 
-    teams_allowed = models.BooleanField(default=True)
     max_team_size = models.PositiveSmallIntegerField(null=True, blank=True)
 
     def __str__(self):
@@ -40,6 +39,10 @@ class Contest(models.Model):
     @property
     def is_private(self):
         return not self.is_public
+
+    @property
+    def teams_allowed(self):
+        return self.max_team_size is None or self.max_team_size > 1
 
     def get_absolute_url(self):
         return reverse("contest_detail", args=[self.slug])

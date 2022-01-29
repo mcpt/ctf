@@ -178,7 +178,6 @@ class ContestAdmin(admin.ModelAdmin):
         "start_time",
         "end_time",
         "tags",
-        "teams_allowed",
         "max_team_size",
         "is_public",
     ]
