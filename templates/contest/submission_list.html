@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block trows %}
-    {% for contest_submission in contest_submissions %}
+    {% for contest_submission in page_obj %}
         {% include './snippet/submission/row.html' %}
     {% endfor %}
 {% endblock %}

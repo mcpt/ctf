@@ -1,12 +1,13 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.http import HttpResponseBadRequest
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q, Sum
+from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import RedirectView
+from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import CreateView, FormMixin, FormView
 
 from .. import forms, models
@@ -19,14 +20,11 @@ class ContestList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     title = "Contests"
 
     def get_queryset(self):
-        queryset = models.Contest.objects.order_by("-start_time")
-        if self.request.user.is_authenticated:
-            return queryset.filter(Q(is_private=False) | Q(organizers=self.request.user)).distinct()
-        else:
-            return queryset.filter(is_private=False)
+        return models.Contest.get_visible_contests(self.request.user).order_by("-start_time")
 
 
 class ContestDetail(
+    UserPassesTestMixin,
     DetailView,
     FormMixin,
     mixin.TitleMixin,
@@ -37,20 +35,24 @@ class ContestDetail(
     context_object_name = "contest"
     template_name = "contest/detail.html"
 
+    def test_func(self):
+        return self.get_object().is_accessible_by(self.request.user)
+
     def get_title(self):
-        return "" + self.get_object().name
+        return "" + self.object.name
 
     def get_description(self):
-        return self.get_object().summary
+        return self.object.summary
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["form"] = self.get_form()
         context["participations"] = None
         if self.request.user.is_authenticated:
-            context["participations"] = self.request.user.participations_for_contest(self.get_object())
-            context["user_has_team_participations"] = any([participation.team for participation in context["participations"]])
-        context["top_participations"] = self.get_object().ranks()[:10]
+            context["participations"] = self.request.user.participations_for_contest(self.object)
+            context["user_has_team_participations"] = any(
+                [participation.team for participation in context["participations"]]
+            )
+        context["top_participations"] = self.object.ranks()[:10]
         return context
 
     def get_form(self):
@@ -64,13 +66,13 @@ class ContestDetail(
     def get_form_kwargs(self, *args, **kwargs):
         cur_kwargs = super().get_form_kwargs(*args, **kwargs)
         cur_kwargs["user"] = self.request.user
-        cur_kwargs["contest"] = self.get_object()
+        cur_kwargs["contest"] = self.object
         return cur_kwargs
 
     def post(self, request, *args, **kwargs):
-        if not request.user.is_authenticated or not self.get_object().is_ongoing:
-            return HttpResponseForbidden()
         self.object = self.get_object()
+        if not request.user.is_authenticated or not self.object.is_ongoing:
+            return HttpResponseForbidden()
         form = self.get_form()
         if form.is_valid():
             return self.form_valid(form)
@@ -80,12 +82,12 @@ class ContestDetail(
     def form_valid(self, form):
         if (
             self.request.user.current_contest is not None
-            and self.request.user.current_contest.contest == self.get_object()
+            and self.request.user.current_contest.contest == self.object
         ):
             team = form.cleaned_data["participant"]
-            new_participation = models.ContestParticipation.objects.get_or_create(team=team, contest=self.get_object())[
-                0
-            ]
+            new_participation = models.ContestParticipation.objects.get_or_create(
+                team=team, contest=self.object
+            )[0]
             prev_participation = self.request.user.current_contest
             if prev_participation.team is not None:
                 return HttpResponseBadRequest("Cannot change from teams")
@@ -100,7 +102,7 @@ class ContestDetail(
             return super().form_valid(form)
         else:
             team = form.cleaned_data["participant"]
-            contest = self.get_object()
+            contest = self.object
             if team is not None:
                 contest_participation = models.ContestParticipation.objects.get_or_create(
                     team=team, contest=contest
@@ -113,7 +115,7 @@ class ContestDetail(
                         contest=contest,
                     )
                 except models.ContestParticipation.DoesNotExist:
-                    contest_participation = models.ContestParticipation(contest=self.get_object())
+                    contest_participation = models.ContestParticipation(contest=self.object)
             contest_participation.save()
             if contest_participation.participants.count() == contest.max_team_size:
                 return HttpResponseBadRequest(
@@ -138,65 +140,56 @@ class ContestLeave(LoginRequiredMixin, RedirectView):
         return super().get_redirect_url(*args, **kwargs)
 
 
-class ContestProblemList(UserPassesTestMixin, ListView, mixin.TitleMixin, mixin.MetaMixin):
-    context_object_name = "contest_problems"
-    template_name = "contest/problem_list.html"
-
+class ContestDetailsMixin(UserPassesTestMixin, SingleObjectMixin):
     def test_func(self):
-        self.contest = get_object_or_404(models.Contest, slug=self.kwargs["slug"])
-        return (
-            self.request.in_contest and self.request.participation.contest == self.contest
-        ) or self.contest.is_finished()
-
-    def get_title(self):
-        return "Problems for " + self.contest.name
-
-    def get_queryset(self):
-        return self.contest.problems.all()
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["contest"] = self.contest
-        return context
-
-
-class ContestSubmissionList(UserPassesTestMixin, ListView, mixin.TitleMixin, mixin.MetaMixin):
-    context_object_name = "contest_submissions"
-    template_name = "contest/submission_list.html"
-    paginate_by = 50
-
-    def test_func(self):
-        self.contest = get_object_or_404(models.Contest, slug=self.kwargs["slug"])
-        return (
-            self.request.in_contest and self.request.participation.contest == self.contest
-        ) or self.contest.is_finished()
-
-    def get_queryset(self):
-        return models.ContestSubmission.objects.filter(participation__contest=self.contest).order_by(
-            "-submission__date_created"
+        self.object = self.get_object(queryset=models.Contest.objects.all())
+        return (self.request.in_contest and self.request.participation.contest == self.object) or (
+            self.object.is_finished() and self.object.is_accessible_by(self.request.user)
         )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["contest"] = self.contest
+        context["contest"] = self.object
         return context
 
 
-class ContestScoreboard(ListView, mixin.TitleMixin, mixin.MetaMixin):
-    model = models.ContestParticipation
-    context_object_name = "participations"
-    template_name = "contest/scoreboard.html"
-
-    def get_queryset(self):
-        self.contest = get_object_or_404(models.Contest, slug=self.kwargs["slug"])
-        return self.contest.ranks()
+class ContestProblemList(ContestDetailsMixin, ListView, mixin.TitleMixin, mixin.MetaMixin):
+    template_name = "contest/problem_list.html"
 
     def get_title(self):
-        return "Scoreboard for " + self.contest.name
+        return "Problems for " + self.object.name
+
+    def get_queryset(self):
+        return self.object.problems.all()
+
+
+class ContestSubmissionList(ContestDetailsMixin, ListView, mixin.TitleMixin, mixin.MetaMixin):
+    template_name = "contest/submission_list.html"
+    paginate_by = 50
+
+    def get_queryset(self):
+        return models.ContestSubmission.objects.filter(participation__contest=self.object).order_by(
+            "-submission__date_created"
+        )
+
+
+class ContestScoreboard(SingleObjectMixin, ListView, mixin.TitleMixin, mixin.MetaMixin):
+    model = models.ContestParticipation
+    template_name = "contest/scoreboard.html"
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object(queryset=models.Contest.objects.all())
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return self.object.ranks()
+
+    def get_title(self):
+        return "Scoreboard for " + self.object.name
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["contest"] = self.contest
+        context["contest"] = self.object
         return context
 
 
@@ -206,7 +199,7 @@ class ContestParticipationDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin, 
     template_name = "contest/participation.html"
 
     def get_title(self):
-        return f"{self.get_object().__str__()}"
+        return f"{self.object.__str__()}"
 
     def get_description(self):
-        return self.get_object().__str__()
+        return self.object.__str__()

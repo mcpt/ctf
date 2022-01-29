@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% block trows %}
-    {% for contest_problem in contest_problems %}
+    {% for contest_problem in page_obj %}
         <tr>
             {% with status=contest_problem|contest_problem_status:user %}
                 <td>{% include "problem/snippet/status.html" %}</td>

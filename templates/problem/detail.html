@@ -16,6 +16,18 @@
         <p class="card-text">{{ problem.description|markdown }}</p>
     </div>
 </div>
+{% if problem.challenge_spec %}
+<div class="card mb-3">
+    <div class="card-header">Challenge Instance</div>
+    <div class="card-body">
+        {% if user.is_authenticated %}
+        {% include "problem/snippet/challenge.html" %}
+        {% else %}
+        <p class="mb-0">Sign in to solve this challenge!</p>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
 {% if problem.files.all %}
 <div class="card mb-3">
     <div class="card-header">Files</div>
@@ -23,17 +35,23 @@
         <ul class="list-unstyled mb-0">
             {% for file in problem.files.all %}
             <li>
-                <a href="{{ file.artifact.url }}">{{ file.file_name }}</a>
-                <ul>
-                    <li>sha256 {{ file.checksum }}</li>
-                </ul>
+                <details>
+                    <summary>
+                        <a href="{{ file.artifact.url }}">{{ file.file_name }}</a>
+                    </summary>
+                    <ul>
+                        <li>SHA256 checksum: <code>{{ file.checksum }}</code></li>
+                    </ul>
+                </details>
             </li>
             {% endfor %}
         </ul>
     </div>
 </div>
 {% endif %}
-{% include 'comment/snippet.html' with is_private=contest_problem entity="problem" %}
+{% if not contest_problem %}
+{% include 'comment/snippet.html' with disable=problem.is_private entity="problem" %}
+{% endif %}
 {% endblock %}
 
 {% block aside %}
@@ -79,3 +97,10 @@
 </div>
 {% endif %}
 {% endblock %}
+
+{% if problem.challenge_spec %}
+{% block deps %}
+<script src="{% static 'scripts/countdown.js' %}" defer></script>
+<script src="{% static 'scripts/challenge.js' %}" defer></script>
+{% endblock %}
+{% endif %}

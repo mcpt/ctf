@@ -4,58 +4,60 @@
 {% load bootstrap_icons %}
 
 {% block content %}
-    {% include "snippets/group_detail/summary.html" %}
-    <div class="card order-96">
-        <h2 class="card-header fs-6">Members</h2>
-        <div class="card-body">
-            <p>Total: {{ member_count }}</p>
-            {% include "user/snippet/table.html" with users=group.members.all %}
-        </div>
+{% include "snippets/group_detail/summary.html" %}
+<div class="card order-96">
+    <h2 class="card-header fs-6">Members</h2>
+    <div class="card-body">
+        <p>Total: {{ group.member_count }}</p>
+        {% include "user/snippet/table.html" with users=group.members.all %}
     </div>
+</div>
 {% endblock %}
 
 {% block aside %}
-    {% include "snippets/group_detail/members.html" with member_list=membered_admins card_title="Organization Admins" member_type="admins" %}
+{% include "snippets/group_detail/members.html" with member_list=membered_admins card_title="Organization Admins" member_type="admins" %}
 
-    {% if user.is_authenticated %}
-        <div class="card mb-3">
-            <div class="card-body">
-                {% if group in user.organizations.all %}
-                    {% include "snippets/group_detail/leave_form.html" with entity="organization" %}
-                {% else %}
-                    <p>You are currently not in this organization.</p>
-                    {% if not group.is_private or not group.access_code == "" %}
-                        <a href="{% url 'organization_join' group.slug %}" class="btn btn-primary">Join organization</a>
-                    {% else %}
-                        {% if last_user_organization_request %}
-                            <p>Your latest request to join this organization was {{ last_user_organization_request.date_created|naturaltime }}.</p>
-                        {% endif %}
-                        <a class="btn btn-primary" href="{% url 'organization_request' group.slug %}" type="submit">Request to join</a>
-                    {% endif %}
-                {% endif %}
-            </div>
-        </div>
-        {% comment "?" %}
-        {% if group not in user.organizations.all and organization_requests %}
-            <div class="card">
-                <h2 class="card-header fs-6">Organization Join Requests</h2>
-                <div class="card-body">
-                    <ul class="list-group list-group-flush">
-                        {% for req in organization_requests %}
-                            <li class="list-group-item" id="request_{{ req.pk }}">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <p class="mb-1 fs-6">{{ req.user.username|user }} requested to join {{ req.date_created|naturaltime }}</p>
-                                </div>
-                                <p class="mt-2 mb-3">{{ req.reason }}</p>
-                                <small class="text-muted mb-1">{{ req.get_status_display }}</small>
-                            </li>
-                        {% empty %}
-                            <p class="mb-0"><i>You have not made any organization join requests.</i></p>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
+{% if user.is_authenticated %}
+<div class="card mb-3">
+    <div class="card-body">
+        {% if group in user.organizations.all %}
+        {% include "snippets/group_detail/leave_form.html" with entity="organization" %}
+        {% else %}
+        <p>You are currently not in this organization.</p>
+        {% if group.is_public or not group.access_code == "" %}
+        <a href="{% url 'organization_join' group.slug %}" class="btn btn-primary">Join organization</a>
+        {% else %}
+        {% if last_user_organization_request %}
+        <p>Your latest request to join this organization was
+            {{ last_user_organization_request.date_created|naturaltime }}.</p>
         {% endif %}
-        {% endcomment %}
-    {% endif %}
+        <a class="btn btn-primary" href="{% url 'organization_request' group.slug %}" type="submit">Request to join</a>
+        {% endif %}
+        {% endif %}
+    </div>
+</div>
+{% comment "?" %}
+{% if group not in user.organizations.all and organization_requests %}
+<div class="card">
+    <h2 class="card-header fs-6">Organization Join Requests</h2>
+    <div class="card-body">
+        <ul class="list-group list-group-flush">
+            {% for req in organization_requests %}
+            <li class="list-group-item" id="request_{{ req.pk }}">
+                <div class="d-flex w-100 justify-content-between">
+                    <p class="mb-1 fs-6">{{ req.user.username|user }} requested to join
+                        {{ req.date_created|naturaltime }}</p>
+                </div>
+                <p class="mt-2 mb-3">{{ req.reason }}</p>
+                <small class="text-muted mb-1">{{ req.get_status_display }}</small>
+            </li>
+            {% empty %}
+            <p class="mb-0"><i>You have not made any organization join requests.</i></p>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endif %}
+{% endcomment %}
+{% endif %}
 {% endblock %}

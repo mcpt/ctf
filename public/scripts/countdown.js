@@ -1,21 +1,28 @@
-function countdownTimer(dateObj, elemId) {
+function countdownTimer(dateObj, elemId, expiryAction = () => { }, expiryMsg = "Time's up!", suffix = " left") {
     const difference = +dateObj - +new Date();
-    let remaining = "Time's up!";
+    let remaining = expiryMsg;
 
-    if (difference > 0) {
+    if (difference >= 1000) {
         const parts = {
             days: Math.floor(difference / (1000 * 60 * 60 * 24)),
             hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
             minutes: Math.floor((difference / 1000 / 60) % 60),
             seconds: Math.floor((difference / 1000) % 60),
         };
-        remaining = Object.keys(parts).map(part => {
+        let partSum = 0;
+        remaining = Object.keys(parts).filter(part => {
+            partSum += parts[part];
+            return partSum > 0;
+        }).map(part => {
             return `${parts[part]} ${part}`;
         }).join(" ");
-        remaining += ' left';
-    } else {
-        location.reload(true);
+        remaining += suffix;
+    } else if (difference < 0) {
+        expiryAction();
     }
 
-    document.getElementById(elemId).textContent = remaining;
+    const elem = document.getElementById(elemId)
+    if (elem !== null) {
+        elem.textContent = remaining;
+    }
 }

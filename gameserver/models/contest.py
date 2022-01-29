@@ -29,13 +29,20 @@ class Contest(models.Model):
 
     tags = models.ManyToManyField(ContestTag, blank=True)
 
-    is_private = models.BooleanField(default=True)
+    is_public = models.BooleanField(default=True)
 
-    teams_allowed = models.BooleanField(default=True)
     max_team_size = models.PositiveSmallIntegerField(null=True, blank=True)
 
     def __str__(self):
         return self.name
+
+    @property
+    def is_private(self):
+        return not self.is_public
+
+    @property
+    def teams_allowed(self):
+        return self.max_team_size is None or self.max_team_size > 1
 
     def get_absolute_url(self):
         return reverse("contest_detail", args=[self.slug])
@@ -63,17 +70,71 @@ class Contest(models.Model):
         )
         return self.participations.annotate(
             points=Coalesce(
-                Sum("submission__problem__points", filter=Q(submission__in=Subquery(submissions_with_points))), 0
+                Sum(
+                    "submission__problem__points",
+                    filter=Q(submission__in=Subquery(submissions_with_points)),
+                ),
+                0,
             ),
-            flags=Coalesce(Count("submission__pk", filter=Q(submission__in=Subquery(submissions_with_points))), 0),
+            flags=Coalesce(
+                Count("submission__pk", filter=Q(submission__in=Subquery(submissions_with_points))),
+                0,
+            ),
             most_recent_solve_time=Coalesce(
-                Max("submission__submission__date_created", filter=Q(submission__in=Subquery(submissions_with_points))),
+                Max(
+                    "submission__submission__date_created",
+                    filter=Q(submission__in=Subquery(submissions_with_points)),
+                ),
                 self.start_time,
             ),
         ).order_by("-points", "most_recent_solve_time", "flags")
 
     def team_allowed_to_join(self, team):
         return self.teams_allowed and team.members.count() <= self.max_team_size
+
+    def is_accessible_by(self, user):
+        if not user.is_authenticated:
+            return False
+
+        if self.is_public:
+            return True
+
+        return self.is_editable_by(user)
+
+    def is_editable_by(self, user):
+        if not user.is_authenticated:
+            return False
+
+        if user.is_superuser or user.has_perm("gameserver.edit_all_contests"):
+            return True
+
+        return self.organizers.filter(pk=user.pk).exists()
+
+    @classmethod
+    def get_visible_contests(cls, user):
+        if not user.is_authenticated:
+            return cls.objects.filter(is_public=True)
+
+        if user.is_superuser or user.has_perm("gameserver.edit_all_contests"):
+            return cls.objects.all()
+
+        return cls.objects.filter(Q(is_public=True) | Q(organizers=user))
+
+    @classmethod
+    def get_editable_contests(cls, user):
+        if not user.is_authenticated:
+            return cls.objects.none()
+
+        if user.is_superuser or user.has_perm("gameserver.edit_all_contests"):
+            return cls.objects.all()
+
+        return cls.objects.filter(organizers=user)
+
+    class Meta:
+        permissions = (
+            ("change_contest_visibility", "Change visibility of contests"),
+            ("edit_all_contests", "Edit all contests"),
+        )
 
 
 class ContestParticipation(models.Model):
@@ -114,7 +175,9 @@ class ContestParticipation(models.Model):
         return self._get_unique_correct_submissions().count()
 
     def last_solve(self):
-        submissions = self.submissions.filter(submission__is_correct=True).order_by("-submission__date_created")
+        submissions = self.submissions.filter(submission__is_correct=True).order_by(
+            "-submission__date_created"
+        )
         if submissions.count() >= 1:
             return submissions[0]
         else:
@@ -170,6 +233,11 @@ class ContestSubmission(models.Model):
         related_query_name="submission",
     )
     problem = models.ForeignKey(
-        ContestProblem, on_delete=models.CASCADE, related_name="submissions", related_query_name="submission"
+        ContestProblem,
+        on_delete=models.CASCADE,
+        related_name="submissions",
+        related_query_name="submission",
     )
-    submission = models.OneToOneField("Submission", on_delete=models.CASCADE, related_name="contest_submission")
+    submission = models.OneToOneField(
+        "Submission", on_delete=models.CASCADE, related_name="contest_submission"
+    )

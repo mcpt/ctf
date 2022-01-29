@@ -35,4 +35,6 @@ class ContestJoinForm(forms.Form):
             if user_participation.team is not None:
                 self.fields["participant"].required = True
                 self.fields["participant"].empty_label = None
-                self.fields["participant"].queryset = models.Team.objects.filter(pk=user_participation.team.pk)
+                self.fields["participant"].queryset = models.Team.objects.filter(
+                    pk=user_participation.team.pk
+                )

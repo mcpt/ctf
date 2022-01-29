@@ -13,7 +13,9 @@ User = get_user_model()
 
 
 class MCTFSignupForm(SignupForm):
-    timezone = forms.ChoiceField(choices=choices.timezone_choices, initial=settings.DEFAULT_TIMEZONE)
+    timezone = forms.ChoiceField(
+        choices=choices.timezone_choices, initial=settings.DEFAULT_TIMEZONE
+    )
     full_name = forms.CharField(max_length=80)
     school_name = forms.CharField(
         max_length=80, required=False, help_text=User._meta.get_field("school_name").help_text
@@ -37,7 +39,9 @@ class MCTFSignupForm(SignupForm):
     def __init__(self, *args, **kwargs):
         user = kwargs.pop("user", None)
         super(MCTFSignupForm, self).__init__(*args, **kwargs)
-        self.fields["school_contact"].widget.attrs["placeholder"] = self.fields["school_contact"].label.capitalize()
+        self.fields["school_contact"].widget.attrs["placeholder"] = self.fields[
+            "school_contact"
+        ].label.capitalize()
 
     def save(self, request):
         user = super(MCTFSignupForm, self).save(request)
@@ -67,7 +71,7 @@ class ProfileUpdateForm(ModelForm):
         super(ProfileUpdateForm, self).__init__(*args, **kwargs)
         if not user.has_perm("gameserver.edit_all_organization"):
             self.fields["organizations"].queryset = models.Organization.objects.filter(
-                Q(is_private=False) | Q(admins=user) | Q(pk__in=user.organizations.all())
+                Q(is_public=True) | Q(admins=user) | Q(pk__in=user.organizations.all())
             ).distinct()
         self.initial["organizations"] = [i.pk for i in user.organizations.all()]
         self.initial["school_name"] = user.school_name

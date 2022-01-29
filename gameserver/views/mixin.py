@@ -45,7 +45,9 @@ class MetaMixin(ContextMixin):
 
     def get_payment_pointers(self):
         authors = self.get_author()
-        author_payment_pointers = [author.payment_pointer for author in authors if author.payment_pointer]
+        author_payment_pointers = [
+            author.payment_pointer for author in authors if author.payment_pointer
+        ]
         if author_payment_pointers:
             return author_payment_pointers
         else:
@@ -74,6 +76,6 @@ class CommentMixin(ContextMixin):
         contenttype = ContentType.objects.get_for_model(self.model)
         context["comments"] = models.Comment.objects.filter(
             parent_content_type=contenttype,
-            parent_object_id=self.get_object().pk,
+            parent_object_id=self.object.pk,
         )
         return context

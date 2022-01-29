@@ -18,7 +18,9 @@ def get_default_user_timezone():
 class User(AbstractUser):
     description = models.TextField(blank=True)
 
-    timezone = models.CharField(max_length=50, choices=timezone_choices, default=get_default_user_timezone)
+    timezone = models.CharField(
+        max_length=50, choices=timezone_choices, default=get_default_user_timezone
+    )
 
     organizations = models.ManyToManyField(
         "Organization",
@@ -48,8 +50,14 @@ class User(AbstractUser):
 
     full_name = models.CharField(max_length=80, blank=True)
 
-    school_name = models.CharField(max_length=80, blank=True, help_text="The full name of your school")
-    school_contact = models.EmailField(blank=True, verbose_name="teacher contact email", help_text="Email address of a school teacher for verification purposes")
+    school_name = models.CharField(
+        max_length=80, blank=True, help_text="The full name of your school"
+    )
+    school_contact = models.EmailField(
+        blank=True,
+        verbose_name="teacher contact email",
+        help_text="Email address of a school teacher for verification purposes",
+    )
 
     def get_absolute_url(self):
         return reverse("user_detail", args=[self.username])
@@ -61,14 +69,20 @@ class User(AbstractUser):
         return self.submissions.filter(problem=problem).exists()
 
     def _get_unique_correct_submissions(self):
-        return self.submissions.filter(is_correct=True).values("problem", "problem__points").distinct()
+        return (
+            self.submissions.filter(is_correct=True).values("problem", "problem__points").distinct()
+        )
 
     def points(self):
-        points = self._get_unique_correct_submissions().filter(problem__is_private=False).aggregate(points=Coalesce(Sum("problem__points"), 0))["points"]
+        points = (
+            self._get_unique_correct_submissions()
+            .filter(problem__is_public=True)
+            .aggregate(points=Coalesce(Sum("problem__points"), 0))["points"]
+        )
         return points
 
     def num_flags_captured(self):
-        return self._get_unique_correct_submissions().filter(problem__is_private=False).count()
+        return self._get_unique_correct_submissions().filter(problem__is_public=True).count()
 
     def participations_for_contest(self, contest):
         return ContestParticipation.objects.filter(Q(participants=self), contest=contest)
@@ -89,7 +103,7 @@ class User(AbstractUser):
     @classmethod
     def ranks(cls):
         submissions_with_points = (
-            Submission.objects.filter(user=OuterRef("pk"), is_correct=True, problem__is_private=False)
+            Submission.objects.filter(user=OuterRef("pk"), is_correct=True, problem__is_public=True)
             .order_by()
             .values("problem")
             .distinct()
@@ -98,21 +112,27 @@ class User(AbstractUser):
         )
         return cls.objects.annotate(
             points=Coalesce(
-                Sum("submission__problem__points", filter=Q(submission__in=Subquery(submissions_with_points))), 0
+                Sum(
+                    "submission__problem__points",
+                    filter=Q(submission__in=Subquery(submissions_with_points)),
+                ),
+                0,
             ),
-            flags=Coalesce(Count("submission__pk", filter=Q(submission__in=Subquery(submissions_with_points))), 0),
+            flags=Coalesce(
+                Count("submission__pk", filter=Q(submission__in=Subquery(submissions_with_points))),
+                0,
+            ),
         ).order_by("-points", "flags")
 
     def eligible_teams(self, contest):
         if contest is not None and contest.max_team_size is not None:
             return (
-                Team.objects
-                .filter(members__in=[self])
-                #.annotate(Count("contest_participations__participants"))
-                #.filter(contest_participations__participants__count__lte=contest.max_team_size)
+                Team.objects.filter(members__in=[self])
+                # .annotate(Count("contest_participations__participants"))
+                # .filter(contest_participations__participants__count__lte=contest.max_team_size)
                 .distinct()
-                #.annotate(Count("members", distinct=True))
-                #.filter(members__count__lte=contest.max_team_size)
+                # .annotate(Count("members", distinct=True))
+                # .filter(members__count__lte=contest.max_team_size)
             )
         return self.teams
 
@@ -126,17 +146,21 @@ class Organization(models.Model):
     slug = models.SlugField(unique=True)
     date_registered = models.DateTimeField(auto_now_add=True)
 
-    is_private = models.BooleanField(default=False)
+    is_public = models.BooleanField(default=True)
     access_code = models.CharField(max_length=36, blank=True)
 
     def __str__(self):
         return self.name
 
+    @property
+    def is_private(self):
+        return not self.is_public
+
     def get_absolute_url(self):
         return reverse("organization_detail", args=[self.slug])
 
     def is_open(self):
-        return not self.is_private
+        return self.is_public
 
     def member_count(self):
         return User.objects.filter(organizations=self).count()
@@ -146,9 +170,13 @@ class Organization(models.Model):
 
 class OrganizationRequest(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="organizations_requested")
-    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name="requests")
+    organization = models.ForeignKey(
+        Organization, on_delete=models.CASCADE, related_name="requests"
+    )
     date_created = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=1, choices=organization_request_status_choices, default="p")
+    status = models.CharField(
+        max_length=1, choices=organization_request_status_choices, default="p"
+    )
     reason = models.TextField()
 
     def get_absolute_url(self):

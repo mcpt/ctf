@@ -1,7 +1,7 @@
 import logging
 
 from django.contrib import messages
-from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.http import HttpResponseForbidden, JsonResponse
@@ -24,13 +24,9 @@ class ProblemList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     title = "Problems"
 
     def get_queryset(self):
-        queryset = models.Problem.objects.order_by("points", "problem_type", "problem_group")
-        if self.request.user.is_superuser or self.request.user.has_perm("gameserver.edit_all_problems"):
-            return queryset
-        elif self.request.user.is_authenticated:
-            return queryset.filter(Q(is_private=False) | Q(author=self.request.user) | Q(testers=self.request.user)).distinct()
-        else:
-            return queryset.filter(is_private=False)
+        return models.Problem.get_visible_problems(self.request.user).order_by(
+            "points", "problem_type", "problem_group"
+        )
 
     def get(self, request, *args, **kwargs):
         if request.in_contest:
@@ -53,41 +49,31 @@ class ProblemDetail(
 
     def get_contest_object(self):
         if self.request.in_contest:
-            return self.get_object().get_contest_problem(self.request.participation)
+            return self.object.get_contest_problem(self.request.participation)
         else:
             return None
 
     def test_func(self):
-        return (
-            not self.get_object().is_private
-            or (
-                self.request.in_contest
-                and self.request.participation.contest.problems.filter(problem=self.get_object()).exists()
-            )
-            or self.request.user in self.get_object().author.all()
-            or self.request.user in self.get_object().testers.all()
-            or self.request.user.is_superuser
-            or self.request.user.has_perm("gameserver.edit_all_problems")
-        )
+        return self.get_object().is_accessible_by(self.request.user)
 
     def get_title(self):
-        return self.get_object().name
+        return self.object.name
 
     def get_description(self):
-        return self.get_object().summary
+        return self.object.summary
 
     def get_author(self):
-        return self.get_object().author.all()
+        return self.object.author.all()
 
     def get_form_kwargs(self, *args, **kwargs):
         cur_kwargs = super().get_form_kwargs(*args, **kwargs)
-        cur_kwargs["problem"] = self.get_object()
+        cur_kwargs["problem"] = self.object
         return cur_kwargs
 
     def post(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return HttpResponseForbidden()
-        self.object = self.get_object()
+        self.object = self.object
         form = self.get_form()
         if form.is_valid():
             return self.form_valid(form)
@@ -96,21 +82,26 @@ class ProblemDetail(
 
     def _create_submission_object(self, is_correct=False):
         submission = models.Submission.objects.create(
-            user=self.request.user, problem=self.get_object(), is_correct=is_correct
+            user=self.request.user, problem=self.object, is_correct=is_correct
         )
         if self.request.in_contest:
             models.ContestSubmission.objects.create(
-                problem=self.get_contest_object(), submission=submission, participation=self.request.participation
+                problem=self.get_contest_object(),
+                submission=submission,
+                participation=self.request.participation,
             )
         return submission
 
     def form_valid(self, form):
-        if (not self.request.user.has_solved(self.get_object())) or (
-            self.request.in_contest and not self.request.participation.has_solved(self.get_contest_object())
+        if (not self.request.user.has_solved(self.object)) or (
+            self.request.in_contest
+            and not self.request.participation.has_solved(self.get_contest_object())
         ):
             messages.success(self.request, "Your flag is correct!")
         else:
-            messages.info(self.request, "Your flag is correct, but you have already solved this problem.")
+            messages.info(
+                self.request, "Your flag is correct, but you have already solved this problem."
+            )
         self._create_submission_object(is_correct=True)
         return super().form_valid(form)
 
@@ -120,15 +111,21 @@ class ProblemDetail(
         return super().form_invalid(form)
 
     def get_success_url(self):
-        return reverse("problem_detail", kwargs={"slug": self.get_object().slug})
+        return reverse("problem_detail", kwargs={"slug": self.object.slug})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["contest_problem"] = self.get_contest_object()
         if self.request.user.is_authenticated:
-            if (self.request.user.has_solved(self.get_object())) or (self.request.in_contest and self.request.participation.has_solved(self.get_contest_object())):
+            if (self.request.user.has_solved(self.object)) or (
+                self.request.in_contest
+                and self.request.participation.has_solved(self.get_contest_object())
+            ):
                 context["status"] = "solved"
-            elif (self.request.user.has_attempted(self.get_object())) or (self.request.in_contest and self.request.participation.has_attempted(self.get_contest_object())):
+            elif (self.request.user.has_attempted(self.object)) or (
+                self.request.in_contest
+                and self.request.participation.has_attempted(self.get_contest_object())
+            ):
                 context["status"] = "attempted"
         return context
 
@@ -138,7 +135,7 @@ class ProblemChallenge(LoginRequiredMixin, SingleObjectMixin, View):
     raise_exception = True
 
     def get_instance_owner(self):
-        problem = self.get_object()
+        problem = self.object
         if problem.challenge_spec is None:
             return "nobody"
         if problem.challenge_spec["perTeam"] is False:
@@ -148,32 +145,53 @@ class ProblemChallenge(LoginRequiredMixin, SingleObjectMixin, View):
         else:
             return f"user-{self.request.user.pk}"
 
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super().dispatch(request, *args, **kwargs)
+
     def get(self, request, *args, **kwargs):
-        return JsonResponse(self.get_object().fetch_challenge_instance(self.get_instance_owner()), safe=False)
+        return JsonResponse(
+            self.object.fetch_challenge_instance(self.get_instance_owner()), safe=False
+        )
 
     def post(self, request, *args, **kwargs):
-        return JsonResponse(self.get_object().create_challenge_instance(self.get_instance_owner()), safe=False)
+        if self.object.is_accessible_by(request.user):
+            return JsonResponse(
+                self.object.create_challenge_instance(self.get_instance_owner()), safe=False
+            )
+        else:
+            return HttpResponseForbidden()
 
     def delete(self, request, *args, **kwargs):
-        return JsonResponse(self.get_object().delete_challenge_instance(self.get_instance_owner()), safe=False)
+        instance_owner = self.get_instance_owner()
+        if self.object.is_accessible_by(request.user) and (
+            instance_owner != "everyone" or request.user.is_superuser
+        ):
+            self.object.delete_challenge_instance(instance_owner)
+            return JsonResponse(None, safe=False)
+        else:
+            return HttpResponseForbidden()
 
 
-class ProblemSubmissionList(ListView, mixin.TitleMixin, mixin.MetaMixin):
-    context_object_name = "submissions"
+class ProblemSubmissionList(SingleObjectMixin, ListView, mixin.TitleMixin, mixin.MetaMixin):
     template_name = "submission/list.html"
     paginate_by = 50
 
-    def get_queryset(self):
-        self.problem = get_object_or_404(models.Problem, slug=self.kwargs["slug"])
-        return models.Submission.objects.filter(problem=self.problem).order_by(self.get_ordering())
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object(queryset=models.Problem.objects.all())
+        return super().get(request, *args, **kwargs)
 
-    def get_ordering(self):
-        return "-date_created"
+    def get_queryset(self):
+        return (
+            models.Submission.get_visible_submissions(self.request.user)
+            .filter(problem=self.object)
+            .order_by("-pk")
+        )
 
     def get_title(self):
-        return "Submissions for " + self.problem.name
+        return "Submissions for " + self.object.name
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["problem"] = self.problem
+        context["problem"] = self.object
         return context

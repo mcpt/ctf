@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import RedirectView
+from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import UpdateView
 
 from .. import forms, models
@@ -47,30 +48,39 @@ class UserDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMix
         return "username"
 
     def get_title(self):
-        return "User " + self.get_object().username
+        return "User " + self.object.username
 
     def get_description(self):
-        return self.get_object().description
+        return self.object.description
 
     def get_author(self):
-        return [self.get_object()]
+        return [self.object]
 
 
-class UserSubmissionList(ListView, mixin.TitleMixin, mixin.MetaMixin):
-    context_object_name = "submissions"
+class UserSubmissionList(SingleObjectMixin, ListView, mixin.TitleMixin, mixin.MetaMixin):
     template_name = "submission/list.html"
     paginate_by = 50
 
+    def get_slug_field(self):
+        return "username"
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object(queryset=models.User.objects.all())
+        return super().get(request, *args, **kwargs)
+
     def get_queryset(self):
-        self.user = get_object_or_404(models.User, username=self.kwargs["slug"])
-        return models.Submission.objects.filter(user=self.user).order_by("-pk")
+        return (
+            models.Submission.get_visible_submissions(self.request.user)
+            .filter(user=self.object)
+            .order_by("-pk")
+        )
 
     def get_title(self):
-        return "Submissions by User " + self.user.username
+        return "Submissions by User " + self.object.username
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["author"] = self.kwargs["slug"]
+        context["author"] = self.object
         context["hide_pk"] = True
         return context
 

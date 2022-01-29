@@ -49,7 +49,6 @@ cleaner = sanitizer.Cleaner(
         "hr",
         "iframe",
         "code",
-
         # for pygments
         "div",
         "pre",

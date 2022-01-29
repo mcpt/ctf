@@ -29,8 +29,8 @@ class ProblemAdmin(admin.ModelAdmin):
         "flag",
         "problem_group",
         "problem_type",
-        "is_private",
         "challenge_spec",
+        "is_public",
     ]
     inlines = [
         ProblemFileInline,
@@ -40,10 +40,10 @@ class ProblemAdmin(admin.ModelAdmin):
         "slug",
         "get_authors",
         "points",
-        "is_private",
+        "is_public",
     ]
     list_filter = [
-        "is_private",
+        "is_public",
         "problem_type",
         "problem_group",
         "author",
@@ -58,7 +58,7 @@ class ProblemAdmin(admin.ModelAdmin):
             if obj is None:
                 return True
             else:
-                return request.user in obj.author.all() or request.user.has_perm("gameserver.edit_all_problems")
+                return obj.is_editable_by(request.user)
         return False
 
     def has_change_permission(self, request, obj=None):
@@ -66,28 +66,16 @@ class ProblemAdmin(admin.ModelAdmin):
             if obj is None:
                 return True
             else:
-                return request.user in obj.author.all() or request.user.has_perm("gameserver.edit_all_problems")
+                return obj.is_editable_by(request.user)
         return False
 
-    def has_module_permission(self, request):
-        perms = [
-            "gameserver.add_problem",
-            "gameserver.view_problem",
-            "gameserver.change_problem",
-            "gameserver.delete_problem",
-        ]
-        return True in [request.user.has_perm(i) for i in perms]
-
     def get_queryset(self, request):
-        qs = super().get_queryset(request)
-        if request.user.is_superuser or request.user.has_perm("gameserver.edit_all_problems"):
-            return qs
-        return qs.filter(author=request.user)
+        return models.Problem.get_editable_problems(request.user)
 
     def get_readonly_fields(self, request, obj=None):
         fields = self.readonly_fields
         if not request.user.has_perm("gameserver.change_problem_visibility"):
-            fields += ("is_private",)
+            fields += ("is_public",)
         return fields
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
@@ -108,7 +96,11 @@ class OrganizationAdmin(admin.ModelAdmin):
             if obj is None:
                 return True
             else:
-                return request.user in obj.admins.all() or request.user == obj.owner or request.user.is_superuser
+                return (
+                    request.user in obj.admins.all()
+                    or request.user == obj.owner
+                    or request.user.is_superuser
+                )
         return False
 
     def has_change_permission(self, request, obj=None):
@@ -118,15 +110,6 @@ class OrganizationAdmin(admin.ModelAdmin):
             else:
                 return request.user == obj.owner or request.user.is_superuser
         return False
-
-    def has_module_permission(self, request):
-        perms = [
-            "gameserver.add_organization",
-            "gameserver.view_organization",
-            "gameserver.change_organization",
-            "gameserver.delete_organization",
-        ]
-        return True in [request.user.has_perm(i) for i in perms]
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -186,6 +169,18 @@ class ContestProblemInline(admin.TabularInline):
 
 
 class ContestAdmin(admin.ModelAdmin):
+    fields = [
+        "name",
+        "slug",
+        "organizers",
+        "description",
+        "summary",
+        "start_time",
+        "end_time",
+        "tags",
+        "max_team_size",
+        "is_public",
+    ]
     inlines = [
         ContestProblemInline,
     ]
@@ -195,6 +190,36 @@ class ContestAdmin(admin.ModelAdmin):
         "start_time",
         "end_time",
     ]
+
+    def has_view_permission(self, request, obj=None):
+        if request.user.has_perm("gameserver.view_contest"):
+            if obj is None:
+                return True
+            else:
+                return obj.is_editable_by(request.user)
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        if request.user.has_perm("gameserver.change_contest"):
+            if obj is None:
+                return True
+            else:
+                return obj.is_editable_by(request.user)
+        return False
+
+    def get_queryset(self, request):
+        return models.Contest.get_editable_contests(request.user)
+
+    def get_readonly_fields(self, request, obj=None):
+        fields = self.readonly_fields
+        if not request.user.has_perm("gameserver.change_contest_visibility"):
+            fields += ("is_public",)
+        return fields
+
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        if db_field.name == "organizers":
+            kwargs["queryset"] = models.User.objects.filter(is_staff=True).order_by("username")
+        return super().formfield_for_manytomany(db_field, request, **kwargs)
 
     @admin.display(description="Organizers")
     def get_organizers(self, obj):
@@ -208,11 +233,7 @@ class UserAdmin(admin.ModelAdmin):
         "is_staff",
         "is_superuser",
     ]
-    list_filter = [
-        "is_staff",
-        "is_superuser",
-        "groups"
-    ]
+    list_filter = ["is_staff", "is_superuser", "groups"]
     search_fields = [
         "username",
         "full_name",

@@ -10,8 +10,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import RedirectView
-from django.views.generic.edit import (CreateView, FormMixin, FormView,
-                                       UpdateView)
+from django.views.generic.edit import CreateView, FormMixin, FormView, UpdateView
 
 from .. import forms, models
 from . import mixin
@@ -40,10 +39,10 @@ class TeamDetail(
     form_class = forms.GroupJoinForm
 
     def get_title(self):
-        return "Team " + self.get_object().name
+        return "Team " + self.object.name
 
     def get_description(self):
-        return self.get_object().description
+        return self.object.description
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -52,7 +51,7 @@ class TeamDetail(
 
     def get_form_kwargs(self, *args, **kwargs):
         cur_kwargs = super().get_form_kwargs(*args, **kwargs)
-        cur_kwargs["group"] = self.get_object()
+        cur_kwargs["group"] = self.object
         return cur_kwargs
 
     def post(self, request, *args, **kwargs):
@@ -67,7 +66,7 @@ class TeamDetail(
 
     def form_valid(self, form):
         messages.success(self.request, "You are now a member of this team!")
-        self.get_object().members.add(self.request.user)
+        self.object.members.add(self.request.user)
         return super().form_valid(form)
 
     def form_invalid(self, form):
@@ -75,7 +74,7 @@ class TeamDetail(
         return super().form_invalid(form)
 
     def get_success_url(self):
-        return reverse("team_detail", kwargs={"pk": self.get_object().pk})
+        return reverse("team_detail", kwargs={"pk": self.object.pk})
 
 
 class TeamCreate(LoginRequiredMixin, CreateView, mixin.TitleMixin, mixin.MetaMixin):
@@ -93,7 +92,10 @@ class TeamCreate(LoginRequiredMixin, CreateView, mixin.TitleMixin, mixin.MetaMix
         model.save()
         model.members.add(self.request.user)
 
-        messages.info(self.request, f"Successfully created team {model.name}! The access code to join this team is {model.access_code}; you can change this by editing the team.")
+        messages.info(
+            self.request,
+            f"Successfully created team {model.name}! The access code to join this team is {model.access_code}; you can change this by editing the team.",
+        )
         return super().form_valid(form)
 
 
@@ -114,11 +116,11 @@ class TeamEdit(
 
     def get_form_kwargs(self):
         kwargs = super(UpdateView, self).get_form_kwargs()
-        kwargs["team"] = self.get_object()
+        kwargs["team"] = self.object
         return kwargs
 
     def get_success_url(self):
-        return self.get_object().get_absolute_url()
+        return self.object.get_absolute_url()
 
 
 @method_decorator(require_POST, name="dispatch")
