@@ -64,11 +64,11 @@ class User(AbstractUser):
         return self.submissions.filter(is_correct=True).values("problem", "problem__points").distinct()
 
     def points(self):
-        points = self._get_unique_correct_submissions().filter(problem__is_private=False).aggregate(points=Coalesce(Sum("problem__points"), 0))["points"]
+        points = self._get_unique_correct_submissions().filter(problem__is_public=True).aggregate(points=Coalesce(Sum("problem__points"), 0))["points"]
         return points
 
     def num_flags_captured(self):
-        return self._get_unique_correct_submissions().filter(problem__is_private=False).count()
+        return self._get_unique_correct_submissions().filter(problem__is_public=True).count()
 
     def participations_for_contest(self, contest):
         return ContestParticipation.objects.filter(Q(participants=self), contest=contest)
@@ -89,7 +89,7 @@ class User(AbstractUser):
     @classmethod
     def ranks(cls):
         submissions_with_points = (
-            Submission.objects.filter(user=OuterRef("pk"), is_correct=True, problem__is_private=False)
+            Submission.objects.filter(user=OuterRef("pk"), is_correct=True, problem__is_public=True)
             .order_by()
             .values("problem")
             .distinct()
@@ -126,7 +126,7 @@ class Organization(models.Model):
     slug = models.SlugField(unique=True)
     date_registered = models.DateTimeField(auto_now_add=True)
 
-    is_private = models.BooleanField(default=False)
+    is_public = models.BooleanField(default=True)
     access_code = models.CharField(max_length=36, blank=True)
 
     def __str__(self):
@@ -136,7 +136,7 @@ class Organization(models.Model):
         return reverse("organization_detail", args=[self.slug])
 
     def is_open(self):
-        return not self.is_private
+        return self.is_public
 
     def member_count(self):
         return User.objects.filter(organizations=self).count()

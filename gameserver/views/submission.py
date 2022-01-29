@@ -17,9 +17,9 @@ class SubmissionList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     def get_queryset(self):
         queryset = models.Submission.objects.order_by("-date_created")
         if self.request.user.is_authenticated:
-            queryset = queryset.filter(Q(problem__is_private=False) | Q(user=self.request.user))
+            queryset = queryset.filter(Q(problem__is_public=True) | Q(user=self.request.user))
         else:
-            queryset = queryset.filter(problem__is_private=False)
+            queryset = queryset.filter(problem__is_public=True)
         return queryset
 
     def get(self, request, *args, **kwargs):

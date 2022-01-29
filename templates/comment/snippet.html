@@ -1,20 +1,20 @@
 <section class="card mb-3 order-99">
-    {% if not is_private %}
-        <div class="card-header">Comments</div>
-        <div class="card-body text-wrap">
-            {% include './list.html' with max_depth=6 depth=0 %}
-            {% if user.is_authenticated %}
-                {% include './form.html' %}
-            {% endif %}
-        </div>
+    {% if is_public %}
+    <div class="card-header">Comments</div>
+    <div class="card-body text-wrap">
+        {% include './list.html' with max_depth=6 depth=0 %}
+        {% if user.is_authenticated %}
+        {% include './form.html' %}
+        {% endif %}
+    </div>
     {% else %}
-        <div class="card-body">
-            <p class="card-text"><i>Comments have been disabled</i></p>
-        </div>
+    <div class="card-body">
+        <p class="card-text"><i>Comments have been disabled</i></p>
+    </div>
     {% endif %}
     {% if user.is_authenticated %}
-        <template id="comment-form">
-            {% include './form.html' %}
-        </template>
+    <template id="comment-form">
+        {% include './form.html' %}
+    </template>
     {% endif %}
 </section>

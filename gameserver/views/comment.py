@@ -29,7 +29,7 @@ class Comment(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin)
 def add_comment(request, parent_type, parent_id):
     if parent_type == "problem":
         parent = get_object_or_404(models.Problem, slug=parent_id)
-        if parent.is_private:
+        if not parent.is_public:
             return HttpResponseForbidden()
     elif parent_type == "user":
         parent = get_object_or_404(models.User, username=parent_id)
@@ -43,7 +43,7 @@ def add_comment(request, parent_type, parent_id):
         parent = get_object_or_404(models.Organization, slug=parent_id)
     elif parent_type == "contest":
         parent = get_object_or_404(models.Contest, slug=parent_id)
-        if parent.is_private:
+        if not parent.is_public:
             return HttpResponseForbidden()
     elif parent_type == "contestparticipation":
         parent = get_object_or_404(models.ContestParticipation, pk=parent_id)

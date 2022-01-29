@@ -29,7 +29,7 @@ class Contest(models.Model):
 
     tags = models.ManyToManyField(ContestTag, blank=True)
 
-    is_private = models.BooleanField(default=True)
+    is_public = models.BooleanField(default=True)
 
     teams_allowed = models.BooleanField(default=True)
     max_team_size = models.PositiveSmallIntegerField(null=True, blank=True)

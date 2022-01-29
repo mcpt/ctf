@@ -28,9 +28,9 @@ class ProblemList(ListView, mixin.TitleMixin, mixin.MetaMixin):
         if self.request.user.is_superuser or self.request.user.has_perm("gameserver.edit_all_problems"):
             return queryset
         elif self.request.user.is_authenticated:
-            return queryset.filter(Q(is_private=False) | Q(author=self.request.user) | Q(testers=self.request.user)).distinct()
+            return queryset.filter(Q(is_public=True) | Q(author=self.request.user) | Q(testers=self.request.user)).distinct()
         else:
-            return queryset.filter(is_private=False)
+            return queryset.filter(is_public=True)
 
     def get(self, request, *args, **kwargs):
         if request.in_contest:
@@ -59,7 +59,7 @@ class ProblemDetail(
 
     def test_func(self):
         return (
-            not self.get_object().is_private
+            self.get_object().is_public
             or (
                 self.request.in_contest
                 and self.request.participation.contest.problems.filter(problem=self.get_object()).exists()

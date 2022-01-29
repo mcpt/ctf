@@ -87,7 +87,7 @@ class OrganizationJoin(
     fields = ["access_code"]
 
     def post(self, *args, **kwargs):
-        if not self.get_object().is_private:
+        if not self.get_object().is_public:
             self.success()
             return redirect(self.get_object())
         return super().post(*args, **kwargs)

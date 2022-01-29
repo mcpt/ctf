@@ -21,9 +21,9 @@ class ContestList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     def get_queryset(self):
         queryset = models.Contest.objects.order_by("-start_time")
         if self.request.user.is_authenticated:
-            return queryset.filter(Q(is_private=False) | Q(organizers=self.request.user)).distinct()
+            return queryset.filter(Q(is_public=True) | Q(organizers=self.request.user)).distinct()
         else:
-            return queryset.filter(is_private=False)
+            return queryset.filter(is_public=True)
 
 
 class ContestDetail(

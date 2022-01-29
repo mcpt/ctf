@@ -5,116 +5,121 @@
 {% load tz %}
 
 {% block content %}
-    <div class="card mb-3">
-        <div class="card-body">
-            <h1 class="mt-0">{{ contest.name }}</h1>
-            <hr>
-            {% if contest.description == "" %}
-                <p class="font-italic">The organizers have not yet shared any information about this contest.</p>
-            {% else %}
-                {{ contest.description|markdown }}
-            {% endif %}
-        </div>
+<div class="card mb-3">
+    <div class="card-body">
+        <h1 class="mt-0">{{ contest.name }}</h1>
+        <hr>
+        {% if contest.description == "" %}
+        <p class="font-italic">The organizers have not yet shared any information about this contest.</p>
+        {% else %}
+        {{ contest.description|markdown }}
+        {% endif %}
     </div>
-    {% if contest.is_ongoing or contest.is_finished %}
-        <div class="card mb-3 order-98">
-            <div class="card-header">Scoreboard</div>
-            <div class="card-body">
-                {% include './snippet/participation/table.html' with participations=top_participations hide_contest_col=True %}
-                <p class="text-end mb-0"><a href="{% url 'contest_scoreboard' contest.slug %}">View full scoreboard</a></p>
-            </div>
-        </div>
-    {% endif %}
-    {% if not contest.is_private %}
-        {% include 'comment/snippet.html' %}
-    {% endif %}
+</div>
+{% if contest.is_ongoing or contest.is_finished %}
+<div class="card mb-3 order-98">
+    <div class="card-header">Scoreboard</div>
+    <div class="card-body">
+        {% include './snippet/participation/table.html' with participations=top_participations hide_contest_col=True %}
+        <p class="text-end mb-0"><a href="{% url 'contest_scoreboard' contest.slug %}">View full scoreboard</a></p>
+    </div>
+</div>
+{% endif %}
+{% if contest.is_public %}
+{% include 'comment/snippet.html' %}
+{% endif %}
 {% endblock %}
 {% block aside %}
-    {% get_current_timezone as TIME_ZONE %}
-    <div class="card mb-3 order-neg2">
-        <div class="card-body">
-            <p class="lh-base fs-3" style="font-weight:600"><span>{{ contest.start_time }} </span><span class="fw-light fst-italic text-muted mb-0">to </span>
-            <span>{{ contest.end_time }}</span></p>
-            <h5>{{ contest.duration }} long</h5>
-        </div>
+{% get_current_timezone as TIME_ZONE %}
+<div class="card mb-3 order-neg2">
+    <div class="card-body">
+        <p class="lh-base fs-3" style="font-weight:600"><span>{{ contest.start_time }} </span><span
+                class="fw-light fst-italic text-muted mb-0">to </span>
+            <span>{{ contest.end_time }}</span>
+        </p>
+        <h5>{{ contest.duration }} long</h5>
     </div>
-    <div class="card mb-3">
-        <div class="card-body">
-            <p class="mb-0"><b>Organizers</b>: {{ contest.organizers.all|users }}</p>
-            <p class="mb-0">
-                <b>Type</b>: {% include "./snippet/participant_type.html" %}
-            </p>
-            {% if contest.max_team_size %}
-                <p class="mb-0"><b>Maximum team size</b>: {{ contest.max_team_size }}</p>
+</div>
+<div class="card mb-3">
+    <div class="card-body">
+        <p class="mb-0"><b>Organizers</b>: {{ contest.organizers.all|users }}</p>
+        <p class="mb-0">
+            <b>Type</b>: {% include "./snippet/participant_type.html" %}
+        </p>
+        {% if contest.max_team_size %}
+        <p class="mb-0"><b>Maximum team size</b>: {{ contest.max_team_size }}</p>
+        {% endif %}
+    </div>
+</div>
+
+{% if request.user.is_authenticated and contest.is_started %}
+<div class="card mb-3 order-96">
+    <div class="card-header">
+        Participation
+    </div>
+    <div class="card-body">
+        {% if request.user.current_contest.contest == contest %}
+        <p>
+            You are currently in this contest as <a
+                href="{{ request.participation.participant.get_absolute_url }}">{{ request.participation.participant }}</a>.
+        </p>
+        {% else %}
+        <p>
+            {% if contest.is_finished %}
+            Contest is over.
+            {% elif participations %}
+            You are currently not in this contest, however, you have participated before.
+            {% else %}
+            You are currently not in this contest.
             {% endif %}
-        </div>
-    </div>
+        </p>
+        {% endif %}
+        {% if participations %}
+        {% include './snippet/participation/table.html' with hide_contest_col=True %}
+        {% endif %}
 
-    {% if request.user.is_authenticated and contest.is_started %}
-        <div class="card mb-3 order-96">
-            <div class="card-header">
-                Participation
-            </div>
-            <div class="card-body">
-                {% if request.user.current_contest.contest == contest %}
-                    <p>
-                        You are currently in this contest as <a href="{{ request.participation.participant.get_absolute_url }}">{{ request.participation.participant }}</a>.
-                    </p>
-                {% else %}
-                    <p>
-                        {% if contest.is_finished %}
-                            Contest is over.
-                        {% elif participations %}
-                            You are currently not in this contest, however, you have participated before.
-                        {% else %}
-                            You are currently not in this contest.
-                        {% endif %}
-                    </p>
-                {% endif %}
-                {% if participations %}
-                    {% include './snippet/participation/table.html' with hide_contest_col=True %}
-                {% endif %}
-
-                {% if contest.is_ongoing %}
-                    {% if request.user.current_contest.contest == contest %}
-                        <form method="post" action="{% url 'contest_leave' contest.slug %}">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-danger">Leave contest</button>
-                        </form>
-                        {% if contest.teams_allowed and not user_has_team_participations %}
-                            <br>
-                            <label class="form-label" for="{{ form.participant.auto_id }}">or, change to participate as a team:</label>
-                            <form method="post">
-                                {% csrf_token %}
-                                {% bootstrap_field form.participant show_label=False wrapper_class="mb-2" %}
-                                <p class="text-muted fst-italic mb-3" style="font-size: 0.75rem;line-height:1.6">Once you participate as part of a team, you cannot change back to individual participation.</p>
-                                <button type="submit" class="btn btn-primary">Change Participation</button>
-                            </form>
-                        {% endif %}
-                    {% else %}
-                        <form method="post">
-                            {% csrf_token %}
-                            {% if contest.teams_allowed and not user_has_team_participations %}
-                                {% bootstrap_field form.participant wrapper_class="mb-2" %}
-                                <p class="text-muted fst-italic" style="font-size: 0.75rem;line-height:1.6">Once you participate as part of a team, you cannot change back to individual participation.</p>
-                            {% else %}
-                                {% bootstrap_field form.participant wrapper_class="d-none" %}
-                            {% endif %}
-                            <button type="submit" class="btn btn-primary">Join contest</button>
-                        </form>
-                    {% endif %}
-                {% endif %}
-            </div>
-        </div>
-    {% endif %}
-    {% if request.in_contest and request.participation.contest == contest or contest.is_finished %}
-    <div class="card mb-3">
-        <div class="card-body">
-            <ul class="list-unstyled m-0">
-                    <li><a href="{% url 'contest_problem_list' contest.slug %}">View problems</a></li>
-                    <li><a href="{% url 'contest_submission_list' contest.slug %}">View submissions</a></li>
-            </ul>
-        </div>
+        {% if contest.is_ongoing %}
+        {% if request.user.current_contest.contest == contest %}
+        <form method="post" action="{% url 'contest_leave' contest.slug %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Leave contest</button>
+        </form>
+        {% if contest.teams_allowed and not user_has_team_participations %}
+        <br>
+        <label class="form-label" for="{{ form.participant.auto_id }}">or, change to participate as a team:</label>
+        <form method="post">
+            {% csrf_token %}
+            {% bootstrap_field form.participant show_label=False wrapper_class="mb-2" %}
+            <p class="text-muted fst-italic mb-3" style="font-size: 0.75rem;line-height:1.6">Once you participate as
+                part of a team, you cannot change back to individual participation.</p>
+            <button type="submit" class="btn btn-primary">Change Participation</button>
+        </form>
+        {% endif %}
+        {% else %}
+        <form method="post">
+            {% csrf_token %}
+            {% if contest.teams_allowed and not user_has_team_participations %}
+            {% bootstrap_field form.participant wrapper_class="mb-2" %}
+            <p class="text-muted fst-italic" style="font-size: 0.75rem;line-height:1.6">Once you participate as part of
+                a team, you cannot change back to individual participation.</p>
+            {% else %}
+            {% bootstrap_field form.participant wrapper_class="d-none" %}
+            {% endif %}
+            <button type="submit" class="btn btn-primary">Join contest</button>
+        </form>
+        {% endif %}
+        {% endif %}
     </div>
-    {% endif %}
+</div>
+{% endif %}
+{% if request.in_contest and request.participation.contest == contest or contest.is_finished %}
+<div class="card mb-3">
+    <div class="card-body">
+        <ul class="list-unstyled m-0">
+            <li><a href="{% url 'contest_problem_list' contest.slug %}">View problems</a></li>
+            <li><a href="{% url 'contest_submission_list' contest.slug %}">View submissions</a></li>
+        </ul>
+    </div>
+</div>
+{% endif %}
 {% endblock %}

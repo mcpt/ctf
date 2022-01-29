@@ -67,7 +67,7 @@ class ProfileUpdateForm(ModelForm):
         super(ProfileUpdateForm, self).__init__(*args, **kwargs)
         if not user.has_perm("gameserver.edit_all_organization"):
             self.fields["organizations"].queryset = models.Organization.objects.filter(
-                Q(is_private=False) | Q(admins=user) | Q(pk__in=user.organizations.all())
+                Q(is_public=True) | Q(admins=user) | Q(pk__in=user.organizations.all())
             ).distinct()
         self.initial["organizations"] = [i.pk for i in user.organizations.all()]
         self.initial["school_name"] = user.school_name

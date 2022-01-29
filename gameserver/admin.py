@@ -29,7 +29,7 @@ class ProblemAdmin(admin.ModelAdmin):
         "flag",
         "problem_group",
         "problem_type",
-        "is_private",
+        "is_public",
         "challenge_spec",
     ]
     inlines = [
@@ -40,10 +40,10 @@ class ProblemAdmin(admin.ModelAdmin):
         "slug",
         "get_authors",
         "points",
-        "is_private",
+        "is_public",
     ]
     list_filter = [
-        "is_private",
+        "is_public",
         "problem_type",
         "problem_group",
         "author",
@@ -87,7 +87,7 @@ class ProblemAdmin(admin.ModelAdmin):
     def get_readonly_fields(self, request, obj=None):
         fields = self.readonly_fields
         if not request.user.has_perm("gameserver.change_problem_visibility"):
-            fields += ("is_private",)
+            fields += ("is_public",)
         return fields
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):

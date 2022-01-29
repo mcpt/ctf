@@ -38,7 +38,7 @@ class Problem(models.Model):
     problem_group = models.ManyToManyField(ProblemGroup, blank=True)
     problem_type = models.ManyToManyField(ProblemType, blank=True)
 
-    is_private = models.BooleanField(default=True)
+    is_public = models.BooleanField(default=False)
 
     challenge_spec = models.JSONField(null=True, blank=True)
 
