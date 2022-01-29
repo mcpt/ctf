@@ -3,6 +3,7 @@ import re
 import uuid
 
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 
 from ..utils import challenge
@@ -102,16 +103,14 @@ class Problem(models.Model):
         if not user.is_authenticated:
             return cls.get_public_problems()
 
-        if user.is_superuser or user.has_permission("gameserver.edit_all_problems"):
+        if user.is_superuser or user.has_perm("gameserver.edit_all_problems"):
             return cls.objects
 
-        return queryset.filter(
-            Q(is_public=True) | Q(author=self.request.user) | Q(testers=self.request.user)
-        ).distinct()
+        return cls.objects.filter(Q(is_public=True) | Q(author=user) | Q(testers=user)).distinct()
 
     @classmethod
     def get_editable_problems(cls, user):
-        if user.is_superuser or user.has_permission("gameserver.edit_all_problems"):
+        if user.is_superuser or user.has_perm("gameserver.edit_all_problems"):
             return cls.objects
 
         return cls.objects.filter(author=user).distinct()
