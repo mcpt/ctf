@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 947 745" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;">
+    <g id="Layer_5" transform="matrix(1,0,0,1,-128.2,-8)">
+        <path d="M571,446C571,446 561.7,446.61 521,436L486.73,271.71L465.43,362L398.43,276.9L427.15,438C427.15,438 430,438 404,437C386,395 311,259 296,220C332,198 341.8,190 380.71,169L448.71,259.87L487,162.61L502,162L571,446Z" style="fill:white;fill-rule:nonzero;"/>
+    </g>
+    <g id="Layer_9" transform="matrix(1,0,0,1,-128.2,-8)">
+        <path d="M923,238.17L981,444C981,444 1053.68,411.05 1054,406C1054.47,398.57 1007.09,264.69 1007.09,264.69C1007.09,264.69 1026,257 1061,242L1061,158C1061,158 1020,187 992.27,207.28L975.27,155C975.27,155 1022,128 1067,103L1075,8C1075,8 960,91 887.5,113.94L923,238.17Z" style="fill:white;fill-rule:nonzero;"/>
+    </g>
+    <g id="Layer_11" transform="matrix(1,0,0,1,-128.2,-8)">
+        <path d="M693,150L670.42,215.5L693,150C836,137 888.5,113.5 888.5,113.5L908.85,183.66C872,200 842,210 842,210C842,210 864,271 938,459C938,459 865,478 828,480C828,480 787,300 768,224C768,224 735,223 670,216" style="fill:white;fill-rule:nonzero;"/>
+    </g>
+    <g id="Layer_14" transform="matrix(1,0,0,1,-128.2,-8)">
+        <path d="M754,410C754,410 561.07,478 559.26,303C558.2,200.85 648,215 648,215L675,153C675,153 585.67,159.5 495,162C525,228 521,436 521,436C611,460 702,484 799,480L754,410Z" style="fill:white;fill-rule:nonzero;"/>
+    </g>
+    <g id="Layer_3">
+        <g transform="matrix(1,0,0,1,-128.2,-8)">
+            <path d="M201.68,231.35L248.48,207.35L458.58,616.59L411.77,640.59L201.68,231.35Z" style="fill:white;fill-rule:nonzero;"/>
+        </g>
+        <circle cx="327.39" cy="671.11" r="54.1" style="fill-opacity:0;stroke:rgb(250,2,60);stroke-width:38px;"/>
+        <circle cx="73.11" cy="163.21" r="54.1" style="fill-opacity:0;stroke:rgb(250,2,60);stroke-width:38px;"/>
+    </g>
+</svg>
