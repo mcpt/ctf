@@ -6,6 +6,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import RedirectView
+from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import CreateView, FormView
 
 from .. import forms, models
@@ -60,32 +61,44 @@ class OrganizationRequest(LoginRequiredMixin, CreateView, mixin.TitleMixin, mixi
     model = models.OrganizationRequest
     fields = ["reason"]
 
+    def get_object(self):
+        return get_object_or_404(models.Organization, slug=self.kwargs["slug"])
+
+    def dispatch(self, request, *args, **kwargs):
+        self.org = self.get_object()
+        return super().dispatch(request, *args, **kwargs)
+
     def form_valid(self, form):
-        form.instance.organization = self.object
+        form.instance.organization = self.org
         form.instance.user = self.request.user
         messages.info(self.request, "Your request to join this organization has been submitted.")
         return super().form_valid(form)
 
-    def get_object(self):
-        return models.Organization.objects.get(slug=self.kwargs["slug"])
-
     def get_title(self):
-        return "Request to join Organization " + self.object.name
+        return "Request to join Organization " + self.org.name
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["organization"] = self.object
+        context["organization"] = self.org
         context["is_join_request"] = True
         return context
 
 
-class OrganizationJoin(LoginRequiredMixin, FormView, mixin.TitleMixin, mixin.MetaMixin):
+class OrganizationJoin(
+    LoginRequiredMixin, SingleObjectMixin, FormView, mixin.TitleMixin, mixin.MetaMixin
+):
     template_name = "organization/form-join.html"
     form_class = forms.GroupJoinForm
     fields = ["access_code"]
 
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object(queryset=models.Organization.objects.all())
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
     def post(self, *args, **kwargs):
-        self.object = self.get_object()
         if not self.object.is_public:
             self.success()
             return redirect(self.object)
@@ -101,9 +114,6 @@ class OrganizationJoin(LoginRequiredMixin, FormView, mixin.TitleMixin, mixin.Met
 
     def get_success_url(self, *args, **kwargs):
         return self.object.get_absolute_url()
-
-    def get_object(self):
-        return models.Organization.objects.get(slug=self.kwargs["slug"])
 
     def get_title(self):
         return "Join Organization " + self.object.name

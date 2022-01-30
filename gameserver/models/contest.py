@@ -94,17 +94,17 @@ class Contest(models.Model):
             ),
         ).order_by("-points", "most_recent_solve_time", "flags")
 
-    def team_allowed_to_join(self, team):
-        return self.teams_allowed and team.members.count() <= self.max_team_size
+    def is_visible_by(self, user):
+        if self.is_public:
+            return True
+
+        return self.is_editable_by(user)
 
     def is_accessible_by(self, user):
         if not user.is_authenticated:
             return False
 
-        if self.is_public:
-            return True
-
-        return self.is_editable_by(user)
+        return self.is_visible_by(user)
 
     def is_editable_by(self, user):
         if not user.is_authenticated:

@@ -51,7 +51,7 @@
     </div>
 </div>
 
-{% if request.user.is_authenticated and contest.is_started %}
+{% if user_accessible and contest.is_started %}
 <div class="card mb-3 order-96">
     <div class="card-header">
         Participation

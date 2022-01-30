@@ -67,6 +67,24 @@ class Problem(models.Model):
         except ContestProblem.DoesNotExist:
             return None
 
+    def create_challenge_instance(self, instance_owner):
+        if self.challenge_spec is not None:
+            return challenge.create_challenge_instance(
+                self.challenge_spec, self.slug, self.flag, instance_owner
+            )
+
+    def fetch_challenge_instance(self, instance_owner):
+        if self.challenge_spec is not None:
+            return challenge.fetch_challenge_instance(
+                self.challenge_spec, self.slug, instance_owner
+            )
+
+    def delete_challenge_instance(self, instance_owner):
+        if self.challenge_spec is not None:
+            return challenge.delete_challenge_instance(
+                self.challenge_spec, self.slug, instance_owner
+            )
+
     def is_accessible_by(self, user):
         if self.is_public:
             return True
@@ -91,24 +109,6 @@ class Problem(models.Model):
                 return True
 
         return False
-
-    def create_challenge_instance(self, instance_owner):
-        if self.challenge_spec is not None:
-            return challenge.create_challenge_instance(
-                self.challenge_spec, self.slug, self.flag, instance_owner
-            )
-
-    def fetch_challenge_instance(self, instance_owner):
-        if self.challenge_spec is not None:
-            return challenge.fetch_challenge_instance(
-                self.challenge_spec, self.slug, instance_owner
-            )
-
-    def delete_challenge_instance(self, instance_owner):
-        if self.challenge_spec is not None:
-            return challenge.delete_challenge_instance(
-                self.challenge_spec, self.slug, instance_owner
-            )
 
     @classmethod
     def get_public_problems(cls):

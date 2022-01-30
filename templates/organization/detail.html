@@ -24,7 +24,7 @@
         {% include "snippets/group_detail/leave_form.html" with entity="organization" %}
         {% else %}
         <p>You are currently not in this organization.</p>
-        {% if group.is_public or not group.access_code == "" %}
+        {% if not group.access_code == "" %}
         <a href="{% url 'organization_join' group.slug %}" class="btn btn-primary">Join organization</a>
         {% else %}
         {% if last_user_organization_request %}

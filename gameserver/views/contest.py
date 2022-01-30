@@ -36,7 +36,7 @@ class ContestDetail(
     template_name = "contest/detail.html"
 
     def test_func(self):
-        return self.get_object().is_accessible_by(self.request.user)
+        return self.get_object().is_visible_by(self.request.user)
 
     def get_title(self):
         return "" + self.object.name
@@ -47,6 +47,7 @@ class ContestDetail(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.user.is_authenticated:
+            context["user_accessible"] = self.object.is_accessible_by(self.request.user)
             context["participation"] = self.request.user.participation_for_contest(self.object)
             context["team_participant_count"] = {
                 team_pk: participant_count

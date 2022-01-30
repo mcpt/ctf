@@ -96,11 +96,7 @@ class OrganizationAdmin(admin.ModelAdmin):
             if obj is None:
                 return True
             else:
-                return (
-                    request.user in obj.admins.all()
-                    or request.user == obj.owner
-                    or request.user.is_superuser
-                )
+                return obj.is_editable_by(request.user)
         return False
 
     def has_change_permission(self, request, obj=None):
@@ -108,14 +104,30 @@ class OrganizationAdmin(admin.ModelAdmin):
             if obj is None:
                 return True
             else:
-                return request.user == obj.owner or request.user.is_superuser
+                return obj.is_editable_by(request.user)
         return False
 
     def get_queryset(self, request):
-        qs = super().get_queryset(request)
-        if request.user.is_superuser:
-            return qs
-        return qs.filter(Q(admins=request.user) | Q(owner=request.user))
+        return models.Organization.get_editable_organizations(request.user)
+
+    def get_readonly_fields(self, request, obj=None):
+        fields = self.readonly_fields
+        if request.user.is_superuser or request.user.has_perm("gameserver.edit_all_organizations"):
+            return fields
+        if not request.user.has_perm("gameserver.change_organization_visibility"):
+            fields += ("is_public",)
+        if obj is None or request.user != obj.owner:
+            fields += ("owner", "admins")
+        return fields
+
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        if db_field.name in ("owner", "admins"):
+            kwargs["queryset"] = models.User.objects.filter(is_staff=True).order_by("username")
+        return super().formfield_for_manytomany(db_field, request, **kwargs)
+
+    @admin.display(description="Admins")
+    def get_admins(self, obj):
+        return ", ".join([u.username for u in obj.admins.all()])
 
 
 class OrganizationRequestAdmin(admin.ModelAdmin):
@@ -146,15 +158,6 @@ class OrganizationRequestAdmin(admin.ModelAdmin):
         if obj is not None:
             return status and not obj.reviewed()
         return status
-
-    def has_module_permission(self, request):
-        perms = [
-            "gameserver.add_organizationrequest",
-            "gameserver.view_organizationrequest",
-            "gameserver.change_organizationrequest",
-            "gameserver.delete_organizationrequest",
-        ]
-        return True in [request.user.has_perm(i) for i in perms]
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)

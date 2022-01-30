@@ -164,6 +164,49 @@ class Organization(models.Model):
 
     is_open.boolean = True
 
+    def is_visible_by(self, user):
+        if self.is_public:
+            return True
+
+        return self.is_editable_by(user)
+
+    def is_editable_by(self, user):
+        if user.is_superuser or user.has_perm("gameserver.edit_all_organizations"):
+            return True
+
+        if user.is_authenticated:
+            if self.owner == user or self.admins.filter(pk=user.pk).exists():
+                return True
+
+        return False
+
+    @classmethod
+    def get_public_organizations(cls):
+        return cls.objects.filter(is_public=True)
+
+    @classmethod
+    def get_visible_organizations(cls, user):
+        if not user.is_authenticated:
+            return cls.get_public_orgs()
+
+        if user.is_superuser or user.has_perm("gameserver.edit_all_organizations"):
+            return cls.objects.all()
+
+        return cls.objects.filter(Q(is_public=True) | Q(owner=user) | Q(admins=user)).distinct()
+
+    @classmethod
+    def get_editable_organizations(cls, user):
+        if user.is_superuser or user.has_perm("gameserver.edit_all_organizations"):
+            return cls.objects.all()
+
+        return cls.objects.filter(owner=user).distinct()
+
+    class Meta:
+        permissions = (
+            ("change_organization_visibility", "Change visibility of organizations"),
+            ("edit_all_organizations", "Edit all organizations"),
+        )
+
 
 class OrganizationRequest(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="organizations_requested")
