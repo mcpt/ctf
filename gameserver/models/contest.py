@@ -166,13 +166,13 @@ class ContestParticipation(models.Model):
         # Switch to ContestProblem -> Problem Later
         return (
             self.submissions.filter(submission__is_correct=True)
-            .values("submission__problem", "submission__problem__points")
+            .values("submission__problem", "problem__points")
             .distinct()
         )
 
     def calc_points(self):
         points = self._get_unique_correct_submissions().aggregate(
-            points=Coalesce(Sum("submission__problem__points"), 0)
+            points=Coalesce(Sum("problem__points"), 0)
         )["points"]
         return points
 
@@ -180,23 +180,31 @@ class ContestParticipation(models.Model):
         return self._get_unique_correct_submissions().count()
 
     def last_solve(self):
-        submissions = self.submissions.filter(submission__is_correct=True).order_by(
-            "-submission__date_created"
+        submissions = (
+            self.submissions.filter(submission__is_correct=True)
+            .order_by()
+            .values("submission__problem")
+            .distinct()
+            .annotate(sub_pk=Min("pk"))
+            .values("sub_pk")
+            .order_by("-sub_pk")
         )
         if submissions.count() >= 1:
-            return submissions[0]
+            return ContestSubmission.objects.get(pk=submissions[0]["sub_pk"])
         else:
             return None
 
     def last_solve_time(self):
         last_solve = self.last_solve()
         if last_solve is not None:
+            print(last_solve.submission.date_created)
             return last_solve.submission.date_created
         else:
             return self.contest.start_time
 
     def time_taken(self):
         solve_time = self.last_solve_time()
+        print(type(solve_time - self.contest.start_time))
         return solve_time - self.contest.start_time
 
     def rank(self):
@@ -204,7 +212,7 @@ class ContestParticipation(models.Model):
         last_solve_time = self.last_solve_time()
         contest_ranks = self.contest.ranks()
         return contest_ranks.filter(
-            Q(points__gt=points) | Q(most_recent_solve_time__lte=last_solve_time) & Q(points=points)
+            Q(points__gt=points) | Q(most_recent_solve_time__lte=last_solve_time, points=points)
         ).count()
 
     def get_absolute_url(self):
