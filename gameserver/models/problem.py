@@ -61,9 +61,9 @@ class Problem(models.Model):
     def get_absolute_url(self):
         return reverse("problem_detail", args=[self.slug])
 
-    def get_contest_problem(self, participation):
+    def get_contest_problem(self, contest):
         try:
-            return ContestProblem.objects.get(problem=self, contest=participation.contest)
+            return ContestProblem.objects.get(problem=self, contest=contest)
         except ContestProblem.DoesNotExist:
             return None
 

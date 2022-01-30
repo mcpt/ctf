@@ -49,7 +49,7 @@ class ProblemDetail(
 
     def get_contest_object(self):
         if self.request.in_contest:
-            return self.object.get_contest_problem(self.request.participation)
+            return self.object.get_contest_problem(self.request.participation.contest)
         else:
             return None
 
@@ -70,10 +70,14 @@ class ProblemDetail(
         cur_kwargs["problem"] = self.object
         return cur_kwargs
 
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.contest_object = self.get_contest_object()
+        return super().dispatch(request, *args, **kwargs)
+
     def post(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return HttpResponseForbidden()
-        self.object = self.get_object()
         form = self.get_form()
         if form.is_valid():
             return self.form_valid(form)
@@ -84,12 +88,9 @@ class ProblemDetail(
         submission = models.Submission.objects.create(
             user=self.request.user, problem=self.object, is_correct=is_correct
         )
-        if (
-            self.request.in_contest
-            and self.request.participation.contest.problems.filter(problem=self.object).exists()
-        ):
+        if self.contest_object is not None:
             models.ContestSubmission.objects.create(
-                problem=self.get_contest_object(),
+                problem=self.contest_object,
                 submission=submission,
                 participation=self.request.participation,
             )
@@ -97,8 +98,8 @@ class ProblemDetail(
 
     def form_valid(self, form):
         if (not self.request.user.has_solved(self.object)) or (
-            self.request.in_contest
-            and not self.request.participation.has_solved(self.get_contest_object())
+            self.contest_object is not None
+            and not self.request.participation.has_solved(self.contest_object)
         ):
             messages.success(self.request, "Your flag is correct!")
         else:
@@ -118,16 +119,16 @@ class ProblemDetail(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["contest_problem"] = self.get_contest_object()
+        context["contest_problem"] = self.contest_object
         if self.request.user.is_authenticated:
             if (self.request.user.has_solved(self.object)) or (
-                self.request.in_contest
-                and self.request.participation.has_solved(self.get_contest_object())
+                self.contest_object is not None
+                and self.request.participation.has_solved(self.contest_object)
             ):
                 context["status"] = "solved"
             elif (self.request.user.has_attempted(self.object)) or (
-                self.request.in_contest
-                and self.request.participation.has_attempted(self.get_contest_object())
+                self.contest_object is not None
+                and self.request.participation.has_attempted(self.contest_object)
             ):
                 context["status"] = "attempted"
         return context
