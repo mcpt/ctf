@@ -1,6 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Q, Sum
+from django.db.models import Count, Q, Sum
 from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
@@ -46,12 +46,17 @@ class ContestDetail(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["participations"] = None
         if self.request.user.is_authenticated:
-            context["participations"] = self.request.user.participations_for_contest(self.object)
-            context["user_has_team_participations"] = any(
-                [participation.team for participation in context["participations"]]
-            )
+            context["participation"] = self.request.user.participation_for_contest(self.object)
+            context["team_participant_count"] = {
+                team_pk: participant_count
+                for team_pk, participant_count in self.request.user.teams.annotate(
+                    participant_count=Count(
+                        "contest_participations__participants",
+                        filter=Q(contest_participations__contest=self.object),
+                    )
+                ).values_list("pk", "participant_count")
+            }
         context["top_participations"] = self.object.ranks()[:10]
         return context
 
@@ -80,51 +85,38 @@ class ContestDetail(
             return self.form_invalid(form)
 
     def form_valid(self, form):
-        if (
-            self.request.user.current_contest is not None
-            and self.request.user.current_contest.contest == self.object
-        ):
-            team = form.cleaned_data["participant"]
-            new_participation = models.ContestParticipation.objects.get_or_create(
+        team = form.cleaned_data["participant"]
+        if self.request.in_contest and self.request.user.current_contest.contest == self.object:
+            contest_participation = models.ContestParticipation.objects.get_or_create(
                 team=team, contest=self.object
             )[0]
-            prev_participation = self.request.user.current_contest
-            if prev_participation.team is not None:
-                return HttpResponseBadRequest("Cannot change from teams")
-            models.ContestSubmission.objects.filter(participation=prev_participation).update(
-                participation=new_participation
-            )
-            prev_participation.delete()
-            new_participation.save()
-            new_participation.participants.add(self.request.user)
-            self.request.user.current_contest = new_participation
-            self.request.user.save()
-            return super().form_valid(form)
+            models.ContestSubmission.objects.filter(
+                participation=self.request.user.current_contest
+            ).update(participation=contest_participation)
+
+            self.request.user.current_contest.delete()
         else:
-            team = form.cleaned_data["participant"]
-            contest = self.object
             if team is not None:
                 contest_participation = models.ContestParticipation.objects.get_or_create(
-                    team=team, contest=contest
+                    team=team, contest=self.object
                 )[0]
             else:
                 try:
                     contest_participation = models.ContestParticipation.objects.get(
                         team=None,
                         participants=self.request.user,
-                        contest=contest,
+                        contest=self.object,
                     )
                 except models.ContestParticipation.DoesNotExist:
                     contest_participation = models.ContestParticipation(contest=self.object)
-            contest_participation.save()
-            if contest_participation.participants.count() == contest.max_team_size:
-                return HttpResponseBadRequest(
-                    "This team is already full. Please choose another team."
-                )
-            contest_participation.participants.add(self.request.user)
-            self.request.user.current_contest = contest_participation
-            self.request.user.save()
-            return super().form_valid(form)
+                    contest_participation.save()
+
+        contest_participation.participants.add(self.request.user)
+
+        self.request.user.current_contest = contest_participation
+        self.request.user.save()
+
+        return super().form_valid(form)
 
     def get_success_url(self):
         return self.request.path

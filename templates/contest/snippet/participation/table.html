@@ -1,6 +1,3 @@
-{% load link_tags %}
-{% load color_tags %}
-
 <div class="table-responsive table-list">
     <table class="table">
         <thead>
@@ -14,16 +11,13 @@
             </tr>
         </thead>
         <tbody>
-            {% for participation in participations %}
-                <tr class="table-{{ participation.contest|contest_color }}">
-                    <th scope="row"><a href="{{ participation.get_absolute_url }}">{{ participation.rank }}</a></th>
-                    {% if not hide_contest_col %}
-                        <td>{{ participation.contest.slug|contest }}</td>
-                    {% endif %}
-                    <td><a href="{{ participation.participant.get_absolute_url }}">{{ participation.participant }}</a></td>
-                    <td>{{ participation.calc_points }}</td>
-                </tr>
-            {% endfor %}
+            {% if participations %}
+                {% for participation in participations %}
+                    {% include './row.html' %}
+                {% endfor %}
+            {% elif participation %}
+                {% include './row.html' %}
+            {% endif %}
         </tbody>
     </table>
 </div>

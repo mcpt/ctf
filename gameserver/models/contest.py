@@ -1,6 +1,7 @@
 import uuid
 
 from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Count, Max, Min, OuterRef, Q, Subquery, Sum
 from django.db.models.functions import Coalesce
@@ -31,7 +32,9 @@ class Contest(models.Model):
 
     is_public = models.BooleanField(default=True)
 
-    max_team_size = models.PositiveSmallIntegerField(null=True, blank=True)
+    max_team_size = models.PositiveSmallIntegerField(
+        null=True, blank=True, validators=[MinValueValidator(1)]
+    )
 
     def __str__(self):
         return self.name

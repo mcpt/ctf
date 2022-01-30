@@ -84,8 +84,11 @@ class User(AbstractUser):
     def num_flags_captured(self):
         return self._get_unique_correct_submissions().filter(problem__is_public=True).count()
 
-    def participations_for_contest(self, contest):
-        return ContestParticipation.objects.filter(Q(participants=self), contest=contest)
+    def participation_for_contest(self, contest):
+        try:
+            return ContestParticipation.objects.get(participants=self, contest=contest)
+        except ContestParticipation.DoesNotExist:
+            return None
 
     def remove_contest(self):
         self.current_contest = None
@@ -123,18 +126,6 @@ class User(AbstractUser):
                 0,
             ),
         ).order_by("-points", "flags")
-
-    def eligible_teams(self, contest):
-        if contest is not None and contest.max_team_size is not None:
-            return (
-                Team.objects.filter(members__in=[self])
-                # .annotate(Count("contest_participations__participants"))
-                # .filter(contest_participations__participants__count__lte=contest.max_team_size)
-                .distinct()
-                # .annotate(Count("members", distinct=True))
-                # .filter(members__count__lte=contest.max_team_size)
-            )
-        return self.teams
 
 
 class Organization(models.Model):
@@ -219,3 +210,9 @@ class Team(models.Model):
 
     def member_count(self):
         return self.members.all().count()
+
+    def participation_for_contest(self, contest):
+        try:
+            return ContestParticipation.objects.get(team=self, contest=contest)
+        except ContestParticipation.DoesNotExist:
+            return None

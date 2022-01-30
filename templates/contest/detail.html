@@ -2,6 +2,7 @@
 {% load link_tags %}
 {% load markdown_tags %}
 {% load django_bootstrap5 %}
+{% load static %}
 {% load tz %}
 
 {% block content %}
@@ -65,14 +66,14 @@
         <p>
             {% if contest.is_finished %}
             Contest is over.
-            {% elif participations %}
+            {% elif participation %}
             You are currently not in this contest, however, you have participated before.
             {% else %}
             You are currently not in this contest.
             {% endif %}
         </p>
         {% endif %}
-        {% if participations %}
+        {% if participation %}
         {% include './snippet/participation/table.html' with hide_contest_col=True %}
         {% endif %}
 
@@ -82,22 +83,25 @@
             {% csrf_token %}
             <button type="submit" class="btn btn-danger">Leave contest</button>
         </form>
-        {% if contest.teams_allowed and not user_has_team_participations %}
+        {% if contest.teams_allowed and not participation.team %}
         <br>
         <label class="form-label" for="{{ form.participant.auto_id }}">or, change to participate as a team:</label>
         <form method="post">
             {% csrf_token %}
             {% bootstrap_field form.participant show_label=False wrapper_class="mb-2" %}
-            <p class="text-muted fst-italic mb-3" style="font-size: 0.75rem;line-height:1.6">Once you participate as
-                part of a team, you cannot change back to individual participation.</p>
+            <p id="team-size-display" class="text-muted mb-2" style="font-size: 0.75rem;line-height:1.6"></p>
+            <p class="text-muted fst-italic mb-3" style="font-size: 0.75rem;line-height:1.6">
+                Once you participate as part of a team, you cannot change back to individual participation.
+            </p>
             <button type="submit" class="btn btn-primary">Change Participation</button>
         </form>
         {% endif %}
         {% else %}
         <form method="post">
             {% csrf_token %}
-            {% if contest.teams_allowed and not user_has_team_participations %}
+            {% if contest.teams_allowed and not participation %}
             {% bootstrap_field form.participant wrapper_class="mb-2" %}
+            <p id="team-size-display" class="text-muted mb-2" style="font-size: 0.75rem;line-height:1.6"></p>
             <p class="text-muted fst-italic" style="font-size: 0.75rem;line-height:1.6">Once you participate as part of
                 a team, you cannot change back to individual participation.</p>
             {% else %}
@@ -120,4 +124,10 @@
     </div>
 </div>
 {% endif %}
+{% endblock %}
+
+{% block deps %}
+{{ contest.max_team_size|json_script:"max-team-size" }}
+{{ team_participant_count|json_script:"team-participant-count" }}
+<script src="{% static 'scripts/team_contest_participant_count.js' %}" defer></script>
 {% endblock %}
