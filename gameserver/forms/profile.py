@@ -18,12 +18,16 @@ class MCTFSignupForm(SignupForm):
     )
     full_name = forms.CharField(max_length=80)
     school_name = forms.CharField(
-        max_length=80, required=False, help_text=User._meta.get_field("school_name").help_text
+        max_length=80,
+        required=False,
+        help_text=User._meta.get_field("school_name").help_text
+        + " (Optional, can be changed later)",
     )
     school_contact = forms.EmailField(
         required=False,
         label=User._meta.get_field("school_contact").verbose_name.title(),
-        help_text=User._meta.get_field("school_contact").help_text,
+        help_text=User._meta.get_field("school_contact").help_text
+        + " (Optional, can be changed later)",
     )
     field_order = [
         "full_name",
