@@ -89,7 +89,6 @@ class OrganizationJoin(
 ):
     template_name = "organization/form-join.html"
     form_class = forms.GroupJoinForm
-    fields = ["access_code"]
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object(queryset=models.Organization.objects.all())
@@ -99,17 +98,17 @@ class OrganizationJoin(
         return super().get(request, *args, **kwargs)
 
     def post(self, *args, **kwargs):
-        if not self.object.is_public:
+        if self.object.is_open:
             self.success()
             return redirect(self.object)
         return super().post(*args, **kwargs)
 
     def success(self):
         self.request.user.organizations.add(self.object)
+        messages.success(self.request, "You are now a member of this organization!")
 
     def form_valid(self, form):
         self.success()
-        messages.success(self.request, "You are now a member of this organization!")
         return super().form_valid(form)
 
     def get_success_url(self, *args, **kwargs):

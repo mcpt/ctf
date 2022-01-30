@@ -143,32 +143,17 @@ class Organization(models.Model):
     slug = models.SlugField(unique=True)
     date_registered = models.DateTimeField(auto_now_add=True)
 
-    is_public = models.BooleanField(default=True)
+    is_open = models.BooleanField(default=True)
     access_code = models.CharField(max_length=36, blank=True)
 
     def __str__(self):
         return self.name
 
-    @property
-    def is_private(self):
-        return not self.is_public
-
     def get_absolute_url(self):
         return reverse("organization_detail", args=[self.slug])
 
-    def is_open(self):
-        return self.is_public
-
     def member_count(self):
         return User.objects.filter(organizations=self).count()
-
-    is_open.boolean = True
-
-    def is_visible_by(self, user):
-        if self.is_public:
-            return True
-
-        return self.is_editable_by(user)
 
     def is_editable_by(self, user):
         if user.is_superuser or user.has_perm("gameserver.edit_all_organizations"):
@@ -181,20 +166,6 @@ class Organization(models.Model):
         return False
 
     @classmethod
-    def get_public_organizations(cls):
-        return cls.objects.filter(is_public=True)
-
-    @classmethod
-    def get_visible_organizations(cls, user):
-        if not user.is_authenticated:
-            return cls.get_public_orgs()
-
-        if user.is_superuser or user.has_perm("gameserver.edit_all_organizations"):
-            return cls.objects.all()
-
-        return cls.objects.filter(Q(is_public=True) | Q(owner=user) | Q(admins=user)).distinct()
-
-    @classmethod
     def get_editable_organizations(cls, user):
         if user.is_superuser or user.has_perm("gameserver.edit_all_organizations"):
             return cls.objects.all()
@@ -202,10 +173,7 @@ class Organization(models.Model):
         return cls.objects.filter(owner=user).distinct()
 
     class Meta:
-        permissions = (
-            ("change_organization_visibility", "Change visibility of organizations"),
-            ("edit_all_organizations", "Edit all organizations"),
-        )
+        permissions = (("edit_all_organizations", "Edit all organizations"),)
 
 
 class OrganizationRequest(models.Model):

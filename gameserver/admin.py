@@ -114,8 +114,6 @@ class OrganizationAdmin(admin.ModelAdmin):
         fields = self.readonly_fields
         if request.user.is_superuser or request.user.has_perm("gameserver.edit_all_organizations"):
             return fields
-        if not request.user.has_perm("gameserver.change_organization_visibility"):
-            fields += ("is_public",)
         if obj is None or request.user != obj.owner:
             fields += ("owner", "admins")
         return fields
