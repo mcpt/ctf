@@ -211,12 +211,11 @@ class Team(models.Model):
     access_code = models.CharField(max_length=36)
     date_registered = models.DateTimeField(auto_now_add=True)
     members = models.ManyToManyField(User, related_name="teams", blank=True)
-    organization = models.ForeignKey(
+    organizations = models.ManyToManyField(
         Organization,
-        on_delete=models.CASCADE,
-        related_name="teams",
-        null=True,
         blank=True,
+        related_name="teams",
+        related_query_name="team",
     )
 
     def __str__(self):

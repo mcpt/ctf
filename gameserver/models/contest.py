@@ -62,7 +62,10 @@ class Contest(models.Model):
     def duration(self):
         return self.end_time - self.start_time
 
-    def ranks(self):
+    def ranks(self, queryset=None):
+        if queryset is None:
+            queryset = self.participations.all()
+
         submissions_with_points = (
             ContestSubmission.objects.filter(
                 participation=OuterRef("pk"), submission__is_correct=True
@@ -73,7 +76,7 @@ class Contest(models.Model):
             .annotate(sub_pk=Min("pk"))
             .values("sub_pk")
         )
-        return self.participations.annotate(
+        return queryset.annotate(
             points=Coalesce(
                 Sum(
                     "submission__problem__points",
@@ -197,14 +200,12 @@ class ContestParticipation(models.Model):
     def last_solve_time(self):
         last_solve = self.last_solve()
         if last_solve is not None:
-            print(last_solve.submission.date_created)
             return last_solve.submission.date_created
         else:
             return self.contest.start_time
 
     def time_taken(self):
         solve_time = self.last_solve_time()
-        print(type(solve_time - self.contest.start_time))
         return solve_time - self.contest.start_time
 
     def rank(self):

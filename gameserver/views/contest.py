@@ -175,7 +175,6 @@ class ContestScoreboard(SingleObjectMixin, ListView, mixin.TitleMixin, mixin.Met
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
-        print(self.object.ranks())
         return self.object.ranks()
 
     def get_title(self):
@@ -184,6 +183,30 @@ class ContestScoreboard(SingleObjectMixin, ListView, mixin.TitleMixin, mixin.Met
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["contest"] = self.object
+        return context
+
+
+class ContestOrganizationScoreboard(ListView, mixin.TitleMixin, mixin.MetaMixin):
+    model = models.ContestParticipation
+    template_name = "contest/scoreboard.html"
+
+    def get(self, request, *args, **kwargs):
+        self.contest = models.Contest.objects.get(slug=self.kwargs["contest_slug"])
+        self.org = models.Organization.objects.get(slug=self.kwargs["org_slug"])
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return self.contest.ranks(
+            queryset=self.contest.participations.filter(participants__organizations=self.org)
+        )
+
+    def get_title(self):
+        return self.org.short_name + " Scoreboard for " + self.contest.name
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["contest"] = self.contest
+        context["org"] = self.org
         return context
 
 

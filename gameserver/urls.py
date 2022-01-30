@@ -89,6 +89,11 @@ urlpatterns = [
         name="contest_scoreboard",
     ),
     path(
+        "contest/<str:contest_slug>/scoreboard/organization/<str:org_slug>",
+        views.ContestOrganizationScoreboard.as_view(),
+        name="contest_organization_scoreboard",
+    ),
+    path(
         "participation/<int:pk>",
         views.ContestParticipationDetail.as_view(),
         name="contest_participation_detail",
