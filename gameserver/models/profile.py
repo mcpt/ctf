@@ -7,7 +7,7 @@ from django.db.models.functions import Coalesce
 from django.urls import reverse
 
 from .choices import organization_request_status_choices, timezone_choices
-from .contest import ContestParticipation
+from .contest import ContestParticipation, ContestSubmission
 from .submission import Submission
 
 
@@ -63,10 +63,16 @@ class User(AbstractUser):
         return reverse("user_detail", args=[self.username])
 
     def has_solved(self, problem):
-        return self.submissions.filter(problem=problem, is_correct=True).exists()
+        if self.current_contest is None:
+            return self.submissions.filter(problem=problem, is_correct=True).exists()
+        else:
+            return self.current_contest.has_solved(problem=problem)
 
     def has_attempted(self, problem):
-        return self.submissions.filter(problem=problem).exists()
+        if self.current_contest is None:
+            return self.submissions.filter(problem=problem).exists()
+        else:
+            return self.current_contest.has_attempted(problem=problem)
 
     def _get_unique_correct_submissions(self):
         return (

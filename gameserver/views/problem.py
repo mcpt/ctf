@@ -84,7 +84,10 @@ class ProblemDetail(
         submission = models.Submission.objects.create(
             user=self.request.user, problem=self.object, is_correct=is_correct
         )
-        if self.request.in_contest:
+        if (
+            self.request.in_contest
+            and self.request.participation.contest.problems.filter(problem=self.object).exists()
+        ):
             models.ContestSubmission.objects.create(
                 problem=self.get_contest_object(),
                 submission=submission,
@@ -140,7 +143,10 @@ class ProblemChallenge(LoginRequiredMixin, SingleObjectMixin, View):
             return "nobody"
         if problem.challenge_spec["perTeam"] is False:
             return "everyone"
-        if self.request.in_contest and problem in self.request.participation.contest.problems:
+        if (
+            self.request.in_contest
+            and self.request.participation.contest.problems.filter(problem=self.object).exists()
+        ):
             return f"cp-{self.request.participation.pk}"
         else:
             return f"user-{self.request.user.pk}"
@@ -182,11 +188,20 @@ class ProblemSubmissionList(SingleObjectMixin, ListView, mixin.TitleMixin, mixin
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
-        return (
+        qs = (
             models.Submission.get_visible_submissions(self.request.user)
             .filter(problem=self.object)
             .order_by("-pk")
         )
+        if (
+            self.request.in_contest
+            and self.request.participation.contest.problems.filter(problem=self.object).exists()
+        ):
+            return qs.filter(
+                contest_submission__participation__contest=self.request.participation.contest
+            )
+        else:
+            return qs
 
     def get_title(self):
         return "Submissions for " + self.object.name
@@ -194,4 +209,9 @@ class ProblemSubmissionList(SingleObjectMixin, ListView, mixin.TitleMixin, mixin
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["problem"] = self.object
+        if (
+            self.request.in_contest
+            and self.request.participation.contest.problems.filter(problem=self.object).exists()
+        ):
+            context["contest"] = self.request.participation.contest
         return context

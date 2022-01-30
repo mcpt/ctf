@@ -174,6 +174,7 @@ class ContestScoreboard(SingleObjectMixin, ListView, mixin.TitleMixin, mixin.Met
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
+        print(self.object.ranks())
         return self.object.ranks()
 
     def get_title(self):

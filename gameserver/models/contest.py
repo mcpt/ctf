@@ -64,7 +64,9 @@ class Contest(models.Model):
 
     def ranks(self):
         submissions_with_points = (
-            ContestSubmission.objects.filter(participation=OuterRef("pk"))
+            ContestSubmission.objects.filter(
+                participation=OuterRef("pk"), submission__is_correct=True
+            )
             .order_by()
             .values("submission__problem")
             .distinct()
@@ -208,11 +210,22 @@ class ContestParticipation(models.Model):
     def get_absolute_url(self):
         return reverse("contest_participation_detail", args=[self.pk])
 
-    def has_solved(self, problem):
-        return self.submissions.filter(problem=problem, submission__is_correct=True).exists()
+    def has_solved(self, contest_problem=None, problem=None):
+        qs = self.submissions.filter(submission__is_correct=True)
+        if contest_problem is not None:
+            return qs.filter(problem=contest_problem).exists()
+        elif problem is not None:
+            return qs.filter(problem__problem=problem).exists()
+        else:
+            raise ValueError("Either contest_problem or problem must be specified")
 
-    def has_attempted(self, problem):
-        return self.submissions.filter(problem=problem).exists()
+    def has_attempted(self, contest_problem=None, problem=None):
+        if contest_problem is not None:
+            return self.submissions.filter(problem=contest_problem).exists()
+        elif problem is not None:
+            return self.submissions.filter(problem__problem=problem).exists()
+        else:
+            raise ValueError("Either contest_problem or problem must be specified")
 
     def __str__(self):
         return f"{self.participant().__str__()}'s Participation in {self.contest.name}"

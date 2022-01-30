@@ -24,6 +24,7 @@ class Submission(models.Model):
     is_correct = models.BooleanField(default=False)
 
     def is_firstblood(self):
+        # TODO: Consider only submissions from within contest, should be implemented in ContestSubmission instead
         return (
             self
             == Submission.objects.filter(problem=self.problem, is_correct=True)
@@ -40,9 +41,14 @@ class Submission(models.Model):
         if user.is_superuser or user.has_perm("gameserver.edit_all_problems"):
             return cls.objects.all()
 
-        return cls.objects.filter(
-            Q(problem__is_public=True)
-            | Q(user=user)
-            | Q(problem__author=user)
-            | Q(problem__testers=user)
-        )
+        if user.current_contest is None:
+            return cls.objects.filter(
+                Q(problem__is_public=True)
+                | Q(user=user)
+                | Q(problem__author=user)
+                | Q(problem__testers=user)
+            )
+        else:
+            return cls.objects.filter(
+                contest_submission__participation__contest=user.current_contest.contest
+            )

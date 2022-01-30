@@ -5,7 +5,9 @@
 {% if not problem %}
     <th scope="col">Problem</th>
 {% endif %}
-<th scope="col">User</th>
+<th scope="col">
+    User{% if team %}/Team{% endif %}
+</th>
 {% if not hide_timestamp %}
     <th scope="col">Submitted</th>
 {% endif %}

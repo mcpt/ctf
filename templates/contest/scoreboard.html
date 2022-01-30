@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block trows %}
-    {% for participation in page_obj %}
+    {% for participation in object_list %}
         <tr>
             <th scope="row">{{ forloop.counter }}</th>
             <td><a href="{{ participation.get_absolute_url }}">{{ participation.participant }}</a></td>

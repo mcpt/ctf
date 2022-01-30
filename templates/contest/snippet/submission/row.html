@@ -4,6 +4,8 @@
 <tr>
     <td>{{ contest_submission.submission.pk }}</td>
     {% include "submission/snippet/status.html" with submission=contest_submission.submission %}
-    <td>{{ contest_submission.submission.problem.slug|problem }}</td>
+    {% if not hide_problem %}
+        <td>{{ contest_submission.submission.problem.slug|problem }}</td>
+    {% endif %}
     <td><a href="{{ contest_submission.participation.get_absolute_url }}">{{ contest_submission.participation.participant }}</a></td>
 </tr>

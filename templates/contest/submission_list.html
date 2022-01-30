@@ -4,7 +4,7 @@
 {% block heading %}Submissions for {{ contest.slug|contest }}{% endblock %}
 
 {% block th %}
-    {% include 'submission/snippet/thead.html' with hide_timestamp=True %}
+    {% include 'submission/snippet/thead.html' with hide_timestamp=True team=True %}
 {% endblock %}
 
 {% block trows %}
