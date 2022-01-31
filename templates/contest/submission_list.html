@@ -9,6 +9,6 @@
 
 {% block trows %}
     {% for contest_submission in page_obj %}
-        {% include './snippet/submission/row.html' %}
+        {% include './snippet/submission/row.html' with hide_timestamp=True %}
     {% endfor %}
 {% endblock %}

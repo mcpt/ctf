@@ -70,7 +70,7 @@ class UserSubmissionList(SingleObjectMixin, ListView, mixin.TitleMixin, mixin.Me
 
     def get_queryset(self):
         return (
-            models.Submission.get_visible_submissions(self.request.user)
+            models.Submission.get_submissions_with_status(self.request.user)
             .filter(user=self.object)
             .order_by("-pk")
         )

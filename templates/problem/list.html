@@ -16,9 +16,7 @@
     {% for problem in problems %}
         <tr>
             {% if user.is_authenticated %}
-                {% with status=problem|problem_status:user %}
-                    <td>{% include "./snippet/status.html" %}</td>
-                {% endwith %}
+                <td>{% include "./snippet/status.html" with obj=problem %}</td>
             {% endif %}
             <td>{{ problem.slug|problem }}</td>
             {% if problem.problem_type.all %}

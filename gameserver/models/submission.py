@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import Q
+from django.db.models import Case, Count, F, OuterRef, Q, Subquery, When
 from django.urls import reverse
 
 # Create your models here.
@@ -25,13 +25,18 @@ class Submission(models.Model):
 
     def is_firstblood(self):
         # TODO: Consider only submissions from within contest, should be implemented in ContestSubmission instead
-        return (
-            self
-            == Submission.objects.filter(problem=self.problem, is_correct=True)
-            .exclude(user__in=self.problem.author.all() | self.problem.testers.all())
-            .order_by("pk")
-            .first()
-        )
+
+        if (
+            self.user == self.problem.author
+            or self.problem.testers.filter(pk=self.user.pk).exists()
+        ):
+            return False
+
+        return not Submission.objects.filter(
+            problem=self.problem,
+            is_correct=True,
+            pk__lt=self.pk,
+        ).exists()
 
     @classmethod
     def get_visible_submissions(cls, user):
@@ -52,3 +57,29 @@ class Submission(models.Model):
             return cls.objects.filter(
                 contest_submission__participation__contest=user.current_contest.contest
             )
+
+    @classmethod
+    def get_submissions_with_status(cls, user, queryset=None):
+        # TODO: Allow this method to work properly in a contest
+
+        if queryset is None:
+            queryset = cls.get_visible_submissions(user)
+
+        return queryset.annotate(
+            prev_correct_submission=Subquery(
+                cls.objects.filter(
+                    problem=OuterRef("problem"),
+                    is_correct=True,
+                    pk__lt=OuterRef("pk"),
+                )
+                .exclude(
+                    Q(user=F("problem__author")) | Q(user=F("problem__testers")),
+                )
+                .values("pk")[:1]
+            ),
+        ).annotate(
+            is_firstblood=Case(
+                When(prev_correct_submission=None, then=True),
+                default=False,
+            ),
+        )

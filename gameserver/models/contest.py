@@ -3,7 +3,7 @@ import uuid
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.db.models import Count, Max, Min, OuterRef, Q, Subquery, Sum
+from django.db.models import Case, Count, F, Max, Min, OuterRef, Q, Subquery, Sum, Value, When
 from django.db.models.functions import Coalesce
 from django.urls import reverse
 from django.utils import timezone
@@ -249,6 +249,50 @@ class ContestProblem(models.Model):
     )
     points = models.PositiveSmallIntegerField()
 
+    @classmethod
+    def get_contestproblems_with_status(cls, user, queryset=None):
+        if queryset is None:
+            queryset = user.current_contest.contest.problems
+
+        return (
+            queryset.annotate(
+                best_submission_pk=Subquery(
+                    ContestSubmission.objects.filter(
+                        participation=user.current_contest,
+                        problem=OuterRef("pk"),
+                    )
+                    .order_by("submission__is_correct", "pk")
+                    .values("pk")[:1]
+                )
+            )
+            .annotate(
+                is_released=Value(True),
+                is_attempted=Case(
+                    When(best_submission_pk__isnull=False, then=True),
+                    default=False,
+                ),
+                is_solved=Subquery(
+                    ContestSubmission.objects.filter(pk=OuterRef("best_submission_pk"),).values(
+                        "submission__is_correct"
+                    )[:1]
+                ),
+                prev_correct_submission=Subquery(
+                    ContestSubmission.objects.filter(
+                        participation__contest=user.current_contest.contest,
+                        problem=OuterRef("pk"),
+                        submission__is_correct=True,
+                        pk__lt=OuterRef("best_submission_pk"),
+                    ).values("pk")[:1]
+                ),
+            )
+            .annotate(
+                is_firstblood=Case(
+                    When(prev_correct_submission=None, then=True),
+                    default=False,
+                ),
+            )
+        )
+
 
 class ContestSubmission(models.Model):
     participation = models.ForeignKey(
@@ -266,3 +310,37 @@ class ContestSubmission(models.Model):
     submission = models.OneToOneField(
         "Submission", on_delete=models.CASCADE, related_name="contest_submission"
     )
+
+    def is_correct(self):
+        return self.submission.is_correct
+
+    def is_firstblood(self):
+        if self.participation.contest.organizers.filter(pk=self.submission.user.pk).exists():
+            return False
+
+        return not ContestSubmission.objects.filter(
+            problem=self.problem,
+            submission__is_correct=True,
+            pk__lt=self.pk,
+        ).exists()
+
+    @classmethod
+    def get_contestsubmissions_with_status(cls, user, queryset=None):
+        if queryset is None:
+            queryset = user.current_contest.contest.submissions
+
+        return queryset.annotate(
+            prev_correct_submission=Subquery(
+                cls.objects.filter(
+                    participation__contest=user.current_contest.contest,
+                    problem=OuterRef("problem"),
+                    submission__is_correct=True,
+                    pk__lt=OuterRef("pk"),
+                ).values("pk")[:1]
+            ),
+        ).annotate(
+            is_firstblood=Case(
+                When(prev_correct_submission=None, then=True),
+                default=False,
+            ),
+        )

@@ -14,9 +14,7 @@
 {% block trows %}
     {% for contest_problem in object_list %}
         <tr>
-            {% with status=contest_problem|contest_problem_status:user %}
-                <td>{% include "problem/snippet/status.html" %}</td>
-            {% endwith %}
+            <td>{% include "problem/snippet/status.html" with obj=contest_problem %}</td>
             <td>{{ contest_problem.problem.slug|problem }}</td2>
             {% if contest_problem.problem.problem_type.all %}
                 <td>{{ contest_problem.problem.problem_type.all|join:", " }}</td>

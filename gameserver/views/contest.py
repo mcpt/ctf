@@ -153,7 +153,10 @@ class ContestProblemList(ContestDetailsMixin, ListView, mixin.TitleMixin, mixin.
         return "Problems for " + self.object.name
 
     def get_queryset(self):
-        return self.object.problems.all()
+        return models.ContestProblem.get_contestproblems_with_status(
+            self.request.user,
+            queryset=self.object.problems.all(),
+        )
 
 
 class ContestSubmissionList(ContestDetailsMixin, ListView, mixin.TitleMixin, mixin.MetaMixin):
@@ -161,9 +164,10 @@ class ContestSubmissionList(ContestDetailsMixin, ListView, mixin.TitleMixin, mix
     paginate_by = 50
 
     def get_queryset(self):
-        return models.ContestSubmission.objects.filter(participation__contest=self.object).order_by(
-            "-submission__date_created"
-        )
+        return models.ContestSubmission.get_contestsubmissions_with_status(
+            self.request.user,
+            queryset=models.ContestSubmission.objects.filter(participation__contest=self.object),
+        ).order_by("-submission__date_created")
 
 
 class ContestScoreboard(SingleObjectMixin, ListView, mixin.TitleMixin, mixin.MetaMixin):

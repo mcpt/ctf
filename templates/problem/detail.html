@@ -8,7 +8,7 @@
     <div class="card-body px-4 py-3">
         <h1 class="card-title">
             {% if user.is_authenticated %}
-            {% include "problem/snippet/status.html" with hide_unsolved=True %}
+            {% include "problem/snippet/status.html" with obj=problem hide_unsolved=True %}
             {% endif %}
             {{ problem.name }}
         </h1>

@@ -3,13 +3,14 @@ import re
 import uuid
 
 from django.db import models
-from django.db.models import Q
+from django.db.models import Case, Count, Exists, F, OuterRef, Q, Subquery, When
 from django.urls import reverse
 
 from ..utils import challenge
 from . import abstract
 from .contest import ContestProblem
 from .profile import User
+from .submission import Submission
 
 # Create your models here.
 
@@ -66,6 +67,12 @@ class Problem(models.Model):
             return ContestProblem.objects.get(problem=self, contest=contest)
         except ContestProblem.DoesNotExist:
             return None
+
+    def get_firstblood_submission(self, queryset=None):
+        if queryset is None:
+            queryset = self.submissions.all()
+
+        return queryset.filter(is_correct=True).first()
 
     def create_challenge_instance(self, instance_owner):
         if self.challenge_spec is not None:
@@ -130,6 +137,81 @@ class Problem(models.Model):
             return cls.objects.all()
 
         return cls.objects.filter(author=user).distinct()
+
+    @classmethod
+    def get_problems_with_status(cls, user, queryset=None):
+        # TODO: Allow this method to work properly in a contest
+
+        if queryset is None:
+            queryset = cls.get_visible_problems(user)
+
+        return (
+            queryset.annotate(
+                best_submission_pk=Subquery(
+                    Submission.objects.filter(
+                        user=user,
+                        problem=OuterRef("pk"),
+                    )
+                    .order_by("is_correct", "pk")
+                    .values("pk")[:1]
+                )
+            )
+            .annotate(
+                is_released=F("is_public"),
+                is_attempted=Case(
+                    When(best_submission_pk__isnull=False, then=True),
+                    default=False,
+                ),
+                is_solved=Subquery(
+                    Submission.objects.filter(pk=OuterRef("best_submission_pk"),).values(
+                        "is_correct"
+                    )[:1]
+                ),
+                prev_correct_submission=Subquery(
+                    Submission.objects.filter(
+                        problem=OuterRef("pk"),
+                        is_correct=True,
+                        pk__lt=OuterRef("best_submission_pk"),
+                    )
+                    .exclude(
+                        Q(user=F("problem__author")) | Q(user=F("problem__testers")),
+                    )
+                    .values("pk")[:1]
+                ),
+            )
+            .annotate(
+                is_firstblood=Case(
+                    When(prev_correct_submission=None, then=True),
+                    default=False,
+                ),
+            )
+        )
+
+    def annotate_status(self, user):
+        if user.is_authenticated:
+            self.is_released = self.is_public or (
+                user.current_contest is not None
+                and user.current_contest.problems.filter(problem__problem=self).exists()
+            )
+            self.is_attempted = user.has_attempted(self)
+            self.is_solved = user.has_solved(self)
+
+            problem_submissions = None
+            if user.current_contest is not None:
+                problem_submissions = Submission.objects.filter(
+                    contest_submission__participation__contest=user.current_contest.contest,
+                    contest_submission__problem__problem=self,
+                )
+
+            firstblood_submission = self.get_firstblood_submission(queryset=problem_submissions)
+            self.is_firstblood = (
+                firstblood_submission is not None and firstblood_submission.user == user
+            )
+        else:
+            self.is_release = self.is_public
+            self.is_attempted = False
+            self.is_solved = False
+            self.is_firstblood = False
 
     class Meta:
         permissions = (

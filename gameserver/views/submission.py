@@ -15,7 +15,7 @@ class SubmissionList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     title = "Submissions"
 
     def get_queryset(self):
-        return models.Submission.get_visible_submissions(self.request.user).order_by(
+        return models.Submission.get_submissions_with_status(self.request.user).order_by(
             "-date_created"
         )
 

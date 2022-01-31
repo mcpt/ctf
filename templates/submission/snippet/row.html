@@ -6,7 +6,7 @@
     {% if not hide_pk %}
         <td>{{ submission.pk }}</td>
     {% endif %}
-    {% include "./status.html" %}
+    {% include "./status.html" with obj=submission %}
     {% if not problem %}
         <td>{{ submission.problem.slug|problem }}</td>
     {% endif %}

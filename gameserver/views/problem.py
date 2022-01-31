@@ -24,7 +24,7 @@ class ProblemList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     title = "Problems"
 
     def get_queryset(self):
-        return models.Problem.get_visible_problems(self.request.user).order_by(
+        return models.Problem.get_problems_with_status(self.request.user).order_by(
             "points", "problem_type", "problem_group"
         )
 
@@ -47,28 +47,19 @@ class ProblemDetail(
     template_name = "problem/detail.html"
     form_class = forms.FlagSubmissionForm
 
+    def test_func(self):
+        return self.get_object().is_accessible_by(self.request.user)
+
     def get_contest_object(self):
         if self.request.in_contest:
             return self.object.get_contest_problem(self.request.participation.contest)
         else:
             return None
 
-    def test_func(self):
-        return self.get_object().is_accessible_by(self.request.user)
-
-    def get_title(self):
-        return self.object.name
-
-    def get_description(self):
-        return self.object.summary
-
-    def get_author(self):
-        return self.object.author.all()
-
-    def get_form_kwargs(self, *args, **kwargs):
-        cur_kwargs = super().get_form_kwargs(*args, **kwargs)
-        cur_kwargs["problem"] = self.object
-        return cur_kwargs
+    def get_object(self, queryset=None):
+        obj = super().get_object(queryset)
+        obj.annotate_status(self.request.user)
+        return obj
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -83,6 +74,20 @@ class ProblemDetail(
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
+
+    def get_title(self):
+        return self.object.name
+
+    def get_description(self):
+        return self.object.summary
+
+    def get_author(self):
+        return self.object.author.all()
+
+    def get_form_kwargs(self, *args, **kwargs):
+        cur_kwargs = super().get_form_kwargs(*args, **kwargs)
+        cur_kwargs["problem"] = self.object
+        return cur_kwargs
 
     def _create_submission_object(self, is_correct=False):
         submission = models.Submission.objects.create(
@@ -198,11 +203,11 @@ class ProblemSubmissionList(SingleObjectMixin, ListView, mixin.TitleMixin, mixin
             self.request.in_contest
             and self.request.participation.contest.problems.filter(problem=self.object).exists()
         ):
-            return qs.filter(
+            qs = qs.filter(
                 contest_submission__participation__contest=self.request.participation.contest
             )
-        else:
-            return qs
+
+        return models.Submission.get_submissions_with_status(self.request.user, queryset=qs)
 
     def get_title(self):
         return "Submissions for " + self.object.name
@@ -210,9 +215,11 @@ class ProblemSubmissionList(SingleObjectMixin, ListView, mixin.TitleMixin, mixin
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["problem"] = self.object
+
         if (
             self.request.in_contest
             and self.request.participation.contest.problems.filter(problem=self.object).exists()
         ):
             context["contest"] = self.request.participation.contest
+
         return context
