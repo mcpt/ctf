@@ -48,6 +48,10 @@ $head-text: $white;
 }
 .card-body {
     padding: 1.25rem;
+
+    img {
+        max-width: 100%;
+    }
 }
 .card-header {
     padding-left: 0.75rem;
