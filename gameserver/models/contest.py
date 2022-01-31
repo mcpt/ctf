@@ -126,7 +126,7 @@ class Contest(models.Model):
         if user.is_superuser or user.has_perm("gameserver.edit_all_contests"):
             return cls.objects.all()
 
-        return cls.objects.filter(Q(is_public=True) | Q(organizers=user))
+        return cls.objects.filter(Q(is_public=True) | Q(organizers=user)).distinct()
 
     @classmethod
     def get_editable_contests(cls, user):
@@ -212,9 +212,13 @@ class ContestParticipation(models.Model):
         points = self.calc_points()
         last_solve_time = self.last_solve_time()
         contest_ranks = self.contest.ranks()
-        return contest_ranks.filter(
-            Q(points__gt=points) | Q(most_recent_solve_time__lte=last_solve_time, points=points)
-        ).count()
+        return (
+            contest_ranks.filter(
+                Q(points__gt=points) | Q(most_recent_solve_time__lte=last_solve_time, points=points)
+            )
+            .distinct()
+            .count()
+        )
 
     def get_absolute_url(self):
         return reverse("contest_participation_detail", args=[self.pk])

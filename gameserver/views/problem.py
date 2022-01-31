@@ -24,9 +24,7 @@ class ProblemList(ListView, mixin.TitleMixin, mixin.MetaMixin):
     title = "Problems"
 
     def get_queryset(self):
-        return models.Problem.get_visible_problems(self.request.user).order_by(
-            "points", "problem_type", "problem_group"
-        )
+        return models.Problem.get_visible_problems(self.request.user).order_by("points")
 
     def get(self, request, *args, **kwargs):
         if request.in_contest:

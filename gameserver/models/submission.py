@@ -47,7 +47,7 @@ class Submission(models.Model):
                 | Q(user=user)
                 | Q(problem__author=user)
                 | Q(problem__testers=user)
-            )
+            ).distinct()
         else:
             return cls.objects.filter(
                 contest_submission__participation__contest=user.current_contest.contest
