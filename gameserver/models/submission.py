@@ -23,18 +23,6 @@ class Submission(models.Model):
     is_correct = models.BooleanField(default=False)
     date_created = models.DateTimeField(auto_now_add=True)
 
-    @property
-    def is_firstblood(self):
-        prev_correct_submissions = Submission.objects.filter(
-            problem=self.problem, is_correct=True, pk__lte=self.pk
-        ).exclude(
-            Q(problem__author=F("user"))
-            | Q(problem__testers=F("user"))
-            | Q(problem__organizations__member=F("user"))
-        )
-
-        return prev_correct_submissions.count() == 1 and prev_correct_submissions.first() == self
-
     @classmethod
     def get_visible_submissions(cls, user):
         if not user.is_authenticated:

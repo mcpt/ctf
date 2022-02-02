@@ -97,27 +97,6 @@ class Problem(models.Model):
     def is_solved_by(self, user):
         return self.submissions.filter(user=user, is_correct=True).exists()
 
-    def is_firstblooded_by(self, user):
-        if not self.is_solved_by(user):
-            return False
-
-        user_first_correct_submission = (
-            self.submissions.filter(user=user, is_correct=True).order_by("pk").first()
-        )
-
-        prev_correct_submissions = self.submissions.filter(
-            is_correct=True, pk__lte=user_first_correct_submission.pk
-        ).exclude(
-            Q(problem__author=F("user"))
-            | Q(problem__testers=F("user"))
-            | Q(problem__organizations__member=F("user"))
-        )
-
-        return (
-            prev_correct_submissions.count() == 1
-            and prev_correct_submissions.first() == user_first_correct_submission
-        )
-
     def is_accessible_by(self, user):
         if self.is_public:
             return True

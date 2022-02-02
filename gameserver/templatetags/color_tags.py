@@ -19,8 +19,6 @@ def contest_color(contest):
 def problem_status(problem, user):
     if isinstance(problem, Problem) and not problem.is_public:
         return "private"
-    elif user.has_firstblooded(problem):
-        return "firstblood"
     elif user.has_solved(problem):
         return "solved"
     elif user.has_attempted(problem):

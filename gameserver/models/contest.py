@@ -247,9 +247,6 @@ class ContestParticipation(models.Model):
     def has_solved(self, problem):
         return problem.is_solved_by(self)
 
-    def has_firstblooded(self, problem):
-        return problem.is_firstblooded_by(self)
-
 
 class ContestProblem(models.Model):
     problem = models.ForeignKey(
@@ -270,12 +267,6 @@ class ContestProblem(models.Model):
         return self.submissions.filter(
             participation=participation, submission__is_correct=True
         ).exists()
-
-    def is_firstblooded_by(self, participation):
-        return (
-            self.is_solved_by(participation)
-            and not self.submissions.filter(submission__is_correct=True, pk__lt=self.pk).exists()
-        )
 
 
 class ContestSubmission(models.Model):
@@ -298,9 +289,3 @@ class ContestSubmission(models.Model):
     @property
     def is_correct(self):
         return self.submission.is_correct
-
-    @property
-    def is_firstblood(self):
-        return not ContestSubmission.objects.filter(
-            problem=self.problem, submission__is_correct=True, pk__lt=self.pk
-        ).exists()

@@ -133,22 +133,6 @@ class User(AbstractUser):
         else:
             raise TypeError("problem must be a Problem or ContestProblem")
 
-    def has_firstblooded(self, problem):
-        if isinstance(problem, ContestProblem):
-            return problem.is_firstblooded_by(self.participation_for_contest(problem.contest))
-        elif isinstance(problem, Problem):
-            print("a")
-            if self.current_contest is not None:
-                print("b")
-                contest_problem = problem.contest_problem(self.current_contest.contest)
-                if contest_problem is not None:
-                    print("c")
-                    return self.current_contest.has_firstblooded(contest_problem)
-
-            return problem.is_firstblooded_by(self)
-        else:
-            raise TypeError("problem must be a Problem or ContestProblem")
-
     def participation_for_contest(self, contest):
         try:
             return ContestParticipation.objects.get(participants=self, contest=contest)
