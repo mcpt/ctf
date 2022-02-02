@@ -63,12 +63,12 @@
                 {% endfor %}
                 <span class="flex-grow-1"></span>
 
-                {% if user.is_authenticated %}
+                {% if request.user.is_authenticated %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="profile-dropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <img src="{{ user.email|gravatar_url:20 }}" alt="User profile picture" class="img-thumbnail">
+                            <img src="{{ request.user.email|gravatar_url:20 }}" alt="User profile picture" class="img-thumbnail">
                             &nbsp;
-                            <span>{{ user.username }}</span>
+                            <span>{{ request.user.username }}</span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="profile-dropdown">
                             <li><a class="dropdown-item" href="{% url 'user_detail_redirect' %}">Profile</a></li>
