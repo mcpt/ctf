@@ -17,7 +17,7 @@
 {% block trows %}
     {% for team in teams %}
         <tr>
-            <td>{{ team.pk|team }}</th>
+            <td>{{ team|team }}</th>
             <td>{{ team.member_count }}</a></td>
         </tr>
     {% endfor %}

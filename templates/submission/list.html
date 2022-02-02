@@ -3,7 +3,7 @@
 
 {% block heading %}
     {% if problem %}
-        Submissions for {{ problem.slug|problem }}
+        Submissions for {{ problem|problem }}
     {% elif author %}
         Submissions by {{ author|user }}
     {% else %}

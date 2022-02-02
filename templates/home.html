@@ -25,7 +25,7 @@
                 <h1 class="card-header fs-6">Ongoing Contests</h1>
                 <ul class="list-group list-group-flush">
                     {% for contest in contests %}
-                        <li class="list-group-item">{{ contest.slug|contest }} <i>— ends in {{ contest.end_time|naturaltime }}</i></li>
+                        <li class="list-group-item">{{ contest|contest }} <i>— ends in {{ contest.end_time|naturaltime }}</i></li>
                     {% endfor %}
                 </ul>
             </section>
@@ -35,7 +35,7 @@
             <div class="card-body pt-2 pb-3">
                 <ul class="list-unstyled mb-0">
                     {% for problem in problems %}
-                        <li>{{ problem.slug|problem }}</li>
+                        <li>{{ problem|problem }}</li>
                     {% endfor %}
                 </ul>
             </div>

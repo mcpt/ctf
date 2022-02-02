@@ -1,5 +1,5 @@
 {% extends 'form.html' %}
 {% load link_tags %}
 
-{% block heading %}{% if is_join_request %}Request to {% endif %} Join {{ organization.slug|organization }}{% endblock %}
+{% block heading %}{% if is_join_request %}Request to {% endif %} Join {{ organization|organization }}{% endblock %}
 {% block cancel_redirect %}{% url 'organization_detail' organization.slug %}{% endblock %}

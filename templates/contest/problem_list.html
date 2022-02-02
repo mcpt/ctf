@@ -2,7 +2,7 @@
 {% load color_tags %}
 {% load link_tags %}
 
-{% block heading %}Problems for {{ contest.slug|contest }}{% endblock %}
+{% block heading %}Problems for {{ contest|contest }}{% endblock %}
 
 {% block th %}
     <th scope="col">Status</th>
@@ -17,7 +17,7 @@
             {% with status=contest_problem|problem_status:request.user %}
                 <td>{% include "problem/snippet/status.html" %}</td>
             {% endwith %}
-            <td>{{ contest_problem.problem.slug|problem }}</td2>
+            <td>{{ contest_problem.problem|problem }}</td2>
             {% if contest_problem.problem.problem_type.all %}
                 <td>{{ contest_problem.problem.problem_type.all|join:", " }}</td>
             {% else %}

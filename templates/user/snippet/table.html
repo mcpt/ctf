@@ -14,7 +14,7 @@
         {% for user in users %}
         <tr>
             <th scope="row">{{ user.rank }}</th>
-            <td>{{ user.username|user }}</td>
+            <td>{{ user|user }}</td>
             <td>{{ user.points|floatformat }}</td>
             <td>{{ user.flags }}</td>
         </tr>

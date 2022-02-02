@@ -9,7 +9,7 @@
 {% block trows %}
     {% for organization in organizations %}
         <tr>
-            <td>{{ organization.slug|organization }}</th>
+            <td>{{ organization|organization }}</th>
             <td>{{ organization.member_count }}</a></td>
         </tr>
     {% endfor %}

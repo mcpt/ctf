@@ -20,7 +20,7 @@
                     <td>{% include "./snippet/status.html" %}</td>
                 {% endwith %}
             {% endif %}
-            <td>{{ problem.slug|problem }}</td>
+            <td>{{ problem|problem }}</td>
             <td>{{ problem.problem_type.all|join:", " }}</td>
             <td>{{ problem.problem_group.all|join:", " }}</td>
             <td>{{ problem.points }}</td>

@@ -4,7 +4,7 @@
 {% block content %}
         <div class="card mb-3">
             <div class="card-body">
-                <h1 class="mt-0"><a href="{{ participation.participant.get_absolute_url }}">{{ participation.participant }}</a>'s Participation in {{ participation.contest.slug|contest }}</h1>
+                <h1 class="mt-0"><a href="{{ participation.participant.get_absolute_url }}">{{ participation.participant }}</a>'s Participation in {{ participation.contest|contest }}</h1>
                 <hr class="mb-0">
             </div>
         </div>

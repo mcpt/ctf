@@ -23,7 +23,7 @@
     <div class="card mb-3">
         <div class="card-body">
             <ul class="list-unstyled mb-0">
-                <li><b>Writeup for</b> {{ post.target.slug|problem }}</li>
+                <li><b>Writeup for</b> {{ post.target|problem }}</li>
                 <hr>
                 <li><b>Author{{ post.author.all|pluralize:"s" }}</b>: {{ post.author.all|users }}</li>
                 <li><b>Created</b>: {{ post.date_created|naturaltime }}</li>

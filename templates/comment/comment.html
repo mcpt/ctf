@@ -8,7 +8,7 @@
         <img src="{{ comment.author.email|gravatar_url:64 }}" class="w-100" alt="{{ comment.author.username }}'s gravatar">
     </div>
     <div class="flex-grow-1 ms-3 py-1">
-        <h6 class="mt-0 text-muted">{{ comment.author.username|user }} commented {{ comment.date_created|naturaltime }}<a class="float-end" href="{% url 'comment' comment.pk %}"><i class="bi bi-reply" title="Reply to this comment"></i></a></h6>
+        <h6 class="mt-0 text-muted">{{ comment.author|user }} commented {{ comment.date_created|naturaltime }}<a class="float-end" href="{% url 'comment' comment.pk %}"><i class="bi bi-reply" title="Reply to this comment"></i></a></h6>
         {{ comment.text|linebreaksbr }}
     </div>
 </li>

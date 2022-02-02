@@ -86,7 +86,7 @@
             {% if request.in_contest %}
                 <div class="alert alert-info" role="alert">
                     <h4 class="alert-heading" id="contestCountdown">Loading countdown...</h4>
-                    <p class="mb-0">Currently participating in {{ request.participation.contest.slug|contest }} as <a href="{{ request.participation.get_absolute_url }}">{{ request.participation.participant }}</a>.</p>
+                    <p class="mb-0">Currently participating in {{ request.participation.contest|contest }} as <a href="{{ request.participation.get_absolute_url }}">{{ request.participation.participant }}</a>.</p>
                 </div>
             {% endif %}
             {% block main %}

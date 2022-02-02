@@ -24,7 +24,7 @@
     {% for contest in contests %}
         <tr>
             <td class="p-3 py-2">
-                <h4 class="mb-1">{{ contest.slug|contest }}</h4>
+                <h4 class="mb-1">{{ contest|contest }}</h4>
                 <p class="mb-1">{{ contest.summary }}</p>
             </td>
             <td class="pt-2">

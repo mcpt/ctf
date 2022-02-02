@@ -10,8 +10,7 @@ register = template.Library()
 
 
 @register.filter
-def user(username, suffix=""):
-    user_obj = models.User.objects.get(username=username)
+def user(user_obj, suffix=""):
     return format_html(
         '<a href="{0}{1}">{2}</a>',
         mark_safe(user_obj.get_absolute_url()),
@@ -21,8 +20,7 @@ def user(username, suffix=""):
 
 
 @register.filter
-def users(usernames, suffix=""):
-    user_objs = models.User.objects.filter(pk__in=usernames)
+def users(user_objs, suffix=""):
     return format_html_join(
         ", ",
         '<a href="{0}{1}">{2}</a>',
@@ -31,8 +29,7 @@ def users(usernames, suffix=""):
 
 
 @register.filter
-def userst(usernames, suffix=""):
-    user_objs = models.User.objects.filter(pk__in=usernames)
+def userst(user_objs, suffix=""):
     return format_html_join(
         ", ",
         "{0}",
@@ -41,8 +38,7 @@ def userst(usernames, suffix=""):
 
 
 @register.filter
-def problem(slug, suffix=""):
-    problem_obj = models.Problem.objects.get(slug=slug)
+def problem(problem_obj, suffix=""):
     return format_html(
         '<a href="{0}{1}">{2}</a>',
         mark_safe(problem_obj.get_absolute_url()),
@@ -52,8 +48,7 @@ def problem(slug, suffix=""):
 
 
 @register.filter
-def comment(pk, suffix=""):
-    comment_obj = models.Comment.objects.get(pk=pk)
+def comment(comment_obj, suffix=""):
     return format_html(
         '<a href="{0}{1}">{2}</a>',
         mark_safe(comment_obj.get_absolute_url()),
@@ -65,23 +60,23 @@ def comment(pk, suffix=""):
 def comment_info(comment_obj):
     parent_type = comment_obj.parent_content_type.model
     if parent_type == "problem":
-        parent_url = problem(comment_obj.parent.slug)
+        parent_url = problem(comment_obj.parent)
     elif parent_type == "user":
-        parent_url = user(comment_obj.parent.username)
+        parent_url = user(comment_obj.parent)
     elif parent_type == "comment":
-        parent_url = comment(comment_obj.parent.pk)
+        parent_url = comment(comment_obj.parent)
     elif parent_type == "blogpost":
-        parent_url = post(comment_obj.parent.slug)
+        parent_url = post(comment_obj.parent)
     elif parent_type == "organization":
-        parent_url = organization(comment_obj.parent.slug)
+        parent_url = organization(comment_obj.parent)
     elif parent_type == "contest":
-        parent_url = contest(comment_obj.parent.slug)
+        parent_url = contest(comment_obj.parent)
     elif parent_type == "contestparticipation":
-        parent_url = contest_participation(comment_obj.parent.pk)
+        parent_url = contest_participation(comment_obj.parent)
     else:
         parent_url = "unknown."
-    comment_url = comment(comment_obj.pk)
-    author_url = user(comment_obj.author.username)
+    comment_url = comment(comment_obj)
+    author_url = user(comment_obj.author)
     comment_date = humanize.naturaltime(comment_obj.date_created)
     return comment_url, author_url, comment_date, parent_url
 
@@ -110,8 +105,7 @@ def comment_html_short(comment_obj):
 
 
 @register.filter
-def post(slug, suffix=""):
-    post_obj = models.BlogPost.objects.get(slug=slug)
+def post(post_obj, suffix=""):
     return format_html(
         '<a href="{0}{1}">{2}</a>',
         mark_safe(post_obj.get_absolute_url()),
@@ -121,8 +115,7 @@ def post(slug, suffix=""):
 
 
 @register.filter
-def organization(slug, suffix=""):
-    organization_obj = models.Organization.objects.get(slug=slug)
+def organization(organization_obj, suffix=""):
     return format_html(
         '<a href="{0}{1}">{2}</a>',
         mark_safe(organization_obj.get_absolute_url()),
@@ -132,8 +125,7 @@ def organization(slug, suffix=""):
 
 
 @register.filter
-def team(pk, suffix=""):
-    team_obj = models.Team.objects.get(pk=pk)
+def team(team_obj, suffix=""):
     return format_html(
         '<a href="{0}{1}">{2}</a>',
         mark_safe(team_obj.get_absolute_url()),
@@ -143,8 +135,7 @@ def team(pk, suffix=""):
 
 
 @register.filter
-def contest(slug, suffix=""):
-    contest_obj = models.Contest.objects.get(slug=slug)
+def contest(contest_obj, suffix=""):
     return format_html(
         '<a href="{0}{1}">{2}</a>',
         mark_safe(contest_obj.get_absolute_url()),
@@ -154,8 +145,7 @@ def contest(slug, suffix=""):
 
 
 @register.filter
-def contest_participation(pk, suffix=""):
-    contest_participation_obj = models.ContestParticipation.objects.get(pk=pk)
+def contest_participation(contest_participation_obj, suffix=""):
     return format_html(
         '<a href="{0}{1}">{2}</a>',
         mark_safe(contest_participation_obj.get_absolute_url()),
