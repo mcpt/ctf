@@ -3,7 +3,7 @@ import re
 import uuid
 
 from django.db import models
-from django.db.models import Q
+from django.db.models import F, Q
 from django.urls import reverse
 
 from ..utils import challenge
@@ -98,9 +98,24 @@ class Problem(models.Model):
         return self.submissions.filter(user=user, is_correct=True).exists()
 
     def is_firstblooded_by(self, user):
+        if not self.is_solved_by(user):
+            return False
+
+        user_first_correct_submission = (
+            self.submissions.filter(user=user, is_correct=True).order_by("pk").first()
+        )
+
+        prev_correct_submissions = self.submissions.filter(
+            is_correct=True, pk__lte=user_first_correct_submission.pk
+        ).exclude(
+            Q(problem__author=F("user"))
+            | Q(problem__testers=F("user"))
+            | Q(problem__organizations__member=F("user"))
+        )
+
         return (
-            self.is_solved_by(user)
-            and not self.submissions.filter(is_correct=True, pk__lt=self.pk).exists()
+            prev_correct_submissions.count() == 1
+            and prev_correct_submissions.first() == user_first_correct_submission
         )
 
     def is_accessible_by(self, user):
