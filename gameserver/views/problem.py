@@ -26,13 +26,11 @@ class ProblemList(ListView, mixin.MetaMixin):
     def get_queryset(self):
         return (
             models.Problem.get_visible_problems(self.request.user)
-            .only("name", "slug", "problem_type", "problem_group", "points", "is_public")
-            .prefetch_related(
-                Prefetch("problem_type", queryset=models.ProblemType.objects.only("name"))
+            .only(
+                "name", "slug", "problem_type__name", "problem_group__name", "points", "is_public"
             )
-            .prefetch_related(
-                Prefetch("problem_group", queryset=models.ProblemGroup.objects.only("name"))
-            )
+            .prefetch_related("problem_type")
+            .prefetch_related("problem_group")
             .order_by("points", "name")
         )
 

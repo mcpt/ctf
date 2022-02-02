@@ -29,7 +29,7 @@ class UserList(ListView, mixin.MetaMixin):
     title = "Users"
 
     def get_queryset(self):
-        return models.User.ranks()
+        return models.User.ranks().only("pk", "username")
 
     def get(self, request, *args, **kwargs):
         if request.in_contest:
@@ -67,6 +67,8 @@ class UserSubmissionList(SingleObjectMixin, ListView, mixin.MetaMixin):
         return (
             models.Submission.get_visible_submissions(self.request.user)
             .filter(user=self.object)
+            .only("pk", "is_correct", "problem", "user", "date_created")
+            .select_related("user", "problem")
             .order_by("-pk")
         )
 

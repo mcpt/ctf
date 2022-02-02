@@ -14,6 +14,7 @@ from . import mixin
 
 
 class OrganizationList(ListView, mixin.MetaMixin):
+    # TODO: Optimize later
     model = models.Organization
     template_name = "organization/list.html"
     context_object_name = "organizations"

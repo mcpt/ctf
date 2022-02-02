@@ -30,6 +30,7 @@ class ContestDetail(
     mixin.MetaMixin,
     mixin.CommentMixin,
 ):
+    # TODO: Optimize this view later
     model = models.Contest
     template_name = "contest/detail.html"
     context_object_name = "contest"
@@ -152,7 +153,9 @@ class ContestProblemList(ContestDetailsMixin, ListView, mixin.MetaMixin):
         return "Problems for " + self.object.name
 
     def get_queryset(self):
-        return self.object.problems.all()
+        return self.object.problems.only(
+            "problem", "problem__problem_type", "points"
+        ).select_related("problem")
 
 
 class ContestSubmissionList(ContestDetailsMixin, ListView, mixin.MetaMixin):
@@ -160,8 +163,11 @@ class ContestSubmissionList(ContestDetailsMixin, ListView, mixin.MetaMixin):
     paginate_by = 50
 
     def get_queryset(self):
-        return models.ContestSubmission.objects.filter(participation__contest=self.object).order_by(
-            "-submission__date_created"
+        return (
+            models.ContestSubmission.objects.filter(participation__contest=self.object)
+            .order_by("-submission__date_created")
+            .only("pk", "problem", "participation")
+            .select_related("problem", "participation")
         )
 
 
@@ -173,7 +179,7 @@ class ContestScoreboard(SingleObjectMixin, ListView, mixin.MetaMixin):
         return "Scoreboard for " + self.object.name
 
     def get_queryset(self):
-        return self.object.ranks()
+        return self.object.ranks().only("team").select_related("team")
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object(queryset=models.Contest.objects.all())
@@ -193,8 +199,12 @@ class ContestOrganizationScoreboard(ListView, mixin.MetaMixin):
         return self.org.short_name + " Scoreboard for " + self.contest.name
 
     def get_queryset(self):
-        return self.contest.ranks(
-            queryset=self.contest.participations.filter(participants__organizations=self.org)
+        return (
+            self.contest.ranks(
+                queryset=self.contest.participations.filter(participants__organizations=self.org)
+            )
+            .only("team")
+            .select_related("team")
         )
 
     def get(self, request, *args, **kwargs):
