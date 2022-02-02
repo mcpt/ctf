@@ -13,19 +13,19 @@ from . import mixin
 
 
 class UserDetailRedirect(RedirectView):
+    pattern_name = "user_detail"
     permanent = False
     query_string = False
-    pattern_name = "user_detail"
 
     def get_redirect_url(self, *args, **kwargs):
         user = self.request.user
         return reverse(self.pattern_name, args=[user.username])
 
 
-class UserList(ListView, mixin.TitleMixin, mixin.MetaMixin):
+class UserList(ListView, mixin.MetaMixin):
     model = models.User
-    context_object_name = "users"
     template_name = "user/list.html"
+    context_object_name = "users"
     title = "Users"
 
     def get_queryset(self):
@@ -38,14 +38,12 @@ class UserList(ListView, mixin.TitleMixin, mixin.MetaMixin):
             return super().get(request, *args, **kwargs)
 
 
-class UserDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin):
+class UserDetail(DetailView, mixin.MetaMixin, mixin.CommentMixin):
     model = models.User
-    context_object_name = "profile"
+    slug_field = "username"
     template_name = "user/detail.html"
+    context_object_name = "profile"
     og_type = "profile"
-
-    def get_slug_field(self):
-        return "username"
 
     def get_title(self):
         return "User " + self.object.username
@@ -57,16 +55,13 @@ class UserDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMix
         return [self.object]
 
 
-class UserSubmissionList(SingleObjectMixin, ListView, mixin.TitleMixin, mixin.MetaMixin):
+class UserSubmissionList(SingleObjectMixin, ListView, mixin.MetaMixin):
+    slug_field = "username"
     template_name = "submission/list.html"
     paginate_by = 50
 
-    def get_slug_field(self):
-        return "username"
-
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object(queryset=models.User.objects.all())
-        return super().get(request, *args, **kwargs)
+    def get_title(self):
+        return "Submissions by User " + self.object.username
 
     def get_queryset(self):
         return (
@@ -75,8 +70,9 @@ class UserSubmissionList(SingleObjectMixin, ListView, mixin.TitleMixin, mixin.Me
             .order_by("-pk")
         )
 
-    def get_title(self):
-        return "Submissions by User " + self.object.username
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object(queryset=models.User.objects.all())
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -85,9 +81,9 @@ class UserSubmissionList(SingleObjectMixin, ListView, mixin.TitleMixin, mixin.Me
         return context
 
 
-class UserEdit(UpdateView, mixin.TitleMixin, mixin.MetaMixin):
-    template_name = "user/form.html"
+class UserEdit(UpdateView, mixin.MetaMixin):
     form_class = forms.ProfileUpdateForm
+    template_name = "user/form.html"
     success_url = reverse_lazy("user_detail_redirect")
     title = "Update Profile"
 
@@ -96,5 +92,5 @@ class UserEdit(UpdateView, mixin.TitleMixin, mixin.MetaMixin):
 
     def get_form_kwargs(self):
         kwargs = super(UpdateView, self).get_form_kwargs()
-        kwargs["user"] = self.request.user
+        kwargs["profile"] = self.request.user
         return kwargs

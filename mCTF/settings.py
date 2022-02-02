@@ -138,12 +138,12 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "static"
 STATICFILES_FINDERS = [
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    'sass_processor.finders.CssFinder',
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+    "sass_processor.finders.CssFinder",
 ]
 STATICFILES_DIRS = [
-    BASE_DIR / 'public',
+    BASE_DIR / "public",
 ]
 
 
@@ -212,7 +212,9 @@ NAVBAR = {
 
 # Meta tag settings
 
-DESCRIPTION = "mCTF is a open-source online platform for people to host or participate in CTF contests."
+DESCRIPTION = (
+    "mCTF is a open-source online platform for people to host or participate in CTF contests."
+)
 KEYWORDS = [
     "mCTF",
     "MCPT",
@@ -224,7 +226,6 @@ KEYWORDS = [
     "cybersecurity",
 ]
 SCHEME = "https"
-PAYMENT_POINTERS = []  # Your Interledger Payment Pointers for Web Monetization
 
 
 # Sass settings
@@ -232,7 +233,7 @@ PAYMENT_POINTERS = []  # Your Interledger Payment Pointers for Web Monetization
 SASS_PROCESSOR_ROOT = STATIC_ROOT
 SASS_PROCESSOR_AUTO_INCLUDE = False
 SASS_PRECISION = 8
-SASS_OUTPUT_STYLE = 'compact'
+SASS_OUTPUT_STYLE = "compact"
 
 
 # Challenge Deployment settings
@@ -264,7 +265,7 @@ CHALLENGE_CLUSTER = {
                     "sys_admin",
                 ],
             },
-        }
+        },
     },
 }
 
@@ -273,7 +274,7 @@ CHALLENGE_CLUSTER = {
 
 SITE_ID = 1
 
-ROOT = "http://localhost" # Change this to your domain
+ROOT = "http://localhost"  # Change this to your domain
 
 SILENCED_SYSTEM_CHECKS = ["urls.W002"]
 

@@ -9,7 +9,7 @@
     <h2 class="card-header fs-6">Members</h2>
     <div class="card-body">
         <p>Total: {{ group.member_count }}</p>
-        {% include "user/snippet/table.html" with users=group.members.all %}
+        {% include "user/snippet/table.html" with users=group.ranks %}
     </div>
 </div>
 {% endblock %}
@@ -17,10 +17,10 @@
 {% block aside %}
 {% include "snippets/group_detail/members.html" with member_list=membered_admins card_title="Organization Admins" member_type="admins" %}
 
-{% if user.is_authenticated %}
+{% if request.user.is_authenticated %}
 <div class="card mb-3">
     <div class="card-body">
-        {% if group in user.organizations.all %}
+        {% if group in request.user.organizations.all %}
         {% include "snippets/group_detail/leave_form.html" with entity="organization" %}
         {% else %}
         <p>You are currently not in this organization.</p>
@@ -42,7 +42,7 @@
     </div>
 </div>
 {% comment "?" %}
-{% if group not in user.organizations.all and organization_requests %}
+{% if group not in request.user.organizations.all and organization_requests %}
 <div class="card">
     <h2 class="card-header fs-6">Organization Join Requests</h2>
     <div class="card-body">
@@ -50,7 +50,7 @@
             {% for req in organization_requests %}
             <li class="list-group-item" id="request_{{ req.pk }}">
                 <div class="d-flex w-100 justify-content-between">
-                    <p class="mb-1 fs-6">{{ req.user.username|user }} requested to join
+                    <p class="mb-1 fs-6">{{ request.user.username|user }} requested to join
                         {{ req.date_created|naturaltime }}</p>
                 </div>
                 <p class="mt-2 mb-3">{{ req.reason }}</p>

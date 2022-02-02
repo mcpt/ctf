@@ -14,9 +14,9 @@ from .. import forms, models
 from . import mixin
 
 
-class ContestList(ListView, mixin.TitleMixin, mixin.MetaMixin):
-    context_object_name = "contests"
+class ContestList(ListView, mixin.MetaMixin):
     template_name = "contest/list.html"
+    context_object_name = "contests"
     title = "Contests"
 
     def get_queryset(self):
@@ -27,16 +27,12 @@ class ContestDetail(
     UserPassesTestMixin,
     DetailView,
     FormMixin,
-    mixin.TitleMixin,
     mixin.MetaMixin,
     mixin.CommentMixin,
 ):
     model = models.Contest
-    context_object_name = "contest"
     template_name = "contest/detail.html"
-
-    def test_func(self):
-        return self.get_object().is_visible_by(self.request.user)
+    context_object_name = "contest"
 
     def get_title(self):
         return "" + self.object.name
@@ -44,22 +40,21 @@ class ContestDetail(
     def get_description(self):
         return self.object.summary
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if self.request.user.is_authenticated:
-            context["user_accessible"] = self.object.is_accessible_by(self.request.user)
-            context["participation"] = self.request.user.participation_for_contest(self.object)
-            context["team_participant_count"] = {
-                team_pk: participant_count
-                for team_pk, participant_count in self.request.user.teams.annotate(
-                    participant_count=Count(
-                        "contest_participations__participants",
-                        filter=Q(contest_participations__contest=self.object),
-                    )
-                ).values_list("pk", "participant_count")
-            }
-        context["top_participations"] = self.object.ranks()[:10]
-        return context
+    def get_success_url(self):
+        return self.request.path
+
+    def test_func(self):
+        return self.get_object().is_visible_by(self.request.user)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not request.user.is_authenticated or not self.object.is_ongoing:
+            return HttpResponseForbidden()
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
 
     def get_form(self):
         if self.request.user.is_authenticated:
@@ -74,16 +69,6 @@ class ContestDetail(
         cur_kwargs["user"] = self.request.user
         cur_kwargs["contest"] = self.object
         return cur_kwargs
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        if not request.user.is_authenticated or not self.object.is_ongoing:
-            return HttpResponseForbidden()
-        form = self.get_form()
-        if form.is_valid():
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
 
     def form_valid(self, form):
         team = form.cleaned_data["participant"]
@@ -119,14 +104,28 @@ class ContestDetail(
 
         return super().form_valid(form)
 
-    def get_success_url(self):
-        return self.request.path
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            context["user_accessible"] = self.object.is_accessible_by(self.request.user)
+            context["participation"] = self.request.user.participation_for_contest(self.object)
+            context["team_participant_count"] = {
+                team_pk: participant_count
+                for team_pk, participant_count in self.request.user.teams.annotate(
+                    participant_count=Count(
+                        "contest_participations__participants",
+                        filter=Q(contest_participations__contest=self.object),
+                    )
+                ).values_list("pk", "participant_count")
+            }
+        context["top_participations"] = self.object.ranks()[:10]
+        return context
 
 
 @method_decorator(require_POST, name="dispatch")
 class ContestLeave(LoginRequiredMixin, RedirectView):
-    query_string = True
     pattern_name = "contest_detail"
+    query_string = True
 
     def get_redirect_url(self, *args, **kwargs):
         self.request.user.remove_contest()
@@ -146,7 +145,7 @@ class ContestDetailsMixin(UserPassesTestMixin, SingleObjectMixin):
         return context
 
 
-class ContestProblemList(ContestDetailsMixin, ListView, mixin.TitleMixin, mixin.MetaMixin):
+class ContestProblemList(ContestDetailsMixin, ListView, mixin.MetaMixin):
     template_name = "contest/problem_list.html"
 
     def get_title(self):
@@ -156,7 +155,7 @@ class ContestProblemList(ContestDetailsMixin, ListView, mixin.TitleMixin, mixin.
         return self.object.problems.all()
 
 
-class ContestSubmissionList(ContestDetailsMixin, ListView, mixin.TitleMixin, mixin.MetaMixin):
+class ContestSubmissionList(ContestDetailsMixin, ListView, mixin.MetaMixin):
     template_name = "contest/submission_list.html"
     paginate_by = 50
 
@@ -166,19 +165,19 @@ class ContestSubmissionList(ContestDetailsMixin, ListView, mixin.TitleMixin, mix
         )
 
 
-class ContestScoreboard(SingleObjectMixin, ListView, mixin.TitleMixin, mixin.MetaMixin):
+class ContestScoreboard(SingleObjectMixin, ListView, mixin.MetaMixin):
     model = models.ContestParticipation
     template_name = "contest/scoreboard.html"
 
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object(queryset=models.Contest.objects.all())
-        return super().get(request, *args, **kwargs)
+    def get_title(self):
+        return "Scoreboard for " + self.object.name
 
     def get_queryset(self):
         return self.object.ranks()
 
-    def get_title(self):
-        return "Scoreboard for " + self.object.name
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object(queryset=models.Contest.objects.all())
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -186,22 +185,22 @@ class ContestScoreboard(SingleObjectMixin, ListView, mixin.TitleMixin, mixin.Met
         return context
 
 
-class ContestOrganizationScoreboard(ListView, mixin.TitleMixin, mixin.MetaMixin):
+class ContestOrganizationScoreboard(ListView, mixin.MetaMixin):
     model = models.ContestParticipation
     template_name = "contest/scoreboard.html"
 
-    def get(self, request, *args, **kwargs):
-        self.contest = models.Contest.objects.get(slug=self.kwargs["contest_slug"])
-        self.org = models.Organization.objects.get(slug=self.kwargs["org_slug"])
-        return super().get(request, *args, **kwargs)
+    def get_title(self):
+        return self.org.short_name + " Scoreboard for " + self.contest.name
 
     def get_queryset(self):
         return self.contest.ranks(
             queryset=self.contest.participations.filter(participants__organizations=self.org)
         )
 
-    def get_title(self):
-        return self.org.short_name + " Scoreboard for " + self.contest.name
+    def get(self, request, *args, **kwargs):
+        self.contest = models.Contest.objects.get(slug=self.kwargs["contest_slug"])
+        self.org = models.Organization.objects.get(slug=self.kwargs["org_slug"])
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -210,10 +209,10 @@ class ContestOrganizationScoreboard(ListView, mixin.TitleMixin, mixin.MetaMixin)
         return context
 
 
-class ContestParticipationDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin):
+class ContestParticipationDetail(DetailView, mixin.MetaMixin, mixin.CommentMixin):
     model = models.ContestParticipation
-    context_object_name = "participation"
     template_name = "contest/participation.html"
+    context_object_name = "participation"
 
     def get_title(self):
         return f"{self.object.__str__()}"

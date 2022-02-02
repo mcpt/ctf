@@ -1,11 +1,17 @@
 {% load link_tags %}
 {% load bootstrap_icons %}
+{% load humanize %}
 
 <tr>
-    <td>{{ contest_submission.submission.pk }}</td>
-    {% include "submission/snippet/status.html" with submission=contest_submission.submission %}
+    {% if not hide_pk %}
+        <td>{{ contest_submission.submission.pk }}</td>
+    {% endif %}
+    {% include "submission/snippet/status.html" with submission=contest_submission %}
     {% if not hide_problem %}
         <td>{{ contest_submission.submission.problem.slug|problem }}</td>
     {% endif %}
     <td><a href="{{ contest_submission.participation.get_absolute_url }}">{{ contest_submission.participation.participant }}</a></td>
+    {% if not hide_timestamp %}
+        <td>{{ contest_submission.submission.date_created|naturaltime }}</td>
+    {% endif %}
 </tr>

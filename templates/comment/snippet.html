@@ -7,12 +7,12 @@
     <div class="card-header">Comments</div>
     <div class="card-body text-wrap">
         {% include './list.html' with max_depth=6 depth=0 %}
-        {% if user.is_authenticated %}
+        {% if request.user.is_authenticated %}
         {% include './form.html' %}
         {% endif %}
     </div>
     {% endif %}
-    {% if user.is_authenticated %}
+    {% if request.user.is_authenticated %}
     <template id="comment-form">
         {% include './form.html' %}
     </template>

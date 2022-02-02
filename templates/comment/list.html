@@ -5,5 +5,5 @@
     {% endfor %}
 </ul>
 {% elif not hide_empty %}
-<p class="mb-0"><i>No comments yet. {% if user.is_authenticated %}Be the first!{% endif %}</i></p>
+<p class="mb-0"><i>No comments yet. {% if request.user.is_authenticated %}Be the first!{% endif %}</i></p>
 {% endif %}

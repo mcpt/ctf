@@ -14,7 +14,7 @@
 {% block trows %}
     {% for contest_problem in object_list %}
         <tr>
-            {% with status=contest_problem|contest_problem_status:user %}
+            {% with status=contest_problem|problem_status:request.user %}
                 <td>{% include "problem/snippet/status.html" %}</td>
             {% endwith %}
             <td>{{ contest_problem.problem.slug|problem }}</td2>

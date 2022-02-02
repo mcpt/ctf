@@ -7,13 +7,11 @@ import gameserver.models as models
 from . import mixin
 
 
-class Index(ListView, mixin.TitleMixin, mixin.MetaMixin):
-    template_name = "home.html"
+class Index(ListView, mixin.MetaMixin):
     model = models.BlogPost
+    template_name = "home.html"
     context_object_name = "posts"
-
-    def get_ordering(self):
-        return "-date_created"
+    ordering = "-date_created"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -28,10 +26,10 @@ class Index(ListView, mixin.TitleMixin, mixin.MetaMixin):
         return context
 
 
-class BlogPost(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin):
+class BlogPost(DetailView, mixin.MetaMixin, mixin.CommentMixin):
     model = models.BlogPost
-    context_object_name = "post"
     template_name = "blogpost/detail.html"
+    context_object_name = "post"
     og_type = "article"
 
     def get_title(self):
@@ -44,14 +42,14 @@ class BlogPost(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin
         return self.object.summary
 
 
-class Writeup(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin):
+class Writeup(DetailView, mixin.MetaMixin, mixin.CommentMixin):
     model = models.Writeup
-    context_object_name = "post"
     template_name = "problem/writeup.html"
+    context_object_name = "post"
     og_type = "article"
 
     def get_title(self):
-        return "" + self.object.title
+        return self.object.title
 
     def get_author(self):
         return self.object.author.all()

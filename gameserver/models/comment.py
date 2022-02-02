@@ -23,8 +23,8 @@ class Comment(models.Model):
 
     text = models.TextField()
 
-    def get_absolute_url(self):
-        return reverse("comment", args=[self.pk])
-
     def __str__(self):
         return f"Re: {self.parent}"
+
+    def get_absolute_url(self):
+        return reverse("comment", args=[self.pk])

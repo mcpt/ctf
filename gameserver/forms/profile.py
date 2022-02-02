@@ -63,7 +63,6 @@ class ProfileUpdateForm(ModelForm):
         fields = [
             "description",
             "timezone",
-            # "payment_pointer",
             "organizations",
             "school_name",
             "school_contact",

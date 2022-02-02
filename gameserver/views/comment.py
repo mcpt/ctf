@@ -9,10 +9,10 @@ from .. import models
 from . import mixin
 
 
-class Comment(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin):
+class Comment(DetailView, mixin.MetaMixin, mixin.CommentMixin):
     model = models.Comment
-    context_object_name = "comment"
     template_name = "comment/detail.html"
+    context_object_name = "comment"
 
     def get_title(self):
         return "Comment #" + str(self.object.pk)

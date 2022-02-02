@@ -16,10 +16,10 @@ from .. import forms, models
 from . import mixin
 
 
-class TeamList(ListView, mixin.TitleMixin, mixin.MetaMixin):
+class TeamList(ListView, mixin.MetaMixin):
     model = models.Team
-    context_object_name = "teams"
     template_name = "team/list.html"
+    context_object_name = "teams"
     title = "Teams"
 
     def get_ordering(self):
@@ -29,13 +29,12 @@ class TeamList(ListView, mixin.TitleMixin, mixin.MetaMixin):
 class TeamDetail(
     DetailView,
     FormMixin,
-    mixin.TitleMixin,
     mixin.MetaMixin,
     mixin.CommentMixin,
 ):
     model = models.Team
-    context_object_name = "group"
     template_name = "team/detail.html"
+    context_object_name = "group"
     form_class = forms.GroupJoinForm
 
     def get_title(self):
@@ -44,15 +43,8 @@ class TeamDetail(
     def get_description(self):
         return self.object.description
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["entity"] = "team"
-        return context
-
-    def get_form_kwargs(self, *args, **kwargs):
-        cur_kwargs = super().get_form_kwargs(*args, **kwargs)
-        cur_kwargs["group"] = self.object
-        return cur_kwargs
+    def get_success_url(self):
+        return reverse("team_detail", kwargs={"pk": self.object.pk})
 
     def post(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -64,6 +56,11 @@ class TeamDetail(
         else:
             return self.form_invalid(form)
 
+    def get_form_kwargs(self, *args, **kwargs):
+        cur_kwargs = super().get_form_kwargs(*args, **kwargs)
+        cur_kwargs["group"] = self.object
+        return cur_kwargs
+
     def form_valid(self, form):
         messages.success(self.request, "You are now a member of this team!")
         self.object.members.add(self.request.user)
@@ -73,13 +70,15 @@ class TeamDetail(
         messages.error(self.request, "Your access code is incorrect.")
         return super().form_invalid(form)
 
-    def get_success_url(self):
-        return reverse("team_detail", kwargs={"pk": self.object.pk})
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["entity"] = "team"
+        return context
 
 
-class TeamCreate(LoginRequiredMixin, CreateView, mixin.TitleMixin, mixin.MetaMixin):
-    template_name = "team/create.html"
+class TeamCreate(LoginRequiredMixin, CreateView, mixin.MetaMixin):
     model = models.Team
+    template_name = "team/create.html"
     fields = ("name", "description")
 
     def get_title(self):
@@ -103,13 +102,15 @@ class TeamEdit(
     LoginRequiredMixin,
     UserPassesTestMixin,
     UpdateView,
-    mixin.TitleMixin,
     mixin.MetaMixin,
 ):
-    template_name = "team/form.html"
-    title = "Update Team"
     model = models.Team
+    template_name = "team/form.html"
     form_class = forms.TeamUpdateForm
+    title = "Update Team"
+
+    def get_success_url(self):
+        return self.object.get_absolute_url()
 
     def test_func(self):
         return self.get_object().owner == self.request.user
@@ -119,14 +120,11 @@ class TeamEdit(
         kwargs["team"] = self.object
         return kwargs
 
-    def get_success_url(self):
-        return self.object.get_absolute_url()
-
 
 @method_decorator(require_POST, name="dispatch")
 class TeamLeave(LoginRequiredMixin, RedirectView):
-    query_string = True
     pattern_name = "team_detail"
+    query_string = True
 
     def get_redirect_url(self, *args, **kwargs):
         team = get_object_or_404(models.Team, pk=kwargs["pk"])

@@ -7,7 +7,7 @@
 {% block main %}
 <div class="card mb-3">
     <div class="card-body position-relative">
-        {% if profile == user %}
+        {% if profile == request.user %}
             <a class="btn btn-link btn-edit" href="{% url 'user_edit' %}">Edit {% bs_icon 'pencil' extra_classes="align-baseline" %}</a>
         {% endif %}
         <div class="row mb-3">

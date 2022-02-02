@@ -18,9 +18,9 @@ from . import mixin
 logger = logging.getLogger("django")
 
 
-class ProblemList(ListView, mixin.TitleMixin, mixin.MetaMixin):
-    context_object_name = "problems"
+class ProblemList(ListView, mixin.MetaMixin):
     template_name = "problem/list.html"
+    context_object_name = "problems"
     title = "Problems"
 
     def get_queryset(self):
@@ -37,22 +37,12 @@ class ProblemDetail(
     UserPassesTestMixin,
     DetailView,
     FormMixin,
-    mixin.TitleMixin,
     mixin.MetaMixin,
     mixin.CommentMixin,
 ):
     model = models.Problem
     template_name = "problem/detail.html"
     form_class = forms.FlagSubmissionForm
-
-    def get_contest_object(self):
-        if self.request.in_contest:
-            return self.object.get_contest_problem(self.request.participation.contest)
-        else:
-            return None
-
-    def test_func(self):
-        return self.get_object().is_accessible_by(self.request.user)
 
     def get_title(self):
         return self.object.name
@@ -63,10 +53,17 @@ class ProblemDetail(
     def get_author(self):
         return self.object.author.all()
 
-    def get_form_kwargs(self, *args, **kwargs):
-        cur_kwargs = super().get_form_kwargs(*args, **kwargs)
-        cur_kwargs["problem"] = self.object
-        return cur_kwargs
+    def get_success_url(self):
+        return reverse("problem_detail", kwargs={"slug": self.object.slug})
+
+    def get_contest_object(self):
+        if self.request.in_contest:
+            return self.object.contest_problem(self.request.participation.contest)
+        else:
+            return None
+
+    def test_func(self):
+        return self.get_object().is_accessible_by(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -94,6 +91,11 @@ class ProblemDetail(
             )
         return submission
 
+    def get_form_kwargs(self, *args, **kwargs):
+        cur_kwargs = super().get_form_kwargs(*args, **kwargs)
+        cur_kwargs["problem"] = self.object
+        return cur_kwargs
+
     def form_valid(self, form):
         if (not self.request.user.has_solved(self.object)) or (
             self.contest_object is not None
@@ -112,23 +114,9 @@ class ProblemDetail(
         messages.error(self.request, "Your flag is incorrect.")
         return super().form_invalid(form)
 
-    def get_success_url(self):
-        return reverse("problem_detail", kwargs={"slug": self.object.slug})
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["contest_problem"] = self.contest_object
-        if self.request.user.is_authenticated:
-            if (self.request.user.has_solved(self.object)) or (
-                self.contest_object is not None
-                and self.request.participation.has_solved(self.contest_object)
-            ):
-                context["status"] = "solved"
-            elif (self.request.user.has_attempted(self.object)) or (
-                self.contest_object is not None
-                and self.request.participation.has_attempted(self.contest_object)
-            ):
-                context["status"] = "attempted"
         return context
 
 
@@ -178,13 +166,12 @@ class ProblemChallenge(LoginRequiredMixin, SingleObjectMixin, View):
             return HttpResponseForbidden()
 
 
-class ProblemSubmissionList(SingleObjectMixin, ListView, mixin.TitleMixin, mixin.MetaMixin):
+class ProblemSubmissionList(SingleObjectMixin, ListView, mixin.MetaMixin):
     template_name = "submission/list.html"
     paginate_by = 50
 
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object(queryset=models.Problem.objects.all())
-        return super().get(request, *args, **kwargs)
+    def get_title(self):
+        return "Submissions for " + self.object.name
 
     def get_queryset(self):
         qs = (
@@ -202,8 +189,9 @@ class ProblemSubmissionList(SingleObjectMixin, ListView, mixin.TitleMixin, mixin
         else:
             return qs
 
-    def get_title(self):
-        return "Submissions for " + self.object.name
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object(queryset=models.Problem.objects.all())
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

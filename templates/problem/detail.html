@@ -1,14 +1,17 @@
 {% extends 'dual-column.html' %}
 {% load markdown_tags %}
 {% load link_tags %}
+{% load color_tags %}
 {% load static %}
 
 {% block content %}
 <div class="card mb-3">
     <div class="card-body px-4 py-3">
         <h1 class="card-title">
-            {% if user.is_authenticated %}
-            {% include "problem/snippet/status.html" with hide_unsolved=True %}
+            {% if request.user.is_authenticated %}
+                {% with problem|problem_status:request.user as status %}
+                    {% include "problem/snippet/status.html" with hide_unsolved=True %}
+                {% endwith %}
             {% endif %}
             {{ problem.name }}
         </h1>
@@ -20,7 +23,7 @@
 <div class="card mb-3">
     <div class="card-header">Challenge Instance</div>
     <div class="card-body">
-        {% if user.is_authenticated %}
+        {% if request.user.is_authenticated %}
         {% include "problem/snippet/challenge.html" %}
         {% else %}
         <p class="mb-0">Sign in to solve this challenge!</p>
@@ -67,7 +70,7 @@
                 {% endif %}
             </li>
             <li><b>Author{{ problem.author.all|pluralize:"s" }}</b>: {{ problem.author.all|users }}</li>
-            {% if problem.problem_group.all and not user.current_contest %}
+            {% if problem.problem_group.all and not request.user.current_contest %}
             <li><b>Group{{ problem.problem_group.all|pluralize:"s" }}:</b> {{ problem.problem_group.all|join:", " }}
             </li>
             {% endif %}
@@ -76,7 +79,7 @@
             {% endif %}
         </ul>
         <hr>
-        {% if user.is_authenticated %}
+        {% if request.user.is_authenticated %}
         {% include "snippets/form-code.html" with field=form.flag %}
         {% endif %}
         <p class="mt-2 mb-0 mx-1"><a href="{% url 'problem_submission_list' problem.slug %}" class="card-link">All

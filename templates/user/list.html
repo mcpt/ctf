@@ -11,7 +11,7 @@
 {% block trows %}
     {% for user in users %}
         <tr>
-            <th scope="row">{{ forloop.counter }}</th>
+            <th scope="row">{{ user.rank }}</th>
             <td>{{ user.username|user }}</td>
             <td>{{ user.points|floatformat }}</td>
             <td>{{ user.flags }}</td>

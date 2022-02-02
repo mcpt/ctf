@@ -1,6 +1,11 @@
-{% load color_tags %}
+{% load bootstrap_icons %}
+
 <td>
-    {% with status=submission|submission_status %}
-        {% include "problem/snippet/status.html" %}
-    {% endwith %}
+    {% if submission.is_firstblood %}
+        <span class="status" title="First blood">{% bs_icon 'droplet' %}</span>
+    {% elif submission.is_correct %}
+        <span class="status" title="Solved">{% bs_icon 'flag' %}</span>
+    {% else %}
+        <span class="status" title="Attempted">{% bs_icon 'x-lg' %}</span>
+    {% endif %}
 </td>

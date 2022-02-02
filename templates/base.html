@@ -29,10 +29,6 @@
         <meta name="twitter:image" content="{{ og_image }}" />
         {% endif %}
 
-        {% if meta_payment_pointer %}
-        <meta name="monetization" content="{{ meta_payment_pointer }}">
-        {% endif %}
-
         {% block othermeta %}
         {% endblock %}
 
@@ -72,7 +68,7 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="profile-dropdown">
                             <li><a class="dropdown-item" href="{% url 'user_detail_redirect' %}">Profile</a></li>
-                            {% if user.is_staff %}
+                            {% if request.user.is_staff %}
                                 <li><a class="dropdown-item" href="{% url 'admin:index' %}">Admin</a></li>
                             {% endif %}
                             <li><a class="dropdown-item" href="{% url 'account_logout' %}">Log out</a></li>

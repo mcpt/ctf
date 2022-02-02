@@ -36,8 +36,17 @@ class Contest(models.Model):
         null=True, blank=True, validators=[MinValueValidator(1)]
     )
 
+    class Meta:
+        permissions = (
+            ("change_contest_visibility", "Change visibility of contests"),
+            ("edit_all_contests", "Edit all contests"),
+        )
+
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse("contest_detail", args=[self.slug])
 
     @property
     def is_private(self):
@@ -47,18 +56,19 @@ class Contest(models.Model):
     def teams_allowed(self):
         return self.max_team_size is None or self.max_team_size > 1
 
-    def get_absolute_url(self):
-        return reverse("contest_detail", args=[self.slug])
-
+    @property
     def is_started(self):
         return self.start_time <= timezone.now()
 
+    @property
     def is_finished(self):
         return self.end_time < timezone.now()
 
+    @property
     def is_ongoing(self):
-        return self.is_started() and not self.is_finished()
+        return self.is_started and not self.is_finished
 
+    @property
     def duration(self):
         return self.end_time - self.start_time
 
@@ -138,12 +148,6 @@ class Contest(models.Model):
 
         return cls.objects.filter(organizers=user)
 
-    class Meta:
-        permissions = (
-            ("change_contest_visibility", "Change visibility of contests"),
-            ("edit_all_contests", "Edit all contests"),
-        )
-
 
 class ContestParticipation(models.Model):
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE, related_name="participations")
@@ -159,6 +163,13 @@ class ContestParticipation(models.Model):
 
     participants = models.ManyToManyField("User", related_name="contest_participations", blank=True)
 
+    def __str__(self):
+        return f"{self.participant.__str__()}'s Participation in {self.contest.name}"
+
+    def get_absolute_url(self):
+        return reverse("contest_participation_detail", args=[self.pk])
+
+    @property
     def participant(self):
         if self.team is None:
             return self.participants.first()
@@ -173,15 +184,18 @@ class ContestParticipation(models.Model):
             .distinct()
         )
 
-    def calc_points(self):
+    def points(self):
         points = self._get_unique_correct_submissions().aggregate(
             points=Coalesce(Sum("problem__points"), 0)
         )["points"]
+        print(points)
         return points
 
+    @property
     def num_flags_captured(self):
         return self._get_unique_correct_submissions().count()
 
+    @property
     def last_solve(self):
         submissions = (
             self.submissions.filter(submission__is_correct=True)
@@ -197,51 +211,43 @@ class ContestParticipation(models.Model):
         else:
             return None
 
+    @property
     def last_solve_time(self):
-        last_solve = self.last_solve()
+        last_solve = self.last_solve
         if last_solve is not None:
             return last_solve.submission.date_created
         else:
             return self.contest.start_time
 
+    @property
     def time_taken(self):
-        solve_time = self.last_solve_time()
+        solve_time = self.last_solve_time
         return solve_time - self.contest.start_time
 
     def rank(self):
-        points = self.calc_points()
-        last_solve_time = self.last_solve_time()
-        contest_ranks = self.contest.ranks()
+        if isinstance(self.points, int):
+            points = self.points
+        else:
+            points = self.points()
+
         return (
-            contest_ranks.filter(
-                Q(points__gt=points) | Q(most_recent_solve_time__lte=last_solve_time, points=points)
+            self.contest.ranks()
+            .filter(
+                Q(points__gt=points)
+                | Q(most_recent_solve_time__lte=self.last_solve_time, points=points)
             )
             .distinct()
             .count()
         )
 
-    def get_absolute_url(self):
-        return reverse("contest_participation_detail", args=[self.pk])
+    def has_attempted(self, problem):
+        return problem.is_attempted_by(self)
 
-    def has_solved(self, contest_problem=None, problem=None):
-        qs = self.submissions.filter(submission__is_correct=True)
-        if contest_problem is not None:
-            return qs.filter(problem=contest_problem).exists()
-        elif problem is not None:
-            return qs.filter(problem__problem=problem).exists()
-        else:
-            raise ValueError("Either contest_problem or problem must be specified")
+    def has_solved(self, problem):
+        return problem.is_solved_by(self)
 
-    def has_attempted(self, contest_problem=None, problem=None):
-        if contest_problem is not None:
-            return self.submissions.filter(problem=contest_problem).exists()
-        elif problem is not None:
-            return self.submissions.filter(problem__problem=problem).exists()
-        else:
-            raise ValueError("Either contest_problem or problem must be specified")
-
-    def __str__(self):
-        return f"{self.participant().__str__()}'s Participation in {self.contest.name}"
+    def has_firstblooded(self, problem):
+        return problem.is_firstblooded_by(self)
 
 
 class ContestProblem(models.Model):
@@ -252,6 +258,20 @@ class ContestProblem(models.Model):
         Contest, on_delete=models.CASCADE, related_name="problems", related_query_name="problem"
     )
     points = models.PositiveSmallIntegerField()
+
+    def is_attempted_by(self, participation):
+        return self.submissions.filter(participation=participation).exists()
+
+    def is_solved_by(self, participation):
+        return self.submissions.filter(
+            participation=participation, submission__is_correct=True
+        ).exists()
+
+    def is_firstblooded_by(self, participation):
+        return (
+            self.is_solved_by(participation)
+            and not self.submissions.filter(submission__is_correct=True, pk__lt=self.pk).exists()
+        )
 
 
 class ContestSubmission(models.Model):
@@ -270,3 +290,13 @@ class ContestSubmission(models.Model):
     submission = models.OneToOneField(
         "Submission", on_delete=models.CASCADE, related_name="contest_submission"
     )
+
+    @property
+    def is_correct(self):
+        return self.submission.is_correct
+
+    @property
+    def is_firstblood(self):
+        return not ContestSubmission.objects.filter(
+            problem=self.problem, submission__is_correct=True, pk__lt=self.pk
+        ).exists()

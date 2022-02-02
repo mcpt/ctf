@@ -3,7 +3,7 @@
 {% load link_tags %}
 
 {% block th %}
-    {% if user.is_authenticated %}
+    {% if request.user.is_authenticated %}
         <th scope="col">Status</th>
     {% endif %}
     <th scope="col">Problem</th>
@@ -15,8 +15,8 @@
 {% block trows %}
     {% for problem in problems %}
         <tr>
-            {% if user.is_authenticated %}
-                {% with status=problem|problem_status:user %}
+            {% if request.user.is_authenticated %}
+                {% with status=problem|problem_status:request.user %}
                     <td>{% include "./snippet/status.html" %}</td>
                 {% endwith %}
             {% endif %}

@@ -9,7 +9,6 @@ from django.urls import reverse
 from ..utils import challenge
 from . import abstract
 from .contest import ContestProblem
-from .profile import User
 
 # Create your models here.
 
@@ -25,13 +24,13 @@ class ProblemType(abstract.Category):
 class Problem(models.Model):
     flag = models.CharField(max_length=256)
 
-    author = models.ManyToManyField(User, related_name="problems_authored", blank=True)
+    author = models.ManyToManyField("User", related_name="problems_authored", blank=True)
     name = models.CharField(max_length=128)
     description = models.TextField()
     summary = models.CharField(max_length=150)
     slug = models.SlugField(unique=True)
     date_created = models.DateTimeField(auto_now_add=True)
-    testers = models.ManyToManyField(User, related_name="problems_testing", blank=True)
+    testers = models.ManyToManyField("User", related_name="problems_testing", blank=True)
 
     points = models.PositiveSmallIntegerField()
 
@@ -42,8 +41,17 @@ class Problem(models.Model):
 
     challenge_spec = models.JSONField(null=True, blank=True)
 
+    class Meta:
+        permissions = (
+            ("change_problem_visibility", "Change visibility of problems"),
+            ("edit_all_problems", "Edit all problems"),
+        )
+
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse("problem_detail", args=[self.slug])
 
     @property
     def is_private(self):
@@ -58,10 +66,7 @@ class Problem(models.Model):
         else:
             return None
 
-    def get_absolute_url(self):
-        return reverse("problem_detail", args=[self.slug])
-
-    def get_contest_problem(self, contest):
+    def contest_problem(self, contest):
         try:
             return ContestProblem.objects.get(problem=self, contest=contest)
         except ContestProblem.DoesNotExist:
@@ -84,6 +89,18 @@ class Problem(models.Model):
             return challenge.delete_challenge_instance(
                 self.challenge_spec, self.slug, instance_owner
             )
+
+    def is_attempted_by(self, user):
+        return self.submissions.filter(user=user).exists()
+
+    def is_solved_by(self, user):
+        return self.submissions.filter(user=user, is_correct=True).exists()
+
+    def is_firstblooded_by(self, user):
+        return (
+            self.is_solved_by(user)
+            and not self.submissions.filter(is_correct=True, pk__lt=self.pk).exists()
+        )
 
     def is_accessible_by(self, user):
         if self.is_public:
@@ -131,12 +148,6 @@ class Problem(models.Model):
 
         return cls.objects.filter(author=user).distinct()
 
-    class Meta:
-        permissions = (
-            ("change_problem_visibility", "Change visibility of problems"),
-            ("edit_all_problems", "Edit all problems"),
-        )
-
 
 def problem_file_path(instance, filename):
     return f"problem/{instance.problem.slug}/{filename}"
@@ -148,8 +159,9 @@ class ProblemFile(models.Model):
     checksum = models.CharField(max_length=64)
 
     def __str__(self):
-        return self.file_name()
+        return self.file_name
 
+    @property
     def file_name(self):
         return self.artifact.name.split("/")[-1]
 

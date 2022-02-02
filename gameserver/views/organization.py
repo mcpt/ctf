@@ -13,20 +13,20 @@ from .. import forms, models
 from . import mixin
 
 
-class OrganizationList(ListView, mixin.TitleMixin, mixin.MetaMixin):
+class OrganizationList(ListView, mixin.MetaMixin):
     model = models.Organization
-    context_object_name = "organizations"
     template_name = "organization/list.html"
+    context_object_name = "organizations"
     title = "Organizations"
 
     def get_ordering(self):
         return "-name"
 
 
-class OrganizationDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.CommentMixin):
+class OrganizationDetail(DetailView, mixin.MetaMixin, mixin.CommentMixin):
     model = models.Organization
-    context_object_name = "group"
     template_name = "organization/detail.html"
+    context_object_name = "group"
 
     def get_title(self):
         return "Organization " + self.object.name
@@ -56,10 +56,13 @@ class OrganizationDetail(DetailView, mixin.TitleMixin, mixin.MetaMixin, mixin.Co
         return context
 
 
-class OrganizationRequest(LoginRequiredMixin, CreateView, mixin.TitleMixin, mixin.MetaMixin):
-    template_name = "organization/form-join.html"
+class OrganizationRequest(LoginRequiredMixin, CreateView, mixin.MetaMixin):
     model = models.OrganizationRequest
+    template_name = "organization/form-join.html"
     fields = ["reason"]
+
+    def get_title(self):
+        return "Request to join Organization " + self.org.name
 
     def get_object(self):
         return get_object_or_404(models.Organization, slug=self.kwargs["slug"])
@@ -74,9 +77,6 @@ class OrganizationRequest(LoginRequiredMixin, CreateView, mixin.TitleMixin, mixi
         messages.info(self.request, "Your request to join this organization has been submitted.")
         return super().form_valid(form)
 
-    def get_title(self):
-        return "Request to join Organization " + self.org.name
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["organization"] = self.org
@@ -84,11 +84,15 @@ class OrganizationRequest(LoginRequiredMixin, CreateView, mixin.TitleMixin, mixi
         return context
 
 
-class OrganizationJoin(
-    LoginRequiredMixin, SingleObjectMixin, FormView, mixin.TitleMixin, mixin.MetaMixin
-):
+class OrganizationJoin(LoginRequiredMixin, SingleObjectMixin, FormView, mixin.MetaMixin):
     template_name = "organization/form-join.html"
     form_class = forms.GroupJoinForm
+
+    def get_title(self):
+        return "Join Organization " + self.object.name
+
+    def get_success_url(self, *args, **kwargs):
+        return self.object.get_absolute_url()
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object(queryset=models.Organization.objects.all())
@@ -107,31 +111,25 @@ class OrganizationJoin(
         self.request.user.organizations.add(self.object)
         messages.success(self.request, "You are now a member of this organization!")
 
+    def get_form_kwargs(self, *args, **kwargs):
+        cur_kwargs = super().get_form_kwargs(*args, **kwargs)
+        cur_kwargs["group"] = self.object
+        return cur_kwargs
+
     def form_valid(self, form):
         self.success()
         return super().form_valid(form)
-
-    def get_success_url(self, *args, **kwargs):
-        return self.object.get_absolute_url()
-
-    def get_title(self):
-        return "Join Organization " + self.object.name
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["organization"] = self.object
         return context
 
-    def get_form_kwargs(self, *args, **kwargs):
-        cur_kwargs = super().get_form_kwargs(*args, **kwargs)
-        cur_kwargs["group"] = self.object
-        return cur_kwargs
-
 
 @method_decorator(require_POST, name="dispatch")
 class OrganizationLeave(LoginRequiredMixin, RedirectView):
-    query_string = True
     pattern_name = "organization_detail"
+    query_string = True
 
     def get_redirect_url(self, *args, **kwargs):
         organization = get_object_or_404(models.Organization, slug=kwargs["slug"])

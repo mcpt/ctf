@@ -23,14 +23,13 @@ class Submission(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     is_correct = models.BooleanField(default=False)
 
+    @property
     def is_firstblood(self):
         # TODO: Consider only submissions from within contest, should be implemented in ContestSubmission instead
         return (
-            self
-            == Submission.objects.filter(problem=self.problem, is_correct=True)
+            Submission.objects.filter(problem=self.problem, is_correct=True, pk__lt=self.pk)
             .exclude(user__in=self.problem.author.all() | self.problem.testers.all())
-            .order_by("pk")
-            .first()
+            .exists()
         )
 
     @classmethod

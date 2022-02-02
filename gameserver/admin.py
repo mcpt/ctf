@@ -154,7 +154,7 @@ class OrganizationRequestAdmin(admin.ModelAdmin):
     def has_change_permission(self, request, obj=None):
         status = self.has_given_permission(request, obj, "gameserver.change_organizationrequest")
         if obj is not None:
-            return status and not obj.reviewed()
+            return status and not obj.reviewed
         return status
 
     def get_queryset(self, request):
