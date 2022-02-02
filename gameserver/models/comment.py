@@ -19,9 +19,10 @@ class Comment(models.Model):
     )
 
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    date_created = models.DateTimeField(auto_now_add=True)
 
     text = models.TextField()
+
+    date_created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Re: {self.parent}"

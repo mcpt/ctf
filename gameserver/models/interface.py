@@ -10,13 +10,14 @@ from .profile import User
 
 class Post(models.Model):
     author = models.ManyToManyField(User, blank=True)
-    date_created = models.DateTimeField(auto_now_add=True)
-    date_last_modified = models.DateTimeField(auto_now=True)
 
     title = models.CharField(max_length=128, blank=True)
+    slug = models.SlugField(unique=True)
     text = models.TextField(blank=True)
     summary = models.CharField(max_length=150)
-    slug = models.SlugField(unique=True)
+
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_last_modified = models.DateTimeField(auto_now=True)
 
     class Meta:
         abstract = True

@@ -18,7 +18,18 @@ def get_default_user_timezone():
 
 
 class User(AbstractUser):
+    full_name = models.CharField(max_length=80, blank=True)
     description = models.TextField(blank=True)
+
+    school_name = models.CharField(
+        max_length=80, blank=True, help_text="The full name of your school"
+    )
+
+    school_contact = models.EmailField(
+        blank=True,
+        verbose_name="teacher contact email",
+        help_text="Email address of a school teacher for verification purposes",
+    )
 
     timezone = models.CharField(
         max_length=50, choices=timezone_choices, default=get_default_user_timezone
@@ -37,17 +48,6 @@ class User(AbstractUser):
         related_name="current_participants",
         null=True,
         blank=True,
-    )
-
-    full_name = models.CharField(max_length=80, blank=True)
-
-    school_name = models.CharField(
-        max_length=80, blank=True, help_text="The full name of your school"
-    )
-    school_contact = models.EmailField(
-        blank=True,
-        verbose_name="teacher contact email",
-        help_text="Email address of a school teacher for verification purposes",
     )
 
     def get_absolute_url(self):
@@ -172,14 +172,16 @@ class User(AbstractUser):
 class Organization(models.Model):
     owner = models.ForeignKey(User, on_delete=models.PROTECT, related_name="organizations_owning")
     admins = models.ManyToManyField("User", related_name="organizations_maintaining")
+
     name = models.CharField(max_length=64)
+    slug = models.SlugField(unique=True)
     short_name = models.CharField(max_length=24)
     description = models.TextField(blank=True)
-    slug = models.SlugField(unique=True)
-    date_registered = models.DateTimeField(auto_now_add=True)
 
     is_open = models.BooleanField(default=True)
     access_code = models.CharField(max_length=36, blank=True)
+
+    date_registered = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         permissions = (("edit_all_organizations", "Edit all organizations"),)
@@ -220,11 +222,13 @@ class OrganizationRequest(models.Model):
     organization = models.ForeignKey(
         Organization, on_delete=models.CASCADE, related_name="requests"
     )
-    date_created = models.DateTimeField(auto_now_add=True)
+    reason = models.TextField()
+
     status = models.CharField(
         max_length=1, choices=organization_request_status_choices, default="p"
     )
-    reason = models.TextField()
+
+    date_created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Request to join {self.organization.name} ({self.pk})"
@@ -245,10 +249,10 @@ class OrganizationRequest(models.Model):
 
 class Team(models.Model):
     owner = models.ForeignKey(User, on_delete=models.PROTECT, related_name="teams_owning")
+
     name = models.CharField(max_length=64, unique=True)
     description = models.TextField(blank=True)
-    access_code = models.CharField(max_length=36)
-    date_registered = models.DateTimeField(auto_now_add=True)
+
     members = models.ManyToManyField(User, related_name="teams", blank=True)
     organizations = models.ManyToManyField(
         Organization,
@@ -256,6 +260,10 @@ class Team(models.Model):
         related_name="teams",
         related_query_name="team",
     )
+
+    access_code = models.CharField(max_length=36)
+
+    date_registered = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name

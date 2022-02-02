@@ -20,8 +20,8 @@ class Submission(models.Model):
         related_name="submissions",
         related_query_name="submission",
     )
-    date_created = models.DateTimeField(auto_now_add=True)
     is_correct = models.BooleanField(default=False)
+    date_created = models.DateTimeField(auto_now_add=True)
 
     @property
     def is_firstblood(self):

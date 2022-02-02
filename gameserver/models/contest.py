@@ -19,11 +19,11 @@ class ContestTag(abstract.Category):
 
 class Contest(models.Model):
     organizers = models.ManyToManyField("User", related_name="contests_organized", blank=True)
+
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True)
     description = models.TextField()
     summary = models.CharField(max_length=150)
-    date_created = models.DateTimeField(auto_now_add=True)
 
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
@@ -31,10 +31,11 @@ class Contest(models.Model):
     tags = models.ManyToManyField(ContestTag, blank=True)
 
     is_public = models.BooleanField(default=True)
-
     max_team_size = models.PositiveSmallIntegerField(
         null=True, blank=True, validators=[MinValueValidator(1)]
     )
+
+    date_created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         permissions = (
@@ -258,6 +259,9 @@ class ContestProblem(models.Model):
         Contest, on_delete=models.CASCADE, related_name="problems", related_query_name="problem"
     )
     points = models.PositiveSmallIntegerField()
+
+    def get_absolute_url(self):
+        return reverse("problem_detail", args=[self.problem.slug])
 
     def is_attempted_by(self, participation):
         return self.submissions.filter(participation=participation).exists()

@@ -22,24 +22,25 @@ class ProblemType(abstract.Category):
 
 
 class Problem(models.Model):
-    flag = models.CharField(max_length=256)
 
     author = models.ManyToManyField("User", related_name="problems_authored", blank=True)
-    name = models.CharField(max_length=128)
-    description = models.TextField()
-    summary = models.CharField(max_length=150)
-    slug = models.SlugField(unique=True)
-    date_created = models.DateTimeField(auto_now_add=True)
     testers = models.ManyToManyField("User", related_name="problems_testing", blank=True)
 
-    points = models.PositiveSmallIntegerField()
+    name = models.CharField(max_length=128)
+    slug = models.SlugField(unique=True)
+    description = models.TextField()
+    summary = models.CharField(max_length=150)
 
     problem_group = models.ManyToManyField(ProblemGroup, blank=True)
     problem_type = models.ManyToManyField(ProblemType, blank=True)
 
+    flag = models.CharField(max_length=256)
+    points = models.PositiveSmallIntegerField()
+    challenge_spec = models.JSONField(null=True, blank=True)
+
     is_public = models.BooleanField(default=False)
 
-    challenge_spec = models.JSONField(null=True, blank=True)
+    date_created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         permissions = (
