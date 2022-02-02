@@ -22,9 +22,9 @@ class ProblemType(abstract.Category):
 
 
 class Problem(models.Model):
-
     author = models.ManyToManyField("User", related_name="problems_authored", blank=True)
     testers = models.ManyToManyField("User", related_name="problems_testing", blank=True)
+    organizations = models.ManyToManyField("Organization", related_name="problems", blank=True)
 
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True)
@@ -110,6 +110,9 @@ class Problem(models.Model):
         if not user.is_authenticated:
             return False
 
+        if self.organizations.filter(member=user).exists():
+            return True
+
         if (
             user.current_contest is not None
             and user.current_contest.contest.problems.filter(problem=self).exists()
@@ -140,7 +143,9 @@ class Problem(models.Model):
         if user.is_superuser or user.has_perm("gameserver.edit_all_problems"):
             return cls.objects.all()
 
-        return cls.objects.filter(Q(is_public=True) | Q(author=user) | Q(testers=user)).distinct()
+        return cls.objects.filter(
+            Q(is_public=True) | Q(author=user) | Q(testers=user) | Q(organizations__member=user)
+        ).distinct()
 
     @classmethod
     def get_editable_problems(cls, user):

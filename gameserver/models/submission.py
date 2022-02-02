@@ -28,7 +28,11 @@ class Submission(models.Model):
         # TODO: Consider only submissions from within contest, should be implemented in ContestSubmission instead
         return (
             Submission.objects.filter(problem=self.problem, is_correct=True, pk__lt=self.pk)
-            .exclude(user__in=self.problem.author.all() | self.problem.testers.all())
+            .exclude(
+                Q(problem__author=self.user)
+                | Q(problem__testers=self.user)
+                | Q(problem__organizations__member=self.user)
+            )
             .exists()
         )
 
@@ -46,6 +50,7 @@ class Submission(models.Model):
                 | Q(user=user)
                 | Q(problem__author=user)
                 | Q(problem__testers=user)
+                | Q(problem__organizations__member=user)
             ).distinct()
         else:
             return cls.objects.filter(

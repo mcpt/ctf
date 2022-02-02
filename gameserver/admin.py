@@ -23,6 +23,7 @@ class ProblemAdmin(admin.ModelAdmin):
         "slug",
         "author",
         "testers",
+        "organizations",
         "description",
         "summary",
         "points",
