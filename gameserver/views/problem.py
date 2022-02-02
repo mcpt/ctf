@@ -3,7 +3,7 @@ import logging
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Q
+from django.db.models import Prefetch, Q
 from django.http import HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
@@ -24,7 +24,17 @@ class ProblemList(ListView, mixin.MetaMixin):
     title = "Problems"
 
     def get_queryset(self):
-        return models.Problem.get_visible_problems(self.request.user).order_by("points")
+        return (
+            models.Problem.get_visible_problems(self.request.user)
+            .only("name", "slug", "problem_type", "problem_group", "points")
+            .prefetch_related(
+                Prefetch("problem_type", queryset=models.ProblemType.objects.only("name"))
+            )
+            .prefetch_related(
+                Prefetch("problem_group", queryset=models.ProblemGroup.objects.only("name"))
+            )
+            .order_by("points", "name")
+        )
 
     def get(self, request, *args, **kwargs):
         if request.in_contest:
@@ -177,6 +187,8 @@ class ProblemSubmissionList(SingleObjectMixin, ListView, mixin.MetaMixin):
         qs = (
             models.Submission.get_visible_submissions(self.request.user)
             .filter(problem=self.object)
+            .only("pk", "is_correct", "user", "date_created")
+            .select_related("user")
             .order_by("-pk")
         )
         if (
