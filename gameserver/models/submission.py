@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import Q
+from django.db.models import F, Q
 from django.urls import reverse
 
 # Create your models here.
@@ -25,16 +25,15 @@ class Submission(models.Model):
 
     @property
     def is_firstblood(self):
-        # TODO: Consider only submissions from within contest, should be implemented in ContestSubmission instead
-        return (
-            Submission.objects.filter(problem=self.problem, is_correct=True, pk__lt=self.pk)
-            .exclude(
-                Q(problem__author=self.user)
-                | Q(problem__testers=self.user)
-                | Q(problem__organizations__member=self.user)
-            )
-            .exists()
+        prev_correct_submissions = Submission.objects.filter(
+            problem=self.problem, is_correct=True, pk__lte=self.pk
+        ).exclude(
+            Q(problem__author=F("user"))
+            | Q(problem__testers=F("user"))
+            | Q(problem__organizations__member=F("user"))
         )
+
+        return prev_correct_submissions.count() == 1 and prev_correct_submissions.first() == self
 
     @classmethod
     def get_visible_submissions(cls, user):
