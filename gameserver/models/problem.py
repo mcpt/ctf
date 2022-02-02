@@ -22,9 +22,15 @@ class ProblemType(abstract.Category):
 
 
 class Problem(models.Model):
-    author = models.ManyToManyField("User", related_name="problems_authored", blank=True)
-    testers = models.ManyToManyField("User", related_name="problems_testing", blank=True)
-    organizations = models.ManyToManyField("Organization", related_name="problems", blank=True)
+    author = models.ManyToManyField(
+        "User", related_name="problems_authored", blank=True, db_index=True
+    )
+    testers = models.ManyToManyField(
+        "User", related_name="problems_testing", blank=True, db_index=True
+    )
+    organizations = models.ManyToManyField(
+        "Organization", related_name="problems", blank=True, db_index=True
+    )
 
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True)
@@ -38,7 +44,7 @@ class Problem(models.Model):
     points = models.PositiveSmallIntegerField()
     challenge_spec = models.JSONField(null=True, blank=True)
 
-    is_public = models.BooleanField(default=False)
+    is_public = models.BooleanField(default=False, db_index=True)
 
     date_created = models.DateTimeField(auto_now_add=True)
 

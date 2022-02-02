@@ -40,6 +40,7 @@ class User(AbstractUser):
         blank=True,
         related_name="members",
         related_query_name="member",
+        db_index=True,
     )
 
     current_contest = models.ForeignKey(

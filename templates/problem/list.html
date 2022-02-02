@@ -21,16 +21,8 @@
                 {% endwith %}
             {% endif %}
             <td>{{ problem.slug|problem }}</td>
-            {% if problem.problem_type %}
-                <td>{{ problem.problem_type.all|join:", " }}</td>
-            {% else %}
-                <td class="font-italic">-</td>
-            {% endif %}
-            {% if problem.problem_group %}
-                <td>{{ problem.problem_group.all|join:", " }}</td>
-            {% else %}
-                <td class="font-italic">-</td>
-            {% endif %}
+            <td>{{ problem.problem_type.all|join:", " }}</td>
+            <td>{{ problem.problem_group.all|join:", " }}</td>
             <td>{{ problem.points }}</td>
         </tr>
     {% endfor %}
