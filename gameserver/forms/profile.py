@@ -69,8 +69,8 @@ class ProfileUpdateForm(ModelForm):
         ]
         widgets = {"organizations": forms.CheckboxSelectMultiple()}
 
-    def __init__(self, *args, **kwargs):
-        user = kwargs.pop("user", None)
+    def __init__(self, *args, instance=None, profile=None, **kwargs):
+        user = instance
         super(ProfileUpdateForm, self).__init__(*args, **kwargs)
         if not user.has_perm("gameserver.edit_all_organization"):
             self.fields["organizations"].queryset = models.Organization.objects.filter(
