@@ -3,8 +3,9 @@ import uuid
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.db.models import Count, Max, Min, OuterRef, Q, Subquery, Sum
-from django.db.models.functions import Coalesce
+from django.db.models import Count, F, Max, Min, OuterRef, Q, Subquery, Sum
+from django.db.models.expressions import Window
+from django.db.models.functions import Coalesce, Rank
 from django.urls import reverse
 from django.utils import timezone
 
@@ -87,26 +88,37 @@ class Contest(models.Model):
             .annotate(sub_pk=Min("pk"))
             .values("sub_pk")
         )
-        return queryset.annotate(
-            points=Coalesce(
-                Sum(
-                    "submission__problem__points",
-                    filter=Q(submission__in=Subquery(submissions_with_points)),
+        return (
+            queryset.annotate(
+                points=Coalesce(
+                    Sum(
+                        "submission__problem__points",
+                        filter=Q(submission__in=Subquery(submissions_with_points)),
+                    ),
+                    0,
                 ),
-                0,
-            ),
-            flags=Coalesce(
-                Count("submission__pk", filter=Q(submission__in=Subquery(submissions_with_points))),
-                0,
-            ),
-            most_recent_solve_time=Coalesce(
-                Max(
-                    "submission__submission__date_created",
-                    filter=Q(submission__in=Subquery(submissions_with_points)),
+                flags=Coalesce(
+                    Count(
+                        "submission__pk", filter=Q(submission__in=Subquery(submissions_with_points))
+                    ),
+                    0,
                 ),
-                self.start_time,
-            ),
-        ).order_by("-points", "most_recent_solve_time", "flags")
+                most_recent_solve_time=Coalesce(
+                    Max(
+                        "submission__submission__date_created",
+                        filter=Q(submission__in=Subquery(submissions_with_points)),
+                    ),
+                    self.start_time,
+                ),
+            )
+            .annotate(
+                rank=Window(
+                    expression=Rank(),
+                    order_by=[F("points").desc(), F("most_recent_solve_time").desc()],
+                )
+            )
+            .order_by("-points", "most_recent_solve_time", "flags")
+        )
 
     def is_visible_by(self, user):
         if self.is_public:
