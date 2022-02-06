@@ -7,10 +7,9 @@
 }
 
 .status {
-	@at-root h1 & .bi {
-		width: auto;
-		height: 25px;
-		margin-right: -2px;
+	@at-root h1 & .bi::before {
+		font-size: 25px;
+		margin-right: -4px;
 		vertical-align: unset;
 	}
 	&[title="Solved"], &[title^="Captured"], &[title="First blood"] {
