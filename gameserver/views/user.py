@@ -67,6 +67,7 @@ class UserSubmissionList(SingleObjectMixin, ListView, mixin.MetaMixin):
         return (
             models.Submission.get_visible_submissions(self.request.user)
             .filter(user=self.object)
+            .select_related("problem")
             .order_by("-pk")
         )
 

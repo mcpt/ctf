@@ -24,7 +24,12 @@ class ProblemList(ListView, mixin.MetaMixin):
     title = "Problems"
 
     def get_queryset(self):
-        return models.Problem.get_visible_problems(self.request.user).order_by("points")
+        return (
+            models.Problem.get_visible_problems(self.request.user)
+            .prefetch_related("problem_type")
+            .prefetch_related("problem_group")
+            .order_by("points", "name")
+        )
 
     def get(self, request, *args, **kwargs):
         if request.in_contest:
@@ -177,6 +182,7 @@ class ProblemSubmissionList(SingleObjectMixin, ListView, mixin.MetaMixin):
         qs = (
             models.Submission.get_visible_submissions(self.request.user)
             .filter(problem=self.object)
+            .select_related("user")
             .order_by("-pk")
         )
         if (

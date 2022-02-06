@@ -125,7 +125,7 @@ class Problem(models.Model):
         if not user.is_authenticated:
             return False
 
-        if self.organizations.filter(member=user).exists():
+        if self.organizations.filter(pk__in=user.organizations.all()).exists():
             return True
 
         if (
@@ -159,7 +159,10 @@ class Problem(models.Model):
             return cls.objects.all()
 
         return cls.objects.filter(
-            Q(is_public=True) | Q(author=user) | Q(testers=user) | Q(organizations__member=user)
+            Q(is_public=True)
+            | Q(author=user)
+            | Q(testers=user)
+            | Q(organizations__in=user.organizations.all())
         ).distinct()
 
     @classmethod
