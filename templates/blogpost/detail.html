@@ -1,12 +1,11 @@
 {% extends 'card.html' %}
-{% load link_tags %}
 {% load humanize %}
 {% load markdown_tags %}
 {% load tz %}
 
 {% block heading %}{{ post.title }}{% endblock %}
 {% block after_head %}
-    <p class="card-subtitle mt-1 mb-0 text-muted">{{ post.author.all|users }} posted {{ post.date_created|naturaltime }}</p>
+    <p class="card-subtitle mt-1 mb-0 text-muted">{% include "snippets/links.html" with objects=post.author.all %} posted {{ post.date_created|naturaltime }}</p>
 {% endblock %}
 {% block content %}
     {{ post.text|markdown }}

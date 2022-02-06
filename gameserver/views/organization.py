@@ -41,12 +41,12 @@ class OrganizationDetail(DetailView, mixin.MetaMixin, mixin.CommentMixin):
                 models.OrganizationRequest.objects.filter(
                     organization=self.object, user=self.request.user
                 )
-                .order_by("-date_created")
+                .order_by("-pk")
                 .first()
             )
             context["organization_requests"] = models.OrganizationRequest.objects.filter(
                 organization=self.object, user=self.request.user
-            ).order_by("-date_created")[:3]
+            ).order_by("-pk")[:3]
         else:
             context["organization_requests"] = []
         context["entity"] = "organization"

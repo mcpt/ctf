@@ -7,27 +7,10 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 from django.template.defaultfilters import stringfilter
 from django.utils.safestring import mark_safe
-from pygments import highlight
-from pygments.formatters import html
-from pygments.lexers import get_lexer_by_name
-from pygments.util import ClassNotFound
+
 from . import bleach_allowlist
 
-
-class HighlightRenderer(mistune.HTMLRenderer):
-    def block_code(self, code, lang=None):
-        if lang:
-            formatter = html.HtmlFormatter()
-            try:
-                lexer = get_lexer_by_name(lang, stripall=True)
-            except ClassNotFound:
-                pass
-            else:
-                return highlight(code, lexer, formatter)
-        return "<pre><code>" + mistune.escape(code) + "</code></pre>"
-
-
-render = mistune.create_markdown(renderer=HighlightRenderer(escape=False))
+render = mistune.create_markdown(renderer=mistune.HTMLRenderer(escape=False))
 
 register = template.Library()
 
@@ -50,18 +33,11 @@ cleaner = sanitizer.Cleaner(
         "hr",
         "iframe",
         "code",
-        # for pygments
-        "div",
-        "pre",
-        "span",
     ],
     attributes={
         **sanitizer.ALLOWED_ATTRIBUTES,
         "iframe": ["src", "frameborder", "class"],
         "img": ["alt", "src", "style", "class"],
-
-        # for pygments
-        **{key: ["class"] for key in {"div", "span"}},
     },
     styles=[*bleach_allowlist.all_styles, "markdown-embed"],
     protocols=[

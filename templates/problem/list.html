@@ -1,6 +1,5 @@
 {% extends 'table-list.html' %}
 {% load color_tags %}
-{% load link_tags %}
 
 {% block th %}
     {% if request.user.is_authenticated %}
@@ -20,13 +19,13 @@
                     <td>{% include "./snippet/status.html" %}</td>
                 {% endwith %}
             {% endif %}
-            <td>{{ problem.slug|problem }}</td>
-            {% if problem.problem_type.all %}
+            <td><a href="{{ problem.get_absolute_url }}">{{ problem }}</a></td>
+            {% if problem.problem_type.exists %}
                 <td>{{ problem.problem_type.all|join:", " }}</td>
             {% else %}
                 <td class="font-italic">-</td>
             {% endif %}
-            {% if problem.problem_group.all %}
+            {% if problem.problem_group.exists %}
                 <td>{{ problem.problem_group.all|join:", " }}</td>
             {% else %}
                 <td class="font-italic">-</td>

@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     "allauth.account",
     "allauth.socialaccount",
     "django_bootstrap5",
-    "django_bootstrap_icons",
     "sass_processor",
 ]
 

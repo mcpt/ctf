@@ -1,0 +1,1 @@
+{% for object in objects %}<a href="{{ object.get_absolute_url }}">{{ object }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}

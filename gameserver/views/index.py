@@ -11,14 +11,12 @@ class Index(ListView, mixin.MetaMixin):
     model = models.BlogPost
     template_name = "home.html"
     context_object_name = "posts"
-    ordering = "-date_created"
+    ordering = "-pk"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["problems"] = models.Problem.objects.filter(is_public=True).order_by(
-            "-date_created"
-        )[:5]
-        context["comments"] = models.Comment.objects.order_by("-date_created")[:5]
+        context["problems"] = models.Problem.objects.filter(is_public=True).order_by("-pk")[:5]
+        context["comments"] = models.Comment.objects.order_by("-pk")[:5]
         moment = timezone.localtime()
         context["contests"] = models.Contest.objects.filter(
             start_time__lte=moment, end_time__gt=moment

@@ -3,12 +3,17 @@
 		font-size: 1rem;
 		line-height: 1.6;
 	}
-	svg.bi {
-		vertical-align: baseline;
-		margin-bottom: -2px;
+	.bi {
+		margin-right: 7px;
+	}
+	table {
+		td {
+			vertical-align: top;
 
-		&.bi-calendar3 {
-			margin-right: 1.5px;
+			&:first-child {
+				white-space: nowrap;
+				padding-right: 5px;
+			}
 		}
 	}
 }

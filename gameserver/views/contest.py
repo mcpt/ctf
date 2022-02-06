@@ -152,7 +152,7 @@ class ContestProblemList(ContestDetailsMixin, ListView, mixin.MetaMixin):
         return "Problems for " + self.object.name
 
     def get_queryset(self):
-        return self.object.problems.all()
+        return self.object.problems.select_related("problem")
 
 
 class ContestSubmissionList(ContestDetailsMixin, ListView, mixin.MetaMixin):
@@ -160,8 +160,10 @@ class ContestSubmissionList(ContestDetailsMixin, ListView, mixin.MetaMixin):
     paginate_by = 50
 
     def get_queryset(self):
-        return models.ContestSubmission.objects.filter(participation__contest=self.object).order_by(
-            "-submission__date_created"
+        return (
+            models.ContestSubmission.objects.filter(participation__contest=self.object)
+            .select_related("problem", "participation")
+            .order_by("-submission__pk")
         )
 
 
@@ -173,7 +175,7 @@ class ContestScoreboard(SingleObjectMixin, ListView, mixin.MetaMixin):
         return "Scoreboard for " + self.object.name
 
     def get_queryset(self):
-        return self.object.ranks()
+        return self.object.ranks().select_related("team")
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object(queryset=models.Contest.objects.all())
@@ -195,7 +197,7 @@ class ContestOrganizationScoreboard(ListView, mixin.MetaMixin):
     def get_queryset(self):
         return self.contest.ranks(
             queryset=self.contest.participations.filter(participants__organizations=self.org)
-        )
+        ).select_related("team")
 
     def get(self, request, *args, **kwargs):
         self.contest = models.Contest.objects.get(slug=self.kwargs["contest_slug"])

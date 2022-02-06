@@ -1,7 +1,6 @@
-{% load bootstrap_icons %}
 
 {% if contest.teams_allowed %}
-    {% bs_icon 'people-fill' extra_classes="align-sub" %} Team
+    <i class="bi bi-people-fill align-sub"></i> Team
 {% else %}
-    {% bs_icon 'person-fill' extra_classes="align-sub" %} Individual
+    <i class="bi bi-person-fill align-sub"></i> Individual
 {% endif %}

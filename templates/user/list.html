@@ -1,5 +1,4 @@
 {% extends 'table-list.html' %}
-{% load link_tags %}
 
 {% block th %}
     <th scope="col">Rank</th>
@@ -12,7 +11,7 @@
     {% for user in users %}
         <tr>
             <th scope="row">{{ user.rank }}</th>
-            <td>{{ user.username|user }}</td>
+            <td><a href="{{ user.get_absolute_url }}">{{ user }}</a></td>
             <td>{{ user.points|floatformat }}</td>
             <td>{{ user.flags }}</td>
         </tr>

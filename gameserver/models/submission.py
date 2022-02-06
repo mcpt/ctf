@@ -49,7 +49,7 @@ class Submission(models.Model):
                 | Q(user=user)
                 | Q(problem__author=user)
                 | Q(problem__testers=user)
-                | Q(problem__organizations__member=user)
+                | Q(problem__organizations__pk__in=user.organizations.all())
             ).distinct()
         else:
             return cls.objects.filter(

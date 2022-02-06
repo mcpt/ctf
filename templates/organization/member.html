@@ -1,4 +1,3 @@
 {% extends 'table-list.html' %}
-{% load link_tags %}
 
-{% block heading %}Members of {{ organization.slug|organization }}{% endblock %}
+{% block heading %}Members of <a href="{{ organization.get_absolute_url }}">{{ organization }}</a>{% endblock %}

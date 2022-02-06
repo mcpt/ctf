@@ -1,5 +1,4 @@
 {% extends 'table-list.html' %}
-{% load link_tags %}
 {% load color_tags %}
 
 {% block before_table %}
@@ -17,7 +16,7 @@
 {% block trows %}
     {% for team in teams %}
         <tr>
-            <td>{{ team.pk|team }}</th>
+            <td><a href="{{ team.get_absolute_url }}">{{ team }}</a></th>
             <td>{{ team.member_count }}</a></td>
         </tr>
     {% endfor %}

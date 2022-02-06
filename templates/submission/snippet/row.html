@@ -1,5 +1,4 @@
 {% load color_tags %}
-{% load link_tags %}
 {% load humanize %}
 
 <tr class="table-light">
@@ -8,9 +7,9 @@
     {% endif %}
     {% include "./status.html" %}
     {% if not problem %}
-        <td>{{ submission.problem.slug|problem }}</td>
+        <td><a href="{{ submission.problem.get_absolute_url }}">{{ submission.problem }}</a></td>
     {% endif %}
-    <td>{{ submission.user.username|user }}</td>
+    <td><a href="{{ submission.user.get_absolute_url }}">{{ submission.user }}</a></td>
     {% if not hide_timestamp %}
         <td>{{ submission.date_created|naturaltime }}</td>
     {% endif %}

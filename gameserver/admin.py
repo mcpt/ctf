@@ -232,6 +232,7 @@ class UserAdmin(admin.ModelAdmin):
     list_display = [
         "username",
         "full_name",
+        "school_name",
         "is_staff",
         "is_superuser",
     ]

@@ -1,5 +1,4 @@
 {% extends 'dual-column.html' %}
-{% load link_tags %}
 {% load markdown_tags %}
 {% load django_bootstrap5 %}
 {% load static %}
@@ -41,7 +40,7 @@
 </div>
 <div class="card mb-3">
     <div class="card-body">
-        <p class="mb-0"><b>Organizers</b>: {{ contest.organizers.all|users }}</p>
+        <p class="mb-0"><b>Organizers</b>: {% include "snippets/links.html" with objects=contest.organizers.all %}</p>
         <p class="mb-0">
             <b>Type</b>: {% include "./snippet/participant_type.html" %}
         </p>

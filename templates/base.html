@@ -1,6 +1,5 @@
 {% load static %}
 {% load gravatar_tags %}
-{% load link_tags %}
 {% load django_bootstrap5 %}
 {% load sass_tags %}
 
@@ -33,8 +32,7 @@
         {% endblock %}
 
         {% bootstrap_css %}
-        <link href="{% static 'styles/bootstrap-icons.css' %}" type="text/css" media="all" rel="stylesheet" />
-        <link href="{% static 'styles/pygments.css' %}" type="text/css" media="all" rel="stylesheet" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
 
         <link href="{% sass_src 'scss/main.scss' %}" type="text/css" rel="stylesheet" />
 
@@ -86,7 +84,7 @@
             {% if request.in_contest %}
                 <div class="alert alert-info" role="alert">
                     <h4 class="alert-heading" id="contestCountdown">Loading countdown...</h4>
-                    <p class="mb-0">Currently participating in {{ request.participation.contest.slug|contest }} as <a href="{{ request.participation.get_absolute_url }}">{{ request.participation.participant }}</a>.</p>
+                    <p class="mb-0">Currently participating in <a href="{{ request.participation.contest.get_absolute_url }}">{{ request.participation.contest }}</a> as <a href="{{ request.participation.get_absolute_url }}">{{ request.participation.participant }}</a>.</p>
                 </div>
             {% endif %}
             {% block main %}

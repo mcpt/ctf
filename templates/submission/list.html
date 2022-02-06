@@ -1,11 +1,10 @@
 {% extends 'table-list.html' %}
-{% load link_tags %}
 
 {% block heading %}
     {% if problem %}
-        Submissions for {{ problem.slug|problem }}
+        Submissions for <a href="{{ problem.get_absolute_url }}">{{ problem }}</a>
     {% elif author %}
-        Submissions by {{ author|user }}
+        Submissions by <a href="{{ author.get_absolute_url }}">{{ author }}</a>
     {% else %}
         All Submissions
     {% endif %}
