@@ -3,8 +3,9 @@ from django.contrib import admin
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
-from django.db.models import Count, Min, OuterRef, Q, Subquery, Sum
-from django.db.models.functions import Coalesce
+from django.db.models import Count, F, Min, OuterRef, Q, Subquery, Sum
+from django.db.models.expressions import Window
+from django.db.models.functions import Coalesce, Rank
 from django.urls import reverse
 
 from .choices import organization_request_status_choices, timezone_choices
@@ -93,19 +94,30 @@ class User(AbstractUser):
             .values("sub_pk")
         )
 
-        return queryset.annotate(
-            points=Coalesce(
-                Sum(
-                    "submission__problem__points",
-                    filter=Q(submission__in=Subquery(submissions_with_points)),
+        return (
+            queryset.annotate(
+                points=Coalesce(
+                    Sum(
+                        "submission__problem__points",
+                        filter=Q(submission__in=Subquery(submissions_with_points)),
+                    ),
+                    0,
                 ),
-                0,
-            ),
-            flags=Coalesce(
-                Count("submission__pk", filter=Q(submission__in=Subquery(submissions_with_points))),
-                0,
-            ),
-        ).order_by("-points", "flags")
+                flags=Coalesce(
+                    Count(
+                        "submission__pk", filter=Q(submission__in=Subquery(submissions_with_points))
+                    ),
+                    0,
+                ),
+            )
+            .annotate(
+                rank=Window(
+                    expression=Rank(),
+                    order_by=F("points").desc(),
+                )
+            )
+            .order_by("-points", "flags")
+        )
 
     def has_attempted(self, problem):
         if isinstance(problem, ContestProblem):
