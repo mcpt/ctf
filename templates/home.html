@@ -1,6 +1,5 @@
 {% extends 'dual-column.html' %}
 {% load humanize %}
-{% load link_tags %}
 
 {% block before_cols %}
 <div class="card mb-3">
@@ -25,7 +24,7 @@
                 <h1 class="card-header fs-6">Ongoing Contests</h1>
                 <ul class="list-group list-group-flush">
                     {% for contest in contests %}
-                        <li class="list-group-item">{{ contest.slug|contest }} <i>— ends in {{ contest.end_time|naturaltime }}</i></li>
+                        <li class="list-group-item"><a href="{{ contest.get_absolute_url }}">{{ contest }}</a> <i>— ends in {{ contest.end_time|naturaltime }}</i></li>
                     {% endfor %}
                 </ul>
             </section>
@@ -35,7 +34,7 @@
             <div class="card-body pt-2 pb-3">
                 <ul class="list-unstyled mb-0">
                     {% for problem in problems %}
-                        <li>{{ problem.slug|problem }}</li>
+                        <li><a href="{{ problem.get_absolute_url }}">{{ problem }}</a></li>
                     {% endfor %}
                 </ul>
             </div>
@@ -46,7 +45,7 @@
                 <div class="card-body pt-2 pb-3">
                     <ul class="list-unstyled mb-0">
                         {% for comment in comments %}
-                            <li>{{ comment|comment_html_short }}</li>
+                            <li><a href="{{ comment.author.get_absolute_url }}">{{ comment.author }}</a> → <a href="{{ comment.parent.get_absolute_url }}">{{ comment.parent }}</a></li>
                         {% endfor %}
                     </ul>
                 </div>

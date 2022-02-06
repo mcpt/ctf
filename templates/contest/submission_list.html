@@ -1,7 +1,6 @@
 {% extends 'table-list.html' %}
-{% load link_tags %}
 
-{% block heading %}Submissions for {{ contest.slug|contest }}{% endblock %}
+{% block heading %}Submissions for <a href="{{ contest.get_absolute_url }}">{{ contest }}</a>{% endblock %}
 
 {% block th %}
     {% include 'submission/snippet/thead.html' with hide_timestamp=True team=True %}

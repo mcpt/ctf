@@ -1,6 +1,5 @@
 {% load color_tags %}
-{% load link_tags %}
 <tr>
-    <td>{{ organization.slug|organization }}</th>
+    <td><a href="{{ organization.get_absolute_url }}">{{ organization }}</a></th>
     <td>{{ organization.member_count }}</td>
 </tr>

@@ -1,5 +1,4 @@
 {% extends 'table-list.html' %}
-{% load link_tags %}
 {% load color_tags %}
 {% load tz %}
 
@@ -24,7 +23,7 @@
     {% for contest in contests %}
         <tr>
             <td class="p-3 py-2">
-                <h4 class="mb-1">{{ contest.slug|contest }}</h4>
+                <h4 class="mb-1"><a href="{{ contest.get_absolute_url }}">{{ contest }}</a></h4>
                 <p class="mb-1">{{ contest.summary }}</p>
             </td>
             <td class="pt-2">

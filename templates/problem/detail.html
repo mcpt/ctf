@@ -1,6 +1,5 @@
 {% extends 'dual-column.html' %}
 {% load markdown_tags %}
-{% load link_tags %}
 {% load color_tags %}
 {% load static %}
 
@@ -69,7 +68,7 @@
                 {{ contest_problem.points }}
                 {% endif %}
             </li>
-            <li><b>Author{{ problem.author.all|pluralize:"s" }}</b>: {{ problem.author.all|users }}</li>
+            <li><b>Author{{ problem.author.all|pluralize:"s" }}</b>: {% include "snippets/links.html" with objects=problem.author.all %}</li>
             {% if problem.problem_group.all and not request.user.current_contest %}
             <li><b>Group{{ problem.problem_group.all|pluralize:"s" }}:</b> {{ problem.problem_group.all|join:", " }}
             </li>

@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 {% load gravatar_tags %}
-{% load link_tags %}
 {% load humanize %}
 {% load bootstrap_icons %}
 
@@ -30,16 +29,12 @@
                             <ul class="list-unstyled profile-info">
                                 {% if profile.organizations.all %}
                                     <li class="reverse-indent"><b>{% bs_icon 'building' %}From</b> 
-                                        {% for org in profile.organizations.all %}
-                                            <a href="{{ org.get_absolute_url }}">{{ org.name }}</a>{% if not forloop.last %},{% endif %}
-                                        {% endfor %}
+                                        {% include "snippets/links.html" with objects=profile.organizations.all %}
                                     </li>
                                 {% endif %}
                                 {% if profile.teams.all %}
                                     <li class="reverse-indent"><b>{% bs_icon 'people' %}Team{{ profile.teams.all|pluralize }}</b> 
-                                        {% for team in profile.teams.all %}
-                                            <a href="{{ team.get_absolute_url }}">{{ team.name }}</a>{% if not forloop.last %},{% endif %}
-                                        {% endfor %}
+                                        {% include "snippets/links.html" with objects=profile.teams.all %}
                                     </li>
                                 {% endif %}
                             </ul>

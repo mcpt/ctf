@@ -1,7 +1,6 @@
 {% extends 'table-list.html' %}
-{% load link_tags %}
 
-{% block heading %}{% if org %}{{ org.short_name }} {% endif %}Scoreboard for {{ contest.slug|contest }}{% endblock %}
+{% block heading %}{% if org %}{{ org.short_name }} {% endif %}Scoreboard for <a href="{{ contest.get_absolute_url }}">{{ contest }}</a>{% endblock %}
 
 {% block th %}
     <th scope="col">Rank</th>

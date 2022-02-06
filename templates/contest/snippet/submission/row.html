@@ -1,4 +1,3 @@
-{% load link_tags %}
 {% load bootstrap_icons %}
 {% load humanize %}
 
@@ -8,7 +7,7 @@
     {% endif %}
     {% include "submission/snippet/status.html" with submission=contest_submission %}
     {% if not hide_problem %}
-        <td>{{ contest_submission.submission.problem.slug|problem }}</td>
+        <td><a href="{{ contest_submission.submission.problem.get_absolute_url }}">{{ contest_submission.submission.problem }}</a></td>
     {% endif %}
     <td><a href="{{ contest_submission.participation.get_absolute_url }}">{{ contest_submission.participation.participant }}</a></td>
     {% if not hide_timestamp %}

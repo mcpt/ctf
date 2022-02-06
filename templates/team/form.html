@@ -1,5 +1,4 @@
 {% extends 'form.html' %}
-{% load link_tags %}
 
-{% block heading %}Edit team {{ team.pk|team }}{% endblock %}
+{% block heading %}Edit team <a href="{{ team.get_absolute_url }}">{{ team }}</a>{% endblock %}
 {% block cancel_redirect %}{% url 'team_detail' team.pk %}{% endblock %}

@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load link_tags %}
 {% load humanize %}
 {% load tz %}
 
@@ -7,7 +6,7 @@
 <div class="card mb-3">
     <div class="card-body">
         <h5 class="card-title">
-            {{ comment|comment_html }}
+            <a href="{{ comment.author.get_absolute_url }}">{{ comment.author }}</a> commented {{ comment.date_created|naturaltime }} on <a href="{{ comment.parent.get_absolute_url }}">{{ comment.parent }}</a> 
         </h5>
         <p class="card-text">{{ comment.text }}</p>
     </div>

@@ -1,4 +1,3 @@
-{% load link_tags %}
 {% load bootstrap_icons %}
 
 <div class="card mb-3 order-neg1">
@@ -6,7 +5,7 @@
     <div class="card-body pt-2 pb-3">
         {% for member in member_list %}
             <p class="mb-1">
-                {{ member|user }} 
+                <a href="{{ member.get_absolute_url }}">{{ member }}</a> 
                 {% if member == group.owner %}
                     <span title="owner">{% bs_icon "mortarboard" %}</span>
                 {% elif member in group.admins.all and group.admins.all != member_list %}
