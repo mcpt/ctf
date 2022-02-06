@@ -1,6 +1,7 @@
 import hashlib
 import re
-import uuid
+import os
+import base64
 
 from django.db import models
 from django.db.models import F, Q
@@ -21,6 +22,10 @@ class ProblemType(abstract.Category):
     pass
 
 
+def gen_opaque_id():
+    return base64.urlsafe_b64encode(os.urandom(128)).decode()
+
+
 class Problem(models.Model):
     author = models.ManyToManyField("User", related_name="problems_authored", blank=True)
     testers = models.ManyToManyField("User", related_name="problems_testing", blank=True)
@@ -30,6 +35,8 @@ class Problem(models.Model):
     slug = models.SlugField(unique=True)
     description = models.TextField()
     summary = models.CharField(max_length=150)
+
+    opaque_id = models.CharField(max_length=172, default=gen_opaque_id, editable=False, unique=True)
 
     problem_group = models.ManyToManyField(ProblemGroup, blank=True)
     problem_type = models.ManyToManyField(ProblemType, blank=True)
@@ -171,12 +178,12 @@ class Problem(models.Model):
 
 
 def problem_file_path(instance, filename):
-    return f"problem/{instance.problem.slug}/{filename}"
+    return f"problem/{instance.problem.opaque_id}/{filename}"
 
 
 class ProblemFile(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE, related_name="files")
-    artifact = models.FileField(upload_to=problem_file_path, unique=True)
+    artifact = models.FileField(max_length=100+172, upload_to=problem_file_path, unique=True)
     checksum = models.CharField(max_length=64)
 
     def __str__(self):
