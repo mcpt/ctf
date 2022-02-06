@@ -1,13 +1,12 @@
-{% load bootstrap_icons %}
 
 {% if status == "private" %}
-    <span class="status" title="Private">{% bs_icon 'lock' %}</span>
+    <span class="status" title="Private"><i class="bi bi-lock"></i></span>
 {% elif status == "firstblood" %}
-    <span class="status" title="First blood">{% bs_icon 'droplet' %}</span>
+    <span class="status" title="First blood"><i class="bi bi-droplet"></i></span>
 {% elif status == "solved" %}
-    <span class="status" title="Solved">{% bs_icon 'flag' %}</span>
+    <span class="status" title="Solved"><i class="bi bi-flag"></i></span>
 {% elif status == "attempted" %}
-    <span class="status" title="Attempted">{% bs_icon 'x-lg' %}</span>
+    <span class="status" title="Attempted"><i class="bi bi-x-lg"></i></span>
 {% elif not hide_unsolved %}
-    <span class="status" title="Unsolved">{% bs_icon 'dash-lg' %}</span>
+    <span class="status" title="Unsolved"><i class="bi bi-dash-lg"></i></span>
 {% endif %}
