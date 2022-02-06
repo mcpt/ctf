@@ -10,7 +10,7 @@ from django.utils.safestring import mark_safe
 
 from . import bleach_allowlist
 
-render = mistune.create_markdown()
+render = mistune.create_markdown(renderer=mistune.HTMLRenderer(escape=False))
 
 register = template.Library()
 

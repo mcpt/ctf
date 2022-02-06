@@ -17,26 +17,32 @@
                 <hr class="mt-0">
                 <div class="row">
                     <div class="col">
-                        <ul class="list-unstyled profile-info">
+                        <ul class="list-unstyled profile-info mb-0">
                             <li><b><i class="bi bi-calendar3"></i>Joined</b> {{ profile.date_joined|naturalday }}</li>
                             <li><b><i class="bi bi-flag"></i>Captured</b> {{ profile.num_flags_captured }} flag{{ profile.num_flags_captured|pluralize }}</li>
                             <li><b><i class="bi bi-bullseye"></i>Collected</b> {{ profile.points|floatformat }} point{{ profile.points|pluralize }}</li>
                         </ul>
                     </div>
                     {% if profile.organizations.all or profile.teams.all %}
-                        <div class="col-lg-8">
-                            <ul class="list-unstyled profile-info">
+                        <div class="col-lg-8 profile-info">
+                            <table>
                                 {% if profile.organizations.all %}
-                                    <li class="reverse-indent"><b><i class="bi bi-building"></i>From</b> 
-                                        {% include "snippets/links.html" with objects=profile.organizations.all %}
-                                    </li>
+                                    <tr>
+                                        <td><b><i class="bi bi-building"></i>From</b></td>
+                                        <td>
+                                            {% include "snippets/links.html" with objects=profile.organizations.all %}
+                                        </td>
+                                    </tr>
                                 {% endif %}
                                 {% if profile.teams.all %}
-                                    <li class="reverse-indent"><b><i class="bi bi-people"></i>Team{{ profile.teams.all|pluralize }}</b> 
-                                        {% include "snippets/links.html" with objects=profile.teams.all %}
-                                    </li>
+                                    <tr>
+                                        <td><b><i class="bi bi-people"></i>Team{{ profile.teams.all|pluralize }}</b></td>
+                                        <td>
+                                            {% include "snippets/links.html" with objects=profile.teams.all %}
+                                        </td>
+                                    </tr>
                                 {% endif %}
-                            </ul>
+                            </table>
                         </div>
                     {% endif %}
                 </div>
