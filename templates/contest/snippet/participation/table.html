@@ -11,13 +11,11 @@
             </tr>
         </thead>
         <tbody>
-            {% if participations %}
-                {% for participation in participations %}
-                    {% include './row.html' %}
-                {% endfor %}
-            {% elif participation %}
+            {% for participation in participations %}
                 {% include './row.html' %}
-            {% endif %}
+            {% empty %}
+                {% include './row.html' %}
+            {% endfor %}
         </tbody>
     </table>
 </div>

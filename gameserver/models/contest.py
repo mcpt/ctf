@@ -1,4 +1,5 @@
 import uuid
+from datetime import timedelta
 
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
@@ -235,7 +236,7 @@ class ContestParticipation(models.Model):
     @property
     def time_taken(self):
         solve_time = self.last_solve_time
-        return solve_time - self.contest.start_time
+        return timedelta(seconds=round((solve_time - self.contest.start_time).total_seconds()))
 
     def rank(self):
         return self.contest.ranks().get(pk=self.pk).rank
