@@ -23,7 +23,7 @@ class ProblemType(abstract.Category):
 
 
 def gen_opaque_id():
-    return base64.urlsafe_b64encode(os.urandom(128)).decode()
+    return secrets.token_urlsafe(32)
 
 
 class Problem(models.Model):
