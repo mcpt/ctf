@@ -1,7 +1,6 @@
 import hashlib
 import re
-import os
-import base64
+import secrets
 
 from django.db import models
 from django.db.models import F, Q
@@ -36,7 +35,7 @@ class Problem(models.Model):
     description = models.TextField()
     summary = models.CharField(max_length=150)
 
-    opaque_id = models.CharField(max_length=172, default=gen_opaque_id, editable=False, unique=True)
+    opaque_id = models.CharField(max_length=172, default=gen_opaque_id, editable=False)
 
     problem_group = models.ManyToManyField(ProblemGroup, blank=True)
     problem_type = models.ManyToManyField(ProblemType, blank=True)
