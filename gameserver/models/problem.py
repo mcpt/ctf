@@ -35,7 +35,7 @@ class Problem(models.Model):
     description = models.TextField()
     summary = models.CharField(max_length=150)
 
-    opaque_id = models.CharField(max_length=172, default=gen_opaque_id, editable=False)
+    opaque_id = models.CharField(max_length=172, default=gen_opaque_id, editable=False, unique=True)
 
     problem_group = models.ManyToManyField(ProblemGroup, blank=True)
     problem_type = models.ManyToManyField(ProblemType, blank=True)
