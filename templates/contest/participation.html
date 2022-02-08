@@ -12,7 +12,7 @@
             <div class="card mb-3">
                 <h2 class="card-header fs-6">Submissions</h2>
                 <div class="card-body">
-                    {% include './snippet/submission/table.html' with contest_submissions=participation.submissions.all %}
+                    {% include './snippet/submission/table.html' with contest_submissions=participation.submissions.all hide_participant=True %}
                 </div>
             </div>
         {% endif %}

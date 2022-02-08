@@ -8,7 +8,9 @@
     {% if not hide_problem %}
         <td><a href="{{ contest_submission.submission.problem.get_absolute_url }}">{{ contest_submission.submission.problem }}</a></td>
     {% endif %}
+    {% if not hide_participant %}
     <td><a href="{{ contest_submission.participation.get_absolute_url }}">{{ contest_submission.participation.participant }}</a></td>
+    {% endif %}
     {% if not hide_timestamp %}
         <td>{{ contest_submission.submission.date_created|naturaltime }}</td>
     {% endif %}

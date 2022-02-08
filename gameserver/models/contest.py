@@ -1,4 +1,5 @@
 import uuid
+from datetime import timedelta
 
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
@@ -235,23 +236,10 @@ class ContestParticipation(models.Model):
     @property
     def time_taken(self):
         solve_time = self.last_solve_time
-        return solve_time - self.contest.start_time
+        return timedelta(seconds=round((solve_time - self.contest.start_time).total_seconds()))
 
     def rank(self):
-        if isinstance(self.points, int):
-            points = self.points
-        else:
-            points = self.points()
-
-        return (
-            self.contest.ranks()
-            .filter(
-                Q(points__gt=points)
-                | Q(most_recent_solve_time__lte=self.last_solve_time, points=points)
-            )
-            .distinct()
-            .count()
-        )
+        return self.contest.ranks().get(pk=self.pk).rank
 
     def has_attempted(self, problem):
         return problem.is_attempted_by(self)

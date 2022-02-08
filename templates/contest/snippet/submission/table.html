@@ -2,10 +2,19 @@
     <table class="table">
         <thead>
             <tr>
-                <th scope="col">#</th>
+                {% if not hide_problem %}
+                    <th scope="col">#</th>
+                {% endif %}
                 <th scope="col">Status</th>
-                <th scope="col">Problem</th>
-                <th scope="col">User</th>
+                {% if not hide_problem %}
+                    <th scope="col">Problem</th>
+                {% endif %}
+                {% if not hide_participant %}
+                    <th scope="col">User/Team</th>
+                {% endif %}
+                {% if not hide_timestamp %}
+                    <th scope="col">Submitted</th>
+                {% endif %}
             </tr>
         </thead>
         <tbody>

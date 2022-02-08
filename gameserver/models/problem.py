@@ -185,7 +185,7 @@ def problem_file_path(instance, filename):
 
 class ProblemFile(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE, related_name="files")
-    artifact = models.FileField(max_length=100+172, upload_to=problem_file_path, unique=True)
+    artifact = models.FileField(max_length=100 + 172, upload_to=problem_file_path, unique=True)
     checksum = models.CharField(max_length=64)
 
     def __str__(self):
