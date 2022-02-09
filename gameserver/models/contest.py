@@ -202,7 +202,6 @@ class ContestParticipation(models.Model):
         points = self._get_unique_correct_submissions().aggregate(
             points=Coalesce(Sum("problem__points"), 0)
         )["points"]
-        print(points)
         return points
 
     @property
