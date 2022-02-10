@@ -47,17 +47,6 @@ def create_challenge_instance(challenge_spec, problem_id, problem_flag, instance
         "metadata": {
             "name": instance_name,
             "labels": labels,
-            "annotations": {
-                f'container.apparmor.security.beta.kubernetes.io/{container["name"]}': (
-                    "unconfined"
-                    if container["apparmor"]["type"] == "Unconfined"
-                    else f'localhost/{container["apparmor"]["localhostProfile"]}'
-                    if container["apparmor"]["type"] == "Localhost"
-                    else "runtime/default"
-                )
-                for container in challenge_spec["containers"]
-                if "apparmorProfile" in container
-            },
         },
         "spec": {
             "backoffLimit": 4,
@@ -66,6 +55,25 @@ def create_challenge_instance(challenge_spec, problem_id, problem_flag, instance
             "template": {
                 "metadata": {
                     "labels": labels,
+                    "annotations": {
+                        f'container.apparmor.security.beta.kubernetes.io/{container["name"]}': (
+                            "unconfined"
+                            if challenge_cluster["securityContexts"][container["securityContext"]][
+                                "apparmorProfile"
+                            ]["type"]
+                            == "Unconfined"
+                            else f'localhost/{challenge_cluster["securityContexts"][container["securityContext"]]["apparmorProfile"]["localhostProfile"]}'
+                            if challenge_cluster["securityContexts"][container["securityContext"]][
+                                "apparmorProfile"
+                            ]["type"]
+                            == "Localhost"
+                            else "runtime/default"
+                        )
+                        for container in challenge_spec["containers"]
+                        if "securityContext" in container
+                        and "apparmorProfile"
+                        in challenge_cluster["securityContexts"][container["securityContext"]]
+                    },
                 },
                 "spec": {
                     "containers": [
