@@ -8,9 +8,10 @@
 
 .status {
 	@at-root h1 & .bi::before {
-		font-size: 25px;
-		margin-right: -4px;
+		font-size: 30px;
+		margin-right: -2px;
 		vertical-align: unset;
+		translate: 0 2px;
 	}
 	&[title="Solved"], &[title^="Captured"], &[title="First blood"] {
 		color: var(--solved) !important;
