@@ -41,7 +41,6 @@ class MCTFSignupForm(SignupForm):
     ]
 
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop("user", None)
         super(MCTFSignupForm, self).__init__(*args, **kwargs)
         self.fields["school_contact"].widget.attrs["placeholder"] = self.fields[
             "school_contact"
@@ -69,15 +68,16 @@ class ProfileUpdateForm(ModelForm):
         ]
         widgets = {"organizations": forms.CheckboxSelectMultiple()}
 
-    def __init__(self, *args, instance=None, profile=None, **kwargs):
-        user = instance
+    def __init__(self, *args, **kwargs):
         super(ProfileUpdateForm, self).__init__(*args, **kwargs)
-        if not user.has_perm("gameserver.edit_all_organization"):
+        if not self.instance.has_perm("gameserver.edit_all_organization"):
             self.fields["organizations"].queryset = models.Organization.objects.filter(
-                Q(is_open=True) | Q(admins=user) | Q(pk__in=user.organizations.all())
+                Q(is_open=True)
+                | Q(admins=self.instance)
+                | Q(pk__in=self.instance.organizations.all())
             ).distinct()
-        self.initial["organizations"] = [i.pk for i in user.organizations.all()]
-        self.initial["school_name"] = user.school_name
-        self.initial["school_contact"] = user.school_contact
+        self.initial["organizations"] = [i.pk for i in self.instance.organizations.all()]
+        self.initial["school_name"] = self.instance.school_name
+        self.initial["school_contact"] = self.instance.school_contact
         self.fields["description"].label = "Profile description"
         self.fields["description"].widget.attrs["placeholder"] = "Description..."

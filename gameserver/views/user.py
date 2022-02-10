@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Sum
 from django.db.models.functions import Coalesce
@@ -82,7 +83,7 @@ class UserSubmissionList(SingleObjectMixin, ListView, mixin.MetaMixin):
         return context
 
 
-class UserEdit(UpdateView, mixin.MetaMixin):
+class UserEdit(LoginRequiredMixin, UpdateView, mixin.MetaMixin):
     form_class = forms.ProfileUpdateForm
     template_name = "user/form.html"
     success_url = reverse_lazy("user_detail_redirect")
@@ -90,8 +91,3 @@ class UserEdit(UpdateView, mixin.MetaMixin):
 
     def get_object(self):
         return self.request.user
-
-    def get_form_kwargs(self):
-        kwargs = super(UpdateView, self).get_form_kwargs()
-        kwargs["profile"] = self.request.user
-        return kwargs

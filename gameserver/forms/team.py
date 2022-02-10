@@ -28,11 +28,10 @@ class TeamUpdateForm(ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        team = kwargs.pop("team", None)
         super(TeamUpdateForm, self).__init__(*args, **kwargs)
 
-        self.fields["members"].queryset = team.members.all()
-        self.initial["members"] = [i.pk for i in team.members.all()]
+        self.fields["members"].queryset = self.instance.members.all()
+        self.initial["members"] = [i.pk for i in self.instance.members.all()]
 
-        self.fields["organizations"].queryset = team.owner.organizations.all()
-        self.initial["organizations"] = [i.pk for i in team.organizations.all()]
+        self.fields["organizations"].queryset = self.instance.owner.organizations.all()
+        self.initial["organizations"] = [i.pk for i in self.instance.organizations.all()]

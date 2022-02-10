@@ -109,16 +109,8 @@ class TeamEdit(
     form_class = forms.TeamUpdateForm
     title = "Update Team"
 
-    def get_success_url(self):
-        return self.object.get_absolute_url()
-
     def test_func(self):
         return self.get_object().owner == self.request.user
-
-    def get_form_kwargs(self):
-        kwargs = super(UpdateView, self).get_form_kwargs()
-        kwargs["team"] = self.object
-        return kwargs
 
 
 @method_decorator(require_POST, name="dispatch")
