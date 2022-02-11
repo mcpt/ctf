@@ -31,8 +31,9 @@
 {% get_current_timezone as TIME_ZONE %}
 <div class="card mb-3 order-neg2">
     <div class="card-body">
-        <p class="lh-base fs-3" style="font-weight:600"><span>{{ contest.start_time }} </span><span
-                class="fw-light fst-italic text-muted mb-0">to </span>
+        <p class="lh-base fs-3" style="font-weight:600">
+            <span>{{ contest.start_time }} </span>
+            <span class="fw-light fst-italic text-muted mb-0">to </span><br>
             <span>{{ contest.end_time }}</span>
         </p>
         <h5>{{ contest.duration }} long</h5>
