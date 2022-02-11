@@ -65,15 +65,15 @@
         <p>
             {% if contest.is_finished %}
             Contest is over.
-            {% elif participation %}
+            {% elif user_participation %}
             You are currently not in this contest, however, you have participated before.
             {% else %}
             You are currently not in this contest.
             {% endif %}
         </p>
         {% endif %}
-        {% if participation %}
-        {% include './snippet/participation/table.html' with hide_contest_col=True %}
+        {% if user_participation %}
+            {% include './snippet/participation/table.html' with participation=user_participation hide_contest_col=True %}
         {% endif %}
 
         {% if contest.is_ongoing %}

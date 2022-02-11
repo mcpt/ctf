@@ -108,7 +108,7 @@ class ContestDetail(
         context = super().get_context_data(**kwargs)
         if self.request.user.is_authenticated:
             context["user_accessible"] = self.object.is_accessible_by(self.request.user)
-            context["participation"] = self.request.user.participation_for_contest(self.object)
+            context["user_participation"] = self.request.user.participation_for_contest(self.object)
             context["team_participant_count"] = {
                 team_pk: participant_count
                 for team_pk, participant_count in self.request.user.teams.annotate(
