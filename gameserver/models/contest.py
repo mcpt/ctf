@@ -115,7 +115,7 @@ class Contest(models.Model):
             .annotate(
                 rank=Window(
                     expression=Rank(),
-                    order_by=[F("points").desc(), F("most_recent_solve_time").desc()],
+                    order_by=[F("points").desc(), F("most_recent_solve_time").asc()],
                 )
             )
             .order_by("-points", "most_recent_solve_time", "flags")
