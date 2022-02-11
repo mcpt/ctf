@@ -13,8 +13,6 @@
         <tbody>
             {% for participation in participations %}
                 {% include './row.html' %}
-            {% empty %}
-                {% include './row.html' %}
             {% endfor %}
         </tbody>
     </table>
