@@ -29,7 +29,7 @@ class OrganizationDetail(DetailView, mixin.MetaMixin, mixin.CommentMixin):
     context_object_name = "group"
 
     def get_title(self):
-        return "Organization " + self.object.name
+        return self.object.name
 
     def get_description(self):
         return self.object.description

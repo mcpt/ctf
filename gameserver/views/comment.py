@@ -15,7 +15,7 @@ class Comment(DetailView, mixin.MetaMixin, mixin.CommentMixin):
     context_object_name = "comment"
 
     def get_title(self):
-        return "Comment #" + str(self.object.pk)
+        return f"{self.object.author}'s Comment on {self.object.parent}"
 
     def get_description(self):
         return self.object.text

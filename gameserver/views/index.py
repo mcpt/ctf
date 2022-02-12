@@ -31,7 +31,7 @@ class BlogPost(DetailView, mixin.MetaMixin, mixin.CommentMixin):
     og_type = "article"
 
     def get_title(self):
-        return "" + self.object.title
+        return self.object.title
 
     def get_author(self):
         return self.object.author.all()

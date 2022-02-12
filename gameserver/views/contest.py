@@ -35,7 +35,7 @@ class ContestDetail(
     context_object_name = "contest"
 
     def get_title(self):
-        return "" + self.object.name
+        return self.object.name
 
     def get_description(self):
         return self.object.summary
