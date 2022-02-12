@@ -13,7 +13,7 @@ from .. import forms, models
 from . import mixin
 
 
-class UserDetailRedirect(RedirectView):
+class UserDetailRedirect(LoginRequiredMixin, RedirectView):
     pattern_name = "user_detail"
     permanent = False
     query_string = False
