@@ -71,7 +71,14 @@ class User(AbstractUser):
         )
 
     def rank(self, queryset=None):
-        return User.ranks(queryset).get(pk=self.pk).rank
+        return (
+            self.ranks(queryset)
+            .filter(
+                points__gt=self.points,
+            )
+            .count()
+            + 1
+        )
 
     @classmethod
     def ranks(cls, queryset=None):

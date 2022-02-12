@@ -237,7 +237,20 @@ class ContestParticipation(models.Model):
         return timedelta(seconds=round((solve_time - self.contest.start_time).total_seconds()))
 
     def rank(self):
-        return self.contest.ranks().get(pk=self.pk).rank
+        if isinstance(self.points, int):
+            points = self.points
+        else:
+            points = self.points()
+
+        return (
+            self.contest.ranks()
+            .filter(
+                Q(points__gt=points)
+                | Q(most_recent_solve_time__lte=self.last_solve_time, points=points)
+            )
+            .distinct()
+            .count()
+        )
 
     def has_attempted(self, problem):
         return problem.is_attempted_by(self)
