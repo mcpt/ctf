@@ -21,7 +21,7 @@ function getCookie(name) {
 }
 
 async function getChallenge() {
-    updateInterimStatus("Refreshing", " status...", "chall__refresh");
+    updateInterimStatus("Refreshing", " Status...", "chall__refresh");
     updateChallenge("GET", setLiveStatus, setNoneStatus);
 }
 async function createChallenge() {
@@ -63,9 +63,13 @@ function clearStatus() {
     while (actions_elm.firstChild) actions_elm.firstChild.remove();
 }
 
-function displayTemplate(templateId, parentId) {
+function displayTemplate(templateId, parentId, index = null) {
     const elem = document.getElementById(parentId);
-    elem.appendChild(document.getElementById(templateId).content.cloneNode(true));
+    const content = document.getElementById(templateId).content.cloneNode(true);
+    if (index !== null)
+        elem.insertBefore(content, elem.childNodes[index]);
+    else
+        elem.appendChild(content);
 }
 
 function setNoneStatus() {
@@ -109,11 +113,14 @@ function setLiveStatus(json) {
     challengeTimerSetInterval = setInterval(displayTime, 1000);
 }
 
-function updateInterimStatus(verbing, suffix = " instance...", elemId = "chall__verb") {
+function updateInterimStatus(verbing, suffix = " Instance...", elemId = "chall__verb") {
     toggleError(false);
     try {
         const btn = document.getElementById(elemId);
+
         btn.textContent = verbing + suffix;
+        displayTemplate("chall__action_button_spinner", elemId, index = 0);
+
         btn.disabled = true;
     } catch (e) { }
 }

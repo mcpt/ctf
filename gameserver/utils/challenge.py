@@ -1,7 +1,9 @@
 import time
 import uuid
+from datetime import datetime, timedelta
 
 import kubernetes
+from dateutil.parser import isoparse
 from django.conf import settings
 
 challenge_cluster = settings.CHALLENGE_CLUSTER
@@ -268,7 +270,7 @@ def create_challenge_instance(challenge_spec, problem_id, problem_flag, instance
     )
 
 
-def fetch_challenge_instance(challenge_spec, problem_id, instance_owner):
+def fetch_challenge_instance(challenge_spec, problem_id, instance_owner, ignore_age=False):
     job_v1 = api_client.resources.get(api_version="batch/v1", kind="Job")
     service_v1 = api_client.resources.get(api_version="v1", kind="Service")
     ingress_v1 = api_client.resources.get(api_version="networking.k8s.io/v1", kind="Ingress")
@@ -280,12 +282,19 @@ def fetch_challenge_instance(challenge_spec, problem_id, instance_owner):
 
     if len(job_list.items) == 0:
         return None
-    else:
-        job = job_list.items[0]
 
-        instance_name = job.metadata.name
-        problem_id = job.metadata.labels["ctf-problem"]
-        instance_id = job.metadata.labels["ctf-instance"]
+    job = job_list.items[0]
+
+    if not ignore_age:
+        job_deadline = isoparse(job.metadata.creationTimestamp) + timedelta(
+            seconds=challenge_spec["duration"]
+        )
+        if job_deadline.timestamp() < datetime.utcnow().timestamp():
+            return delete_challenge_instance(challenge_spec, problem_id, instance_owner)
+
+    instance_name = job.metadata.name
+    problem_id = job.metadata.labels["ctf-problem"]
+    instance_id = job.metadata.labels["ctf-instance"]
 
     endpoints = []
 
@@ -369,7 +378,7 @@ def delete_challenge_instance(challenge_spec, problem_id, instance_owner):
     job_v1 = api_client.resources.get(api_version="batch/v1", kind="Job")
 
     challenge_instance_status = fetch_challenge_instance(
-        challenge_spec, problem_id=problem_id, instance_owner=instance_owner
+        challenge_spec, problem_id=problem_id, instance_owner=instance_owner, ignore_age=True
     )
 
     if challenge_instance_status is None:
