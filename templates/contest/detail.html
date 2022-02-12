@@ -83,7 +83,7 @@
             {% csrf_token %}
             <button type="submit" class="btn btn-danger">Leave contest</button>
         </form>
-        {% if contest.teams_allowed and not participation.team %}
+        {% if contest.teams_allowed and not user_participation.team %}
         <br>
         <label class="form-label" for="{{ form.participant.auto_id }}">or, change to participate as a team:</label>
         <form method="post">
@@ -99,7 +99,7 @@
         {% else %}
         <form method="post">
             {% csrf_token %}
-            {% if contest.teams_allowed and not participation %}
+            {% if contest.teams_allowed and not user_participation %}
             {% bootstrap_field form.participant wrapper_class="mb-2" %}
             <p id="team-size-display" class="text-muted mb-2" style="font-size: 0.75rem;line-height:1.6"></p>
             <p class="text-muted fst-italic" style="font-size: 0.75rem;line-height:1.6">Once you participate as part of

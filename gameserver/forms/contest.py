@@ -30,14 +30,8 @@ class ContestJoinForm(forms.Form):
         ):
             # Upgrade to a team
             self.fields["participant"].required = True
-            if self.user.current_contest.team is not None:
-                # Already participating as a team
-                self.fields["participant"].initial = self.user.current_contest.team
-                self.fields["participant"].queryset = models.Team.objects.filter(
-                    pk=self.user.current_contest.team.pk
-                )
-            else:
-                # Not participating as a team
+            if self.user.current_contest.team is None:
+                # Not participating as a team currently
                 self.fields["participant"].queryset = self.user.teams
             return
 
