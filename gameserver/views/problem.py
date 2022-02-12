@@ -137,7 +137,7 @@ class ProblemChallenge(LoginRequiredMixin, SingleObjectMixin, View):
             return "everyone"
         if (
             self.request.in_contest
-            and self.request.participation.contest.problems.filter(problem=self.object).exists()
+            and self.request.participation.contest.has_problem(self.object).exists()
         ):
             return f"cp-{self.request.participation.pk}"
         else:
@@ -185,10 +185,7 @@ class ProblemSubmissionList(SingleObjectMixin, ListView, mixin.MetaMixin):
             .select_related("user")
             .order_by("-pk")
         )
-        if (
-            self.request.in_contest
-            and self.request.participation.contest.problems.filter(problem=self.object).exists()
-        ):
+        if self.request.in_contest and self.request.participation.contest.has_problem(self.object):
             return qs.filter(
                 contest_submission__participation__contest=self.request.participation.contest
             )
@@ -202,9 +199,6 @@ class ProblemSubmissionList(SingleObjectMixin, ListView, mixin.MetaMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["problem"] = self.object
-        if (
-            self.request.in_contest
-            and self.request.participation.contest.problems.filter(problem=self.object).exists()
-        ):
+        if self.request.in_contest and self.request.participation.contest.has_problem(self.object):
             context["contest"] = self.request.participation.contest
         return context

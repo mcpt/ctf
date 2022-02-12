@@ -134,10 +134,7 @@ class Problem(models.Model):
         if self.organizations.filter(pk__in=user.organizations.all()).exists():
             return True
 
-        if (
-            user.current_contest is not None
-            and user.current_contest.contest.problems.filter(problem=self).exists()
-        ):
+        if user.current_contest is not None and user.current_contest.contest.has_problem(self):
             return True
 
         return self.is_editable_by(user)
