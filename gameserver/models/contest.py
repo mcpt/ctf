@@ -271,9 +271,22 @@ class ContestProblem(models.Model):
         ).exists()
 
     def is_firstblooded_by(self, participation):
+        if not self.is_solved_by(participation):
+            return False
+
+        participation_first_correct_submission = (
+            self.submissions.filter(participation=participation, submission__is_correct=True)
+            .order_by("pk")
+            .first()
+        )
+
+        prev_correct_submissions = self.submissions.filter(
+            submission__is_correct=True, pk__lte=participation_first_correct_submission.pk
+        )
+
         return (
-            self.is_solved_by(participation)
-            and not self.submissions.filter(submission__is_correct=True, pk__lt=self.pk).exists()
+            prev_correct_submissions.count() == 1
+            and prev_correct_submissions.first() == participation_first_correct_submission
         )
 
 
@@ -300,6 +313,8 @@ class ContestSubmission(models.Model):
 
     @property
     def is_firstblood(self):
-        return not ContestSubmission.objects.filter(
-            problem=self.problem, submission__is_correct=True, pk__lt=self.pk
-        ).exists()
+        prev_correct_submissions = ContestSubmission.objects.filter(
+            problem=self.problem, submission__is_correct=True, pk__lte=self.pk
+        )
+
+        return prev_correct_submissions.count() == 1 and prev_correct_submissions.first() == self
