@@ -221,3 +221,29 @@ class ContestParticipationDetail(DetailView, mixin.MetaMixin, mixin.CommentMixin
 
     def get_description(self):
         return self.object.__str__()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        contest_problems = self.object.contest.problems
+        participant_submissions = self.object._get_unique_correct_submissions()
+
+        context["problem_types"] = {
+            ptype : {
+                "total": contest_problems.filter(problem__problem_type=ptype).count(),
+                "solved": participant_submissions.filter(problem__problem__problem_type=ptype).count()
+            } for ptype in models.ProblemType.objects.all()
+        }
+
+        if contest_problems_uncategorized := contest_problems.filter(problem__problem_type=None):
+            context["problem_types"]["Other"] = {
+                "total": contest_problems_uncategorized.count(),
+                "solved": participant_submissions.filter(problem__problem__problem_type=None).count()
+            }
+
+        # new queries instead of summation in case a problem has multiple problem_types
+        context["problem_types_total"] = {
+            "total": contest_problems.count(),
+            "solved": participant_submissions.count()
+        }
+        return context
+
