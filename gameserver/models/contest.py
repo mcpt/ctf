@@ -75,6 +75,12 @@ class Contest(models.Model):
     def duration(self):
         return self.end_time - self.start_time
 
+    def has_problem(self, problem):
+        if isinstance(problem, ContestProblem):
+            return self.problems.filter(pk=problem.pk).exists()
+        else:
+            return self.problems.filter(problem__pk=problem.pk).exists()
+
     def ranks(self, queryset=None):
         if queryset is None:
             queryset = self.participations.all()

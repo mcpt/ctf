@@ -17,7 +17,11 @@ def contest_color(contest):
 
 @register.filter
 def problem_status(problem, user):
-    if isinstance(problem, Problem) and not problem.is_public:
+    if (
+        isinstance(problem, Problem)
+        and not problem.is_public
+        and not (user.current_contest and user.current_contest.contest.has_problem(problem))
+    ):
         return "private"
     elif user.has_firstblooded(problem):
         return "firstblood"
