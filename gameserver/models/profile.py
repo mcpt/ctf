@@ -109,7 +109,7 @@ class User(AbstractUser):
                     order_by=F("points").desc(),
                 )
             )
-            .order_by("-points", "flags")
+            .order_by("rank", "flags")
         )
 
     def has_attempted(self, problem):

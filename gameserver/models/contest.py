@@ -118,7 +118,7 @@ class Contest(models.Model):
                     order_by=[F("points").desc(), F("most_recent_solve_time").asc()],
                 )
             )
-            .order_by("-points", "most_recent_solve_time", "flags")
+            .order_by("rank", "flags")
         )
 
     def is_visible_by(self, user):
