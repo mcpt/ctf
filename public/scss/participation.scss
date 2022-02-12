@@ -17,18 +17,12 @@
 		}
 		overflow-wrap: anywhere;
 	}
-}
-
-@media (max-width: 1000px) {
-	.participation-summary {
+	@media (max-width: 1000px) {
 		flex-flow: row wrap;
 
 		> div {
 			padding: 0 1rem;
-
-			&:last-child {
-				margin-bottom: 0;
-			}
+			margin-bottom: 0.5rem;
 		}
 	}
 }
