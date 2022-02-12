@@ -19,7 +19,7 @@
                     <div class="col">
                         <ul class="list-unstyled profile-info mb-0">
                             <li><b><i class="bi bi-calendar3"></i>Joined</b> {{ profile.date_joined|naturalday }}</li>
-                            <li><b><i class="bi bi-flag"></i>Captured</b> {{ profile.num_flags_captured }} flag{{ profile.num_flags_captured|pluralize }}</li>
+                            <li><b><i class="bi bi-flag"></i>Captured</b> {{ profile.flags }} flag{{ profile.flags|pluralize }}</li>
                             <li><b><i class="bi bi-bullseye"></i>Collected</b> {{ profile.points|floatformat }} point{{ profile.points|pluralize }}</li>
                         </ul>
                     </div>

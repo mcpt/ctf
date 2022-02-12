@@ -65,7 +65,7 @@ class User(AbstractUser):
             points=Coalesce(Sum("problem__points"), 0)
         )["points"]
 
-    def num_flags_captured(self, queryset=None):
+    def flags(self, queryset=None):
         return (
             self._get_unique_correct_submissions(queryset).filter(problem__is_public=True).count()
         )

@@ -204,8 +204,7 @@ class ContestParticipation(models.Model):
         )["points"]
         return points
 
-    @property
-    def num_flags_captured(self):
+    def flags(self):
         return self._get_unique_correct_submissions().count()
 
     @property
