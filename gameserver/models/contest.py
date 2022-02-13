@@ -252,10 +252,11 @@ class ContestParticipation(models.Model):
             self.contest.ranks()
             .filter(
                 Q(points__gt=points)
-                | Q(most_recent_solve_time__lte=self.last_solve_time, points=points)
+                | Q(points=points, most_recent_solve_time__lt=self.last_solve_time)
             )
             .distinct()
             .count()
+            + 1
         )
 
     def has_attempted(self, problem):
