@@ -2,6 +2,8 @@ import uuid
 from datetime import timedelta
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Count, F, Max, Min, OuterRef, Q, Subquery, Sum
@@ -21,6 +23,7 @@ class ContestTag(abstract.Category):
 
 class Contest(models.Model):
     organizers = models.ManyToManyField("User", related_name="contests_organized", blank=True)
+    curators = models.ManyToManyField("User", related_name="contests_curated", blank=True)
     organizations = models.ManyToManyField("Organization", related_name="contests", blank=True)
 
     name = models.CharField(max_length=128)
@@ -84,7 +87,18 @@ class Contest(models.Model):
 
     def ranks(self, queryset=None):
         if queryset is None:
-            queryset = self.participations.all()
+            contest_content_type = ContentType.objects.get_for_model(Contest)
+            perm_edit_all_contests = Permission.objects.get(
+                codename="edit_all_contests", content_type=contest_content_type
+            )
+
+            queryset = self.participations.exclude(
+                Q(participants__is_superuser=True)
+                | Q(participants__groups__permissions=perm_edit_all_contests)
+                | Q(participants__user_permissions=perm_edit_all_contests)
+                | Q(participants__in=self.organizers.all())
+                | Q(participants__in=self.curators.all())
+            )
 
         submissions_with_points = (
             ContestSubmission.objects.filter(
@@ -150,10 +164,10 @@ class Contest(models.Model):
         if self.organizations.filter(pk__in=user.organizations.all()).exists():
             return True
 
-        if self.is_public and self.organizations.exists():
-            return False
+        if self.is_editable_by(user):
+            return True
 
-        return self.is_visible_by(user)
+        return self.is_public and not self.organizations.exists()
 
     def is_editable_by(self, user):
         if not user.is_authenticated:
@@ -162,7 +176,9 @@ class Contest(models.Model):
         if user.is_superuser or user.has_perm("gameserver.edit_all_contests"):
             return True
 
-        return self.organizers.filter(pk=user.pk).exists()
+        return (
+            self.organizers.filter(pk=user.pk).exists() or self.curators.filter(pk=user.pk).exists()
+        )
 
     @classmethod
     def get_visible_contests(cls, user):
@@ -175,6 +191,7 @@ class Contest(models.Model):
         return cls.objects.filter(
             Q(is_public=True)
             | Q(organizers=user)
+            | Q(curators=user)
             | Q(is_public=False, organizations__in=user.organizations.all())
         ).distinct()
 
@@ -186,7 +203,7 @@ class Contest(models.Model):
         if user.is_superuser or user.has_perm("gameserver.edit_all_contests"):
             return cls.objects.all()
 
-        return cls.objects.filter(organizers=user)
+        return cls.objects.filter(Q(organizers=user) | Q(curators=user)).distinct()
 
 
 class ContestParticipation(models.Model):

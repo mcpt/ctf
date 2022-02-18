@@ -176,6 +176,7 @@ class ContestAdmin(admin.ModelAdmin):
         "name",
         "slug",
         "organizers",
+        "curators",
         "organizations",
         "description",
         "summary",
@@ -221,7 +222,7 @@ class ContestAdmin(admin.ModelAdmin):
         return fields
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
-        if db_field.name == "organizers":
+        if db_field.name in ("organizers", "curators"):
             kwargs["queryset"] = models.User.objects.filter(is_staff=True).order_by("username")
         return super().formfield_for_manytomany(db_field, request, **kwargs)
 
