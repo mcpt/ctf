@@ -196,7 +196,7 @@ class ContestParticipation(models.Model):
     participants = models.ManyToManyField("User", related_name="contest_participations", blank=True)
 
     def __str__(self):
-        return f"{self.participant.__str__()}'s Participation in {self.contest.name}"
+        return f"{self.participant}'s Participation in {self.contest.name}"
 
     def get_absolute_url(self):
         return reverse("contest_participation_detail", args=[self.pk])
@@ -295,6 +295,9 @@ class ContestProblem(models.Model):
     class Meta:
         ordering = ["order"]
 
+    def __str__(self):
+        return f"{self.problem.name} on {self.contest.name}"
+
     def get_absolute_url(self):
         return reverse("problem_detail", args=[self.problem.slug])
 
@@ -342,6 +345,9 @@ class ContestSubmission(models.Model):
     submission = models.OneToOneField(
         "Submission", on_delete=models.CASCADE, related_name="contest_submission"
     )
+
+    def __str__(self):
+        return f"{self.participation.participant}'s submission for {self.problem.problem.name} in {self.problem.contest.name}"
 
     @property
     def is_correct(self):

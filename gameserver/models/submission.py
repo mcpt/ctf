@@ -23,6 +23,9 @@ class Submission(models.Model):
     is_correct = models.BooleanField(default=False)
     date_created = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"{self.user.username}'s submission for {self.problem.name}"
+
     @property
     def is_firstblood(self):
         prev_correct_submissions = Submission.objects.filter(

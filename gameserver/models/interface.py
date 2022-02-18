@@ -22,11 +22,11 @@ class Post(models.Model):
     class Meta:
         abstract = True
 
-
-class BlogPost(Post):
     def __str__(self):
         return self.title
 
+
+class BlogPost(Post):
     def get_absolute_url(self):
         return reverse("blog_post", args=[self.slug])
 
@@ -39,9 +39,6 @@ class Writeup(Post):
     target = models.ForeignKey(Problem, related_name="writeups", on_delete=models.CASCADE)
     url = models.URLField(null=True, blank=True)
     pointee = models.CharField(max_length=1, choices=Pointee.choices, default=Pointee.URL)
-
-    def __str__(self):
-        return self.title
 
     def get_absolute_url(self):
         return self.url if self.pointee == "E" else reverse("writeup", args=[self.slug])
