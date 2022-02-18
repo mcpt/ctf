@@ -147,6 +147,12 @@ class Contest(models.Model):
         if not self.is_ongoing:
             return False
 
+        if self.organizations.filter(pk__in=user.organizations.all()).exists():
+            return True
+
+        if self.is_public and self.organizations.exists():
+            return False
+
         return self.is_visible_by(user)
 
     def is_editable_by(self, user):
@@ -167,7 +173,9 @@ class Contest(models.Model):
             return cls.objects.all()
 
         return cls.objects.filter(
-            Q(is_public=True) | Q(organizers=user) | Q(organizations__in=user.organizations.all())
+            Q(is_public=True)
+            | Q(organizers=user)
+            | Q(is_public=False, organizations__in=user.organizations.all())
         ).distinct()
 
     @classmethod
