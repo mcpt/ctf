@@ -132,6 +132,9 @@ class Contest(models.Model):
         if self.is_public:
             return True
 
+        if not user.is_authenticated:
+            return False
+
         if self.organizations.filter(pk__in=user.organizations.all()).exists():
             return True
 
