@@ -25,8 +25,8 @@ class ContestList(ListView, mixin.MetaMixin):
 
 class ContestDetail(
     UserPassesTestMixin,
-    SingleObjectMixin,
-    FormView,
+    FormMixin,
+    DetailView,
     mixin.MetaMixin,
     mixin.CommentMixin,
 ):
@@ -45,16 +45,26 @@ class ContestDetail(
         return self.request.path
 
     def test_func(self):
-        return self.object.is_visible_by(self.request.user)
-
-    def dispatch(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        return super().dispatch(request, *args, **kwargs)
+        return self.get_object().is_visible_by(self.request.user)
 
     def post(self, request, *args, **kwargs):
-        if not request.user.is_authenticated or not self.object.is_ongoing:
+        self.object = self.get_object()
+
+        if not self.object.is_accessible_by(request.user):
             return HttpResponseForbidden()
-        return super().post(request, *args, **kwargs)
+
+        form = self.get_form()
+
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def get_form(self):
+        if self.object.is_accessible_by(self.request.user):
+            return forms.ContestJoinForm(
+                **self.get_form_kwargs(),
+            )
 
     def get_form_kwargs(self, *args, **kwargs):
         cur_kwargs = super().get_form_kwargs(*args, **kwargs)

@@ -141,6 +141,9 @@ class Contest(models.Model):
         if not user.is_authenticated:
             return False
 
+        if not self.is_ongoing:
+            return False
+
         return self.is_visible_by(user)
 
     def is_editable_by(self, user):
