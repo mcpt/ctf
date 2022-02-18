@@ -135,10 +135,7 @@ class ProblemChallenge(LoginRequiredMixin, SingleObjectMixin, View):
             return "nobody"
         if problem.challenge_spec["perTeam"] is False:
             return "everyone"
-        if (
-            self.request.in_contest
-            and self.request.participation.contest.has_problem(self.object).exists()
-        ):
+        if self.request.in_contest and self.request.participation.contest.has_problem(self.object):
             return f"cp-{self.request.participation.pk}"
         else:
             return f"user-{self.request.user.pk}"
