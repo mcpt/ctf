@@ -172,7 +172,9 @@ class User(AbstractUser):
 
     def update_contest(self):
         participation = self.current_contest
-        if participation is not None and participation.contest.is_finished:
+        if participation is not None and (
+            participation.contest.is_finished or not participation.contest.is_accessible_by(self)
+        ):
             self.remove_contest()
 
     update_contest.alters_data = True

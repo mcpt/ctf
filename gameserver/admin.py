@@ -175,6 +175,7 @@ class ContestAdmin(admin.ModelAdmin):
         "name",
         "slug",
         "organizers",
+        "organizations",
         "description",
         "summary",
         "start_time",

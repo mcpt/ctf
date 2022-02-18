@@ -21,6 +21,7 @@ class ContestTag(abstract.Category):
 
 class Contest(models.Model):
     organizers = models.ManyToManyField("User", related_name="contests_organized", blank=True)
+    organizations = models.ManyToManyField("Organization", related_name="contests", blank=True)
 
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True)
@@ -131,6 +132,9 @@ class Contest(models.Model):
         if self.is_public:
             return True
 
+        if self.organizations.filter(pk__in=user.organizations.all()).exists():
+            return True
+
         return self.is_editable_by(user)
 
     def is_accessible_by(self, user):
@@ -156,7 +160,9 @@ class Contest(models.Model):
         if user.is_superuser or user.has_perm("gameserver.edit_all_contests"):
             return cls.objects.all()
 
-        return cls.objects.filter(Q(is_public=True) | Q(organizers=user)).distinct()
+        return cls.objects.filter(
+            Q(is_public=True) | Q(organizers=user) | Q(organizations__in=user.organizations.all())
+        ).distinct()
 
     @classmethod
     def get_editable_contests(cls, user):
