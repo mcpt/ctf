@@ -17,18 +17,68 @@
 		}
 		overflow-wrap: anywhere;
 	}
-}
-
-@media (max-width: 1000px) {
-	.participation-summary {
+	@media (max-width: 1000px) {
 		flex-flow: row wrap;
 
 		> div {
 			padding: 0 1rem;
+			margin-bottom: 0.5rem;
+		}
+	}
+}
 
-			&:last-child {
-				margin-bottom: 0;
+.participation-problems {
+	$bars:      #DFC3FF,#F9C4D4,#AAD7FF,#b4e8bf,#FFD2AA,#F4F095;
+	$bar-final: #6d6dba;
+	$total: length($bars);
+
+	table {
+		width: 100%;
+	}
+	td {
+		white-space: nowrap;
+		&:not(:last-child) {
+			padding-right: 1rem;
+		}
+		&:nth-child(2) {
+			width: 100%;
+		}
+	}
+
+	@for $i from 1 through $total {
+		@at-root tr:nth-child(#{$total}n + #{$i - 1}) .progress-bar {
+			background-color: nth($bars, $i) !important;
+		}
+	}
+
+	tbody {
+		&:nth-last-child(2) tr:last-child td {
+			padding-bottom: 0.5rem;
+		}
+		&:last-child tr:first-child td {
+			padding-top: 0.5rem;
+			font-weight: 700;
+
+			 .progress-bar {
+				background-color: $bar-final !important;
+			}
+		}
+	}
+	@media (max-width: 580px) {
+		tr {
+			display: flex;
+			flex-wrap: wrap;
+		}
+		td {
+			display: inline-block;
+			padding-right: 6px !important;
+
+			&:nth-child(2) {
+				order: 99;
+				flex-basis: 100%;
+				padding: 8px 0 0.7rem;
 			}
 		}
 	}
 }
+

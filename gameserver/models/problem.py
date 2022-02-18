@@ -37,8 +37,8 @@ class Problem(models.Model):
 
     opaque_id = models.CharField(max_length=172, default=gen_opaque_id, editable=False, unique=True)
 
-    problem_group = models.ManyToManyField(ProblemGroup, blank=True)
-    problem_type = models.ManyToManyField(ProblemType, blank=True)
+    problem_group = models.ManyToManyField(ProblemGroup, related_name="problems", blank=True)
+    problem_type = models.ManyToManyField(ProblemType, related_name="problems", blank=True)
 
     flag = models.CharField(max_length=256)
     points = models.PositiveSmallIntegerField()

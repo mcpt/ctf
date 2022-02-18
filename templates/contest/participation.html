@@ -8,6 +8,21 @@
             </div>
         </div>
         {% include "snippets/group_detail/members.html" with member_list=participation.participants.all entity="participation" %}
+        <div class="card mb-3 participation-problems">
+            <h2 class="card-header fs-6">Captured</h2>
+            <div class="card-body pt-3">
+                <table>
+                    <tbody>
+                        {% for ptype, stats in problem_types.items %}
+                            {% include './snippet/participation/progress.html' with solved=stats.solved total=stats.total %}
+                        {% endfor %}
+                    </tbody>
+                    <tbody class="border-top">
+                        {% include './snippet/participation/progress.html' with ptype="Total" solved=problem_types_total.solved total=problem_types_total.total %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
         {% if request.in_contest and request.participation.contest == participation.contest or contest.is_finished %}
             <div class="card mb-3">
                 <h2 class="card-header fs-6">Submissions</h2>
