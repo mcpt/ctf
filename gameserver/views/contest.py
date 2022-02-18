@@ -1,7 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, Q, Sum
-from django.http import HttpResponseBadRequest
+from django.http import HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
@@ -25,14 +25,15 @@ class ContestList(ListView, mixin.MetaMixin):
 
 class ContestDetail(
     UserPassesTestMixin,
-    DetailView,
-    FormMixin,
+    SingleObjectMixin,
+    FormView,
     mixin.MetaMixin,
     mixin.CommentMixin,
 ):
     model = models.Contest
     template_name = "contest/detail.html"
     context_object_name = "contest"
+    form_class = forms.ContestJoinForm
 
     def get_title(self):
         return self.object.name
@@ -44,25 +45,16 @@ class ContestDetail(
         return self.request.path
 
     def test_func(self):
-        return self.get_object().is_visible_by(self.request.user)
+        return self.object.is_visible_by(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
         if not request.user.is_authenticated or not self.object.is_ongoing:
             return HttpResponseForbidden()
-        form = self.get_form()
-        if form.is_valid():
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
-
-    def get_form(self):
-        if self.request.user.is_authenticated:
-            return forms.ContestJoinForm(
-                **self.get_form_kwargs(),
-            )
-        else:
-            return None
+        return super().post(request, *args, **kwargs)
 
     def get_form_kwargs(self, *args, **kwargs):
         cur_kwargs = super().get_form_kwargs(*args, **kwargs)

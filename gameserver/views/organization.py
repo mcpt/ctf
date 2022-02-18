@@ -98,9 +98,6 @@ class OrganizationJoin(LoginRequiredMixin, SingleObjectMixin, FormView, mixin.Me
         self.object = self.get_object(queryset=models.Organization.objects.all())
         return super().dispatch(request, *args, **kwargs)
 
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
-
     def post(self, *args, **kwargs):
         if self.object.is_open:
             self.success()

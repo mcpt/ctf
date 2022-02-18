@@ -84,8 +84,8 @@ class UserSubmissionList(SingleObjectMixin, ListView, mixin.MetaMixin):
 
 
 class UserEdit(LoginRequiredMixin, UpdateView, mixin.MetaMixin):
-    form_class = forms.ProfileUpdateForm
     template_name = "user/form.html"
+    form_class = forms.ProfileUpdateForm
     success_url = reverse_lazy("user_detail_redirect")
     title = "Update Profile"
 
