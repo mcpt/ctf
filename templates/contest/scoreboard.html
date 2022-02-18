@@ -1,4 +1,5 @@
 {% extends 'table-list.html' %}
+{% load common_tags %}
 
 {% block heading %}{% if org %}{{ org.short_name }} {% endif %}Scoreboard for <a href="{{ contest.get_absolute_url }}">{{ contest }}</a>{% endblock %}
 
@@ -23,7 +24,7 @@
             {% endif %}
             <td>{{ participation.points }}</td>
             <td>{{ participation.flags }}</td>
-            <td>{{ participation.time_taken }}</td>
+            <td>{{ participation.time_taken|strfdelta }}</td>
         </tr>
     {% endfor %}
 {% endblock %}
