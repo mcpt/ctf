@@ -132,8 +132,6 @@ class OrganizationLeave(LoginRequiredMixin, RedirectView):
         organization = get_object_or_404(models.Organization, slug=kwargs["slug"])
 
         self.request.user.organizations.remove(organization)
-        for team in self.request.user.teams_owning.all():
-            team.organizations.remove(organization)
 
         messages.info(self.request, "You have left this organization.")
         return super().get_redirect_url(*args, **kwargs)

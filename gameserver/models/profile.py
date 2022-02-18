@@ -263,12 +263,6 @@ class Team(models.Model):
     description = models.TextField(blank=True)
 
     members = models.ManyToManyField(User, related_name="teams", blank=True)
-    organizations = models.ManyToManyField(
-        Organization,
-        blank=True,
-        related_name="teams",
-        related_query_name="team",
-    )
 
     access_code = models.CharField(max_length=36)
 

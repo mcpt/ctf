@@ -19,12 +19,10 @@ class TeamUpdateForm(ModelForm):
             "name",
             "description",
             "members",
-            "organizations",
             "access_code",
         ]
         widgets = {
             "members": forms.CheckboxSelectMultiple(),
-            "organizations": forms.CheckboxSelectMultiple(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -32,6 +30,3 @@ class TeamUpdateForm(ModelForm):
 
         self.fields["members"].queryset = self.instance.members.all()
         self.initial["members"] = [i.pk for i in self.instance.members.all()]
-
-        self.fields["organizations"].queryset = self.instance.owner.organizations.all()
-        self.initial["organizations"] = [i.pk for i in self.instance.organizations.all()]
