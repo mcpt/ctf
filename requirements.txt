@@ -8,6 +8,7 @@ charset-normalizer==2.0.10
 cryptography==36.0.1
 defusedxml==0.7.1
 Django==4.0.1
+django-admin-sortable2==1.0.4
 django-allauth==0.47.0
 django-appconf==1.0.5
 django-bootstrap5==21.3

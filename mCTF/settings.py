@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount",
     "django_bootstrap5",
     "sass_processor",
+    "adminsortable2",
 ]
 
 MIDDLEWARE = [

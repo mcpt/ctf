@@ -287,6 +287,11 @@ class ContestProblem(models.Model):
     )
     points = models.PositiveSmallIntegerField()
 
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["order"]
+
     def get_absolute_url(self):
         return reverse("problem_detail", args=[self.problem.slug])
 
