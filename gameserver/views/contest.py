@@ -203,8 +203,8 @@ class ContestOrganizationScoreboard(ListView, mixin.MetaMixin):
         ).select_related("team")
 
     def get(self, request, *args, **kwargs):
-        self.contest = models.Contest.objects.get(slug=self.kwargs["contest_slug"])
-        self.org = models.Organization.objects.get(slug=self.kwargs["org_slug"])
+        self.contest = get_object_or_404(models.Contest, slug=self.kwargs["contest_slug"])
+        self.org = get_object_or_404(models.Organization, slug=self.kwargs["org_slug"])
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
