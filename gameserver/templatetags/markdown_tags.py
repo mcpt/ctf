@@ -27,7 +27,9 @@ cleaner = sanitizer.Cleaner(
     tags=[
         *sanitizer.ALLOWED_TAGS,
         "br",
+        "div",
         "p",
+        "a",
         "img",
         *["h{}".format(i) for i in range(1, 7)],
         "hr",
@@ -36,6 +38,8 @@ cleaner = sanitizer.Cleaner(
     ],
     attributes={
         **sanitizer.ALLOWED_ATTRIBUTES,
+        "a": ["style", "href"],
+        "div": ["style"],
         "iframe": ["src", "frameborder", "class"],
         "img": ["alt", "src", "style", "class"],
     },
