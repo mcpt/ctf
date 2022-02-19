@@ -3,6 +3,43 @@
 {% load color_tags %}
 {% load static %}
 
+{% block before_cols %}
+{% with ocsp=problem.ongoing_contests_problem %}
+{% if not request.in_contest %}
+{% if ocsp %}
+<div class="ocsp alert alert-warning" role="alert">
+    <h4 class="alert-heading">Problem Available in Ongoing Contest(s)</h4>
+    <p class="mb-0">
+        This problem is available in the following <b>ongoing</b> contests.
+        (You are not in any contest.)
+        Make sure to join the correct contest that you want to submit for.
+        <ul>
+            {% for ocp in ocsp %}
+            {% with oc=ocp.contest %}
+            <li>
+                <a href="{{ oc.get_absolute_url }}">
+                    {{ oc }}
+                </a>
+            </li>
+            {% endwith %}
+            {% endfor %}
+        </ul>
+    </p>
+</div>
+{% endif %}
+{% else %}
+{% if not ocsp %}
+<div id="n-ocsp" class="alert alert-warning" role="alert">
+    <h4 class="alert-heading">Problem Not Available in Ongoing Contest</h4>
+    <p class="mb-0">
+        This problem is not available in the contest you are currently in.
+    </p>
+</div>
+{% endif %}
+{% endif %}
+{% endwith %}
+{% endblock %}
+
 {% block content %}
 <div class="card mb-3">
     <div class="card-body px-4 py-3">

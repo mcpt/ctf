@@ -1,10 +1,12 @@
 import hashlib
+import datetime
 import re
 import secrets
 
 from django.db import models
 from django.db.models import F, Q
 from django.urls import reverse
+from django.utils import timezone
 
 from ..utils import challenge
 from . import abstract
@@ -78,6 +80,15 @@ class Problem(models.Model):
             return ContestProblem.objects.get(problem=self, contest=contest)
         except ContestProblem.DoesNotExist:
             return None
+
+    @property
+    def ongoing_contests_problem(self):
+        now = timezone.make_aware(datetime.datetime.now(), timezone.get_current_timezone())
+        return ContestProblem.objects.filter(
+            problem=self,
+            contest__start_time__lte=now,
+            contest__end_time__gte=now,
+        )
 
     def create_challenge_instance(self, instance_owner):
         if self.challenge_spec is not None:
