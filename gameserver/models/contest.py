@@ -307,11 +307,11 @@ class ContestParticipation(models.Model):
 
 
 class ContestProblem(models.Model):
-    problem = models.ForeignKey(
-        "Problem", on_delete=models.CASCADE, related_name="contests", related_query_name="contest"
-    )
     contest = models.ForeignKey(
         Contest, on_delete=models.CASCADE, related_name="problems", related_query_name="problem"
+    )
+    problem = models.ForeignKey(
+        "Problem", on_delete=models.CASCADE, related_name="contests", related_query_name="contest"
     )
     points = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)])
 
@@ -319,6 +319,7 @@ class ContestProblem(models.Model):
 
     class Meta:
         ordering = ["order"]
+        unique_together = ("contest", "problem")
 
     def __str__(self):
         return f"{self.problem.name} on {self.contest.name}"
