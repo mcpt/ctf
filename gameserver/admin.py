@@ -137,7 +137,6 @@ class OrganizationRequestAdmin(admin.ModelAdmin):
         "organization",
         "date_created",
         "status",
-        "reviewed",
     ]
     list_filter = ["organization", "status"]
     readonly_fields = ["user", "organization", "date_created", "reason"]

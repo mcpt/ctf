@@ -4,7 +4,9 @@
 {% block heading %}Problems for <a href="{{ contest.get_absolute_url }}">{{ contest }}</a>{% endblock %}
 
 {% block th %}
-    <th scope="col">Status</th>
+    {% if request.user.is_authenticated %}
+        <th scope="col">Status</th>
+    {% endif %}
     <th scope="col">Problem</th>
     <th scope="col">Types</th>
     <th scope="col">Points</th>
@@ -13,9 +15,11 @@
 {% block trows %}
     {% for contest_problem in object_list %}
         <tr>
-            {% with status=contest_problem|problem_status:request.user %}
-                <td>{% include "problem/snippet/status.html" %}</td>
-            {% endwith %}
+            {% if request.user.is_authenticated %}
+                {% with status=contest_problem|problem_status:request.user %}
+                    <td>{% include "problem/snippet/status.html" %}</td>
+                {% endwith %}
+            {% endif %}
             <td><a href="{{ contest_problem.problem.get_absolute_url }}">{{ contest_problem.problem }}</a></td2>
             {% if contest_problem.problem.problem_type.all %}
                 <td>{{ contest_problem.problem.problem_type.all|join:", " }}</td>

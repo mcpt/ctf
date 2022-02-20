@@ -139,7 +139,7 @@ class ContestDetailsMixin(UserPassesTestMixin, SingleObjectMixin):
     def test_func(self):
         self.object = self.get_object(queryset=models.Contest.objects.all())
         return (self.request.in_contest and self.request.participation.contest == self.object) or (
-            self.object.is_finished and self.object.is_accessible_by(self.request.user)
+            self.object.is_finished and self.object.is_visible_by(self.request.user)
         )
 
     def get_context_data(self, **kwargs):
