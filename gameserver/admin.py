@@ -142,28 +142,27 @@ class OrganizationRequestAdmin(admin.ModelAdmin):
     list_filter = ["organization", "status"]
     readonly_fields = ["user", "organization", "date_created", "reason"]
 
-    def has_given_permission(self, request, obj, permission):
-        if request.user.has_perm(permission):
+    def has_view_permission(self, request, obj=None):
+        if request.user.has_perm("gameserver.view_organization"):
             if obj is None:
                 return True
             else:
-                return request.user in obj.organization.admins.all()
+                return obj.organization.is_editable_by(request.user)
         return False
 
-    def has_view_permission(self, request, obj=None):
-        return self.has_given_permission(request, obj, "gameserver.view_organizationrequest")
-
     def has_change_permission(self, request, obj=None):
-        status = self.has_given_permission(request, obj, "gameserver.change_organizationrequest")
-        if obj is not None:
-            return status and not obj.reviewed
-        return status
+        if request.user.has_perm("gameserver.change_organization"):
+            if obj is None:
+                return True
+            else:
+                return obj.organization.is_editable_by(request.user) and not obj.reviewed
+        return False
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        if request.user.is_superuser:
-            return qs
-        return qs.filter(organization__admins=request.user)
+        return qs.filter(
+            organization__in=models.Organization.get_editable_organizations(request.user)
+        )
 
 
 class ContestProblemInline(SortableInlineAdminMixin, admin.TabularInline):

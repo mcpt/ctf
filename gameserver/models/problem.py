@@ -1,5 +1,4 @@
 import hashlib
-import datetime
 import re
 import secrets
 
@@ -7,6 +6,7 @@ from django.db import models
 from django.db.models import F, Q
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.functional import cached_property
 
 from ..utils import challenge
 from . import abstract
@@ -81,9 +81,9 @@ class Problem(models.Model):
         except ContestProblem.DoesNotExist:
             return None
 
-    @property
+    @cached_property
     def ongoing_contests_problem(self):
-        now = timezone.make_aware(datetime.datetime.now(), timezone.get_current_timezone())
+        now = timezone.now()
         return ContestProblem.objects.filter(
             problem=self,
             contest__start_time__lte=now,
