@@ -313,7 +313,7 @@ class ContestProblem(models.Model):
     contest = models.ForeignKey(
         Contest, on_delete=models.CASCADE, related_name="problems", related_query_name="problem"
     )
-    points = models.PositiveSmallIntegerField()
+    points = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)])
 
     order = models.PositiveIntegerField(default=0)
 
