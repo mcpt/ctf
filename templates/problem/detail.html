@@ -127,10 +127,14 @@
     <div class="card-header">Writeups</div>
     <ul class="list-group list-group-flush">
         {% for writeup in problem.writeups.all %}
-        <a href="{{ writeup.get_absolute_url }}" class="list-group-item list-group-item-action">
-            {{ writeup }}
-            {% if writeup.pointee == "E" %}(external link){% endif %}
-        </a>
+            <li class="list-group-item">
+                <a href="{{ writeup.get_absolute_url }}">
+                    {{ writeup }}
+                    {% if writeup.pointee == "E" %}<i class="bi bi-box-arrow-up-right me-1" style="font-size:0.8rem; margin-left:2px"></i>{% endif %}
+                </a>
+                <i>by</i>
+                <a href="{{ writeup.get_absolute_url }}" target="_blank" rel="noreferrer noopener">{% include "snippets/links.html" with objects=writeup.author.all %}</a>
+            </li>
         {% endfor %}
     </ul>
 </div>
