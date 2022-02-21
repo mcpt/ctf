@@ -118,8 +118,7 @@
         {% if request.user.is_authenticated %}
         {% include "snippets/form-code.html" with field=form.flag %}
         {% endif %}
-        <p class="mt-2 mb-0 mx-1"><a href="{% url 'problem_submission_list' problem.slug %}" class="card-link">All
-                Submissions</a></p>
+        <p class="mt-2 mb-0 mx-1"><a href="{% url 'problem_submission_list' problem.slug %}" class="card-link">All Submissions</a></p>
     </div>
 </div>
 {% if not contest_problem and problem.writeups.all %}
@@ -133,7 +132,7 @@
                     {% if writeup.pointee == "E" %}<i class="bi bi-box-arrow-up-right me-1" style="font-size:0.8rem; margin-left:2px"></i>{% endif %}
                 </a>
                 <i>by</i>
-                <a href="{{ writeup.get_absolute_url }}" target="_blank" rel="noreferrer noopener">{% include "snippets/links.html" with objects=writeup.author.all %}</a>
+                <a target="_blank" rel="noreferrer noopener">{% include "snippets/links.html" with objects=writeup.author.all %}</a>
             </li>
         {% endfor %}
     </ul>
