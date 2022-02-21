@@ -9,13 +9,17 @@
 {% endblock %}
 
 {% block th %}
-    {% include 'submission/snippet/thead.html' with hide_timestamp=True %}
+    {% if contest_participation %}
+        {% include 'submission/snippet/thead.html' with hide_timestamp=True hide_author=True %}
+    {% else %}
+        {% include 'submission/snippet/thead.html' with hide_timestamp=True %}
+    {% endif %}
 {% endblock %}
 
 {% block trows %}
     {% if contest_participation %}
         {% for contest_submission in page_obj %}
-            {% include './snippet/submission/row.html' with hide_timestamp=True hide_participation=True %}
+            {% include './snippet/submission/row.html' with hide_timestamp=True hide_participant=True %}
         {% endfor %}
     {% else %}
         {% for contest_submission in page_obj %}

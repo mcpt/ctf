@@ -21,7 +21,11 @@
 {% endblock %}
 
 {% block trows %}
-    {% if problem %}
+    {% if contest %}
+        {% for submission in page_obj %}
+            {% include '../contest/snippet/submission/row.html' with hide_pk=True hide_problem=True contest_submission=submission.contest_submission %}
+        {% endfor %}
+    {% elif problem %}
         {% for submission in page_obj %}
             {% include './snippet/row.html' with hide_pk=True hide_problem=True %}
         {% endfor %}
