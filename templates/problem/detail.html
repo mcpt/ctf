@@ -127,10 +127,7 @@
     <ul class="list-group list-group-flush">
         {% for writeup in problem.writeups.all %}
             <li class="list-group-item">
-                <a href="{{ writeup.get_absolute_url }}">
-                    {{ writeup }}
-                    {% if writeup.pointee == "E" %}<i class="bi bi-box-arrow-up-right me-1" style="font-size:0.8rem; margin-left:2px"></i>{% endif %}
-                </a>
+                <a href="{{ writeup.get_absolute_model_url }}">{{ writeup }}</a>
                 <i>by</i>
                 <a target="_blank" rel="noreferrer noopener">{% include "snippets/links.html" with objects=writeup.author.all %}</a>
             </li>
