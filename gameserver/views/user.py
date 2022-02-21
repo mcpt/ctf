@@ -27,6 +27,7 @@ class UserList(ListView, mixin.MetaMixin):
     model = models.User
     template_name = "user/list.html"
     context_object_name = "users"
+    paginate_by = 50
     title = "Users"
 
     def get_queryset(self):

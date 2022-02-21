@@ -11,21 +11,27 @@
 {% endblock %}
 
 {% block th %}
-    {% if not contest %}
-        {% include "./snippet/thead.html" with hide_pk=True %}
+    {% if problem %}
+        {% include "./snippet/thead.html" with hide_pk=True hide_problem=True %}
+    {% elif author %}
+        {% include "./snippet/thead.html" with hide_pk=True hide_author=True %}
     {% else %}
-        {% include "./snippet/thead.html" with hide_pk=True contest=True %}
+        {% include "./snippet/thead.html" with hide_pk=True %}
     {% endif %}
 {% endblock %}
 
 {% block trows %}
-    {% if not contest %}
+    {% if problem %}
         {% for submission in page_obj %}
-            {% include './snippet/row.html' with hide_pk=True %}
+            {% include './snippet/row.html' with hide_pk=True hide_problem=True %}
+        {% endfor %}
+    {% elif author %}
+        {% for submission in page_obj %}
+            {% include './snippet/row.html' with hide_pk=True hide_author=True %}
         {% endfor %}
     {% else %}
         {% for submission in page_obj %}
-            {% include '../contest/snippet/submission/row.html' with hide_pk=True hide_problem=True contest_submission=submission.contest_submission %}
+            {% include './snippet/row.html' with hide_pk=True %}
         {% endfor %}
     {% endif %}
 {% endblock %}

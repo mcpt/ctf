@@ -20,10 +20,11 @@ class TeamList(ListView, mixin.MetaMixin):
     model = models.Team
     template_name = "team/list.html"
     context_object_name = "teams"
+    paginate_by = 50
     title = "Teams"
 
     def get_ordering(self):
-        return "-name"
+        return "name"
 
 
 class TeamDetail(

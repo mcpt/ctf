@@ -98,6 +98,11 @@ urlpatterns = [
         views.ContestParticipationDetail.as_view(),
         name="contest_participation_detail",
     ),
+    path(
+        "participation/<int:pk>/submissions",
+        views.ContestParticipationSubmissionList.as_view(),
+        name="contest_participation_submission_list",
+    ),
     path("accounts/profile/edit", views.UserEdit.as_view(), name="user_edit"),
     path("submissions/", views.SubmissionList.as_view(), name="submission_list"),
     path("comment/<int:pk>", views.Comment.as_view(), name="comment"),

@@ -166,7 +166,7 @@ class ContestSubmissionList(ContestDetailsMixin, ListView, mixin.MetaMixin):
         return (
             models.ContestSubmission.objects.filter(participation__contest=self.object)
             .select_related("problem", "participation")
-            .order_by("-submission__pk")
+            .order_by("-pk")
         )
 
 
@@ -220,13 +220,16 @@ class ContestParticipationDetail(DetailView, mixin.MetaMixin, mixin.CommentMixin
     context_object_name = "participation"
 
     def get_title(self):
-        return f"{self.object.__str__()}"
+        return self.object.__str__()
 
     def get_description(self):
         return self.object.__str__()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        context["recent_contest_submissions"] = self.object.submissions.order_by("-pk")[:10]
+
         contest_problems = self.object.contest.problems
         participant_submissions = self.object._get_unique_correct_submissions()
 
@@ -261,4 +264,34 @@ class ContestParticipationDetail(DetailView, mixin.MetaMixin, mixin.CommentMixin
             "total": contest_problems.count(),
             "solved": participant_submissions.count(),
         }
+        return context
+
+
+class ContestParticipationSubmissionList(
+    UserPassesTestMixin, SingleObjectMixin, ListView, mixin.MetaMixin
+):
+    template_name = "contest/submission_list.html"
+    paginate_by = 50
+
+    def get_title(self):
+        return f"Submissions by {self.object.participant} in {self.object.contest}"
+
+    def get_queryset(self):
+        return self.object.submissions.select_related("problem", "participation").order_by("-pk")
+
+    def test_func(self):
+        return (
+            self.request.in_contest and self.request.participation.contest == self.object.contest
+        ) or (
+            self.object.contest.is_finished and self.contest.object.is_visible_by(self.request.user)
+        )
+
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object(queryset=models.ContestParticipation.objects.all())
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["contest_participation"] = self.object
+        context["contest"] = self.object.contest
         return context

@@ -2,12 +2,14 @@
     <th scope="col">#</th>
 {% endif %}
 <th scope="col">Status</th>
-{% if not problem %}
+{% if not hide_problem %}
     <th scope="col">Problem</th>
 {% endif %}
+{% if not hide_author %}
 <th scope="col">
-    User{% if team %}/Team{% endif %}
+    User{% if contest %}/Team{% endif %}
 </th>
+{% endif %}
 {% if not hide_timestamp %}
     <th scope="col">Submitted</th>
 {% endif %}

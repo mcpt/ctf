@@ -10,7 +10,6 @@ from . import mixin
 
 class SubmissionList(ListView, mixin.MetaMixin):
     template_name = "submission/list.html"
-    context_object_name = "submissions"
     paginate_by = 50
     title = "Submissions"
 

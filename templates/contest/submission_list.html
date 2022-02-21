@@ -1,13 +1,25 @@
 {% extends 'table-list.html' %}
 
-{% block heading %}Submissions for <a href="{{ contest.get_absolute_url }}">{{ contest }}</a>{% endblock %}
+{% block heading %}
+    {% if contest_participation %}
+        Submissions by <a href="{{ contest_participation.get_absolute_url }}">{{ contest_participation.participant }}</a> in <a href="{{ contest.get_absolute_url }}">{{ contest }}</a>
+    {% else %}
+        Submissions for <a href="{{ contest.get_absolute_url }}">{{ contest }}</a>
+    {% endif %}
+{% endblock %}
 
 {% block th %}
-    {% include 'submission/snippet/thead.html' with hide_timestamp=True team=True %}
+    {% include 'submission/snippet/thead.html' with hide_timestamp=True %}
 {% endblock %}
 
 {% block trows %}
-    {% for contest_submission in page_obj %}
-        {% include './snippet/submission/row.html' with hide_timestamp=True %}
-    {% endfor %}
+    {% if contest_participation %}
+        {% for contest_submission in page_obj %}
+            {% include './snippet/submission/row.html' with hide_timestamp=True hide_participation=True %}
+        {% endfor %}
+    {% else %}
+        {% for contest_submission in page_obj %}
+            {% include './snippet/submission/row.html' with hide_timestamp=True %}
+        {% endfor %}
+    {% endif %}
 {% endblock %}

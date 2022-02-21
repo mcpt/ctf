@@ -2,56 +2,57 @@
 {% load common_tags %}
 
 {% block content %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <h1 class="mt-0"><a href="{{ participation.participant.get_absolute_url }}">{{ participation.participant }}</a>'s Participation in <a href="{{ participation.contest.get_absolute_url }}">{{ participation.contest }}</a></h1>
+            <hr class="mb-0">
+        </div>
+    </div>
+    {% include "snippets/group_detail/members.html" with member_list=participation.participants.all entity="participation" %}
+    <div class="card mb-3 participation-problems">
+        <h2 class="card-header fs-6">Captured</h2>
+        <div class="card-body pt-3">
+            <table>
+                <tbody>
+                {% for ptype, stats in problem_types.items %}
+                    {% include './snippet/participation/progress.html' with solved=stats.solved total=stats.total %}
+                {% endfor %}
+                </tbody>
+                <tbody class="border-top">
+                {% include './snippet/participation/progress.html' with ptype="Total" solved=problem_types_total.solved total=problem_types_total.total %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% if request.in_contest and request.participation.contest == participation.contest or contest.is_finished %}
         <div class="card mb-3">
+            <h2 class="card-header fs-6">Recent Submissions</h2>
             <div class="card-body">
-                <h1 class="mt-0"><a href="{{ participation.participant.get_absolute_url }}">{{ participation.participant }}</a>'s Participation in <a href="{{ participation.contest.get_absolute_url }}">{{ participation.contest }}</a></h1>
-                <hr class="mb-0">
+                {% include './snippet/submission/table.html' with contest_submissions=recent_contest_submissions hide_participant=True %}
+                <p class="text-end mb-0"><a href="{% url 'contest_participation_submission_list' participation.pk %}">View all submissions</a></p>
             </div>
         </div>
-        {% include "snippets/group_detail/members.html" with member_list=participation.participants.all entity="participation" %}
-        <div class="card mb-3 participation-problems">
-            <h2 class="card-header fs-6">Captured</h2>
-            <div class="card-body pt-3">
-                <table>
-                    <tbody>
-                        {% for ptype, stats in problem_types.items %}
-                            {% include './snippet/participation/progress.html' with solved=stats.solved total=stats.total %}
-                        {% endfor %}
-                    </tbody>
-                    <tbody class="border-top">
-                        {% include './snippet/participation/progress.html' with ptype="Total" solved=problem_types_total.solved total=problem_types_total.total %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        {% if request.in_contest and request.participation.contest == participation.contest or contest.is_finished %}
-            <div class="card mb-3">
-                <h2 class="card-header fs-6">Submissions</h2>
-                <div class="card-body">
-                    {% include './snippet/submission/table.html' with contest_submissions=participation.submissions.all hide_participant=True %}
-                </div>
-            </div>
-        {% endif %}
+    {% endif %}
 {% endblock %}
 {% block aside %}
-        <div class="card mb-3 order-neg1">
-            <div class="card-body participation-summary">
-                <div>
-                    <span>#{{ participation.rank }}</span>
-                    <span>rank</span>
-                </div>
-                <div>
-                    <span>{{ participation.points }}</span>
-                    <span>point{{ participation.points|pluralize }}</span>
-                </div>
-                <div>
-                    <span>{{ participation.flags }}</span>
-                    <span>flag{{ participation.flags|pluralize }} captured</span>
-                </div>
-                <div>
-                    <span>{{ participation.time_taken|strfdelta }}</span>
-                    <span>time taken</span>
-                </div>
+    <div class="card mb-3 order-neg1">
+        <div class="card-body participation-summary">
+            <div>
+                <span>#{{ participation.rank }}</span>
+                <span>rank</span>
+            </div>
+            <div>
+                <span>{{ participation.points }}</span>
+                <span>point{{ participation.points|pluralize }}</span>
+            </div>
+            <div>
+                <span>{{ participation.flags }}</span>
+                <span>flag{{ participation.flags|pluralize }} captured</span>
+            </div>
+            <div>
+                <span>{{ participation.time_taken|strfdelta }}</span>
+                <span>time taken</span>
             </div>
         </div>
+    </div>
 {% endblock %}

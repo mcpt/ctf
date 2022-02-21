@@ -6,10 +6,12 @@
         <td>{{ submission.pk }}</td>
     {% endif %}
     {% include "./status.html" %}
-    {% if not problem %}
+    {% if not hide_problem %}
         <td><a href="{{ submission.problem.get_absolute_url }}">{{ submission.problem }}</a></td>
     {% endif %}
-    <td><a href="{{ submission.user.get_absolute_url }}">{{ submission.user }}</a></td>
+    {% if not hide_author %}
+        <td><a href="{{ submission.user.get_absolute_url }}">{{ submission.user }}</a></td>
+    {% endif %}
     {% if not hide_timestamp %}
         <td>{{ submission.date_created|naturaltime }}</td>
     {% endif %}
