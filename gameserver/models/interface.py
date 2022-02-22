@@ -1,3 +1,4 @@
+from enum import Enum
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -32,16 +33,22 @@ class BlogPost(Post):
 
 
 class Writeup(Post):
-    class Pointee(models.TextChoices):
-        POST = "P", _("Post")
-        URL = "E", _("External URL")
+    class Pointee(Enum):
+        POST = _("Post")
+        URL = _("External URL")
 
-    target = models.ForeignKey(Problem, related_name="writeups", on_delete=models.CASCADE)
+    problem = models.ForeignKey(Problem, related_name="writeups", on_delete=models.CASCADE)
     url = models.URLField(null=True, blank=True)
-    pointee = models.CharField(max_length=1, choices=Pointee.choices, default=Pointee.URL)
 
     def get_absolute_url(self):
         return self.url if self.pointee == "E" else reverse("writeup", args=[self.slug])
+
+    @property
+    def pointee(self):
+        if self.url:
+            return self.Pointee.URL
+        else:
+            return self.Pointee.POST
 
     @property
     def get_absolute_model_url(self):

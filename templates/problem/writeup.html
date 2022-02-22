@@ -21,7 +21,7 @@
     <div class="card mb-3">
         <div class="card-body">
             <ul class="list-unstyled mb-0">
-                <li><b>Writeup for</b> <a href="{{ post.target.get_absolute_url }}">{{ post.target }}</a></li>
+                <li><b>Writeup for</b> <a href="{{ post.problem.get_absolute_url }}">{{ post.problem }}</a></li>
                 <hr>
                 <li><b>Author{{ post.author.all|pluralize:"s" }}</b>: {% include "snippets/links.html" with objects=post.author.all %}</li>
                 <li><b>Created</b>: {{ post.date_created|naturaltime }}</li>
