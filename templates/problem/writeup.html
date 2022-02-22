@@ -9,7 +9,7 @@
             <h1 class="card-title">{{ post.title }}</h1>
             <hr>
             <p class="card-text">{{ post.text|markdown }}</p>
-            {% if post.pointee == "E" %}
+            {% if post.url %}
                 <p><a href="{{ post.url }}">External Link to Writeup <i class="bi bi-box-arrow-up-right me-1" style="font-size:0.8rem; margin-left:2px"></i></a></p>
             {% endif %}
         </div>

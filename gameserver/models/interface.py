@@ -41,14 +41,10 @@ class Writeup(Post):
     url = models.URLField(null=True, blank=True)
 
     def get_absolute_url(self):
-        return self.url if self.pointee == "E" else reverse("writeup", args=[self.slug])
+        return self.url if self.url else reverse("writeup", args=[self.slug])
 
-    @property
-    def pointee(self):
-        if self.url:
-            return self.Pointee.URL
-        else:
-            return self.Pointee.POST
+    def __str__(self):
+        return f'By {}'.format(self.author)
 
     @property
     def get_absolute_model_url(self):
