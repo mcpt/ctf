@@ -44,7 +44,7 @@ class Writeup(Post):
         return self.url if self.url else reverse("writeup", args=[self.slug])
 
     def __str__(self):
-        return f'By {}'.format(self.author)
+        return f'By {self.author}'
 
     @property
     def get_absolute_model_url(self):
