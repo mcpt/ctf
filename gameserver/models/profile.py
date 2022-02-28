@@ -72,7 +72,7 @@ class User(AbstractUser):
 
     def rank(self, queryset=None):
         return (
-            self.ranks(queryset)
+            self.cached_ranks(f"user_{self.pk}", queryset)
             .filter(
                 points__gt=self.points,
             )

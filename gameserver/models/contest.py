@@ -9,6 +9,7 @@ from django.db import models
 from django.db.models import Count, F, Max, Min, OuterRef, Q, Subquery, Sum
 from django.db.models.expressions import Window
 from django.db.models.functions import Coalesce, Rank
+from django.core.cache import cache
 from django.urls import reverse
 from django.utils import timezone
 
@@ -85,7 +86,27 @@ class Contest(models.Model):
         else:
             return self.problems.filter(problem__pk=problem.pk).exists()
 
+    @property
+    def __meta_key(self):
+        return f"contest_ranks_{self.pk}"
+
+    def cached_ranks(self, name: str, queryset=None):
+        key = f"contest_ranks_{self.pk}_{name}"
+        if (val := cache.get(key)) is not None:
+            return val
+        cache.set(self.__meta_key, cache.get(self.__meta_key, default=[]) + [key])
+        val = self._ranks(queryset)
+        cache.set(key, val, timeout=None) # TODO: set saner timeout
+        return val
+
+
     def ranks(self, queryset=None):
+        if queryset is None:
+            return self._ranks(queryset)
+        return self.cached_ranks("", queryset)
+
+
+    def _ranks(self, queryset=None):
         if queryset is None:
             contest_content_type = ContentType.objects.get_for_model(Contest)
             perm_edit_all_contests = Permission.objects.get(
@@ -386,3 +407,8 @@ class ContestSubmission(models.Model):
         )
 
         return prev_correct_submissions.count() == 1 and prev_correct_submissions.first() == self
+
+    def save(self, *args, **kwargs):
+        for key in cache.get(self.participation.contest.__meta_key, default=[]):
+            cache.delete(key) # invalidate cache
+        super().save(*args, **kwargs)

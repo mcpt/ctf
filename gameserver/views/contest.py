@@ -198,8 +198,9 @@ class ContestOrganizationScoreboard(ListView, mixin.MetaMixin):
         return self.org.short_name + " Scoreboard for " + self.contest.name
 
     def get_queryset(self):
-        return self.contest.ranks(
-            queryset=self.contest.participations.filter(participants__organizations=self.org)
+        return self.contest.cached_ranks(
+            "organization_scoreboard",
+            self.contest.participations.filter(participants__organizations=self.org),
         ).select_related("team")
 
     def get(self, request, *args, **kwargs):
