@@ -127,7 +127,7 @@
     <ul class="list-group list-group-flush">
         {% for writeup in problem.writeups.all %}
             <li class="list-group-item">
-                <a href="{{ writeup.get_model_url }}">
+                <a href="{{ writeup.get_absolute_url }}">
                     {% if writeup.title %}
                     {{ writeup.title }}
                     {% else %}
