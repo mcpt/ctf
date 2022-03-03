@@ -42,7 +42,3 @@ class Writeup(Post):
 
     def get_absolute_url(self):
         return self.url if self.url else reverse("writeup", args=[self.slug])
-
-    @property
-    def get_absolute_model_url(self):
-        return reverse("writeup", args=[self.slug])
