@@ -127,9 +127,15 @@
     <ul class="list-group list-group-flush">
         {% for writeup in problem.writeups.all %}
             <li class="list-group-item">
-                <a href="{{ writeup.get_absolute_model_url }}">{{ writeup }}</a>
-                <i>by</i>
-                <a target="_blank" rel="noreferrer noopener">{% include "snippets/links.html" with objects=writeup.author.all %}</a>
+                <a href="{{ writeup.get_absolute_model_url }}">
+                    {% if writeup.title %}
+                    {{ writeup.title }}
+                    {% else %}
+                    Writeup
+                    {% endif %}
+                    <i>by</i>
+                    <a target="_blank" rel="noreferrer noopener">{% include "snippets/links.html" with objects=writeup.author.all %}</a>
+                </a>
             </li>
         {% endfor %}
     </ul>
