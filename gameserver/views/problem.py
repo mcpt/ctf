@@ -139,6 +139,7 @@ class ProblemChallenge(LoginRequiredMixin, SingleObjectMixin, View):
         if self.request.in_contest and self.request.participation.contest.has_problem(self.object):
             return f"cp-{self.request.participation.pk}"
         else:
+            print('YEET', self.request.user.pk)
             return f"user-{self.request.user.pk}"
 
     def dispatch(self, request, *args, **kwargs):

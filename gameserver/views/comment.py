@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect
@@ -31,6 +32,10 @@ def add_comment(request, parent_type, parent_id):
         parent = get_object_or_404(models.Problem, slug=parent_id)
         if not parent.is_public:
             return HttpResponseForbidden()
+        text = request.POST["text"]
+        if text == parent.flag:
+            messages.error(request, "Flags are disallowedin comments.")
+            return redirect(parent)
     elif parent_type == "user":
         parent = get_object_or_404(models.User, username=parent_id)
     elif parent_type == "submission":
@@ -50,6 +55,6 @@ def add_comment(request, parent_type, parent_id):
     else:
         return HttpResponseBadRequest()
     author = request.user
-    comment = models.Comment(parent=parent, text=request.POST["text"], author=author)
+    comment = models.Comment(parent=parent, text=text, author=author)
     comment.save()
     return redirect("comment", pk=comment.pk)
