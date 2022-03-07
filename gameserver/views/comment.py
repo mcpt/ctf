@@ -34,7 +34,7 @@ def add_comment(request, parent_type, parent_id):
             return HttpResponseForbidden()
         text = request.POST["text"]
         if text == parent.flag:
-            messages.error(request, "Flags are disallowedin comments.")
+            messages.error(request, "Flags are disallowed in comments.")
             return redirect(parent)
     elif parent_type == "user":
         parent = get_object_or_404(models.User, username=parent_id)
