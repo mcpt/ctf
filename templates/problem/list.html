@@ -51,10 +51,12 @@
 
 {% if show_filter %}
     {% block aside %}
-    <aside class="card mb-3 p-0" id="problem-filter">
-        <div class="card-header">Filter</div>
-        <div class="card-body pt-3">
-            {% include "./snippet/filter.html" %}
+    <aside class="mb-3" id="problem-filter">
+        <div class="card">
+            <div class="card-header">Filter</div>
+            <div class="card-body pt-3">
+                {% include "./snippet/filter.html" %}
+            </div>
         </div>
     </aside>
     {% endblock %}

@@ -32,4 +32,13 @@
 		font-size: 0.8rem;
 		vertical-align: baseline;
 	}
+
+	@media screen and (max-width: 1000px) {
+		order: -1;
+		width: 100%;
+
+		.form-group {
+			width: fit-content;
+		}
+	}
 }
