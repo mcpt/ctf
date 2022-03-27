@@ -3,12 +3,24 @@
 
 {% block th %}
     {% if request.user.is_authenticated %}
-        <th scope="col">Status</th>
+        <th scope="col" class="pe-3">Status</th>
     {% endif %}
-    <th scope="col">Problem</th>
-    <th scope="col">Types</th>
-    <th scope="col">Groups</th>
-    <th scope="col">Points</th>
+    <th scope="col" class="pe-3">Problem</th>
+    <th scope="col" class="pe-3">Types</th>
+    {% if show_groups %}
+        <th scope="col" class="pe-3">Groups</th>
+    {% endif %}
+    <th scope="col" class="pe-3">Points</th>
+{% endblock %}
+
+{% block colgroup %}
+    <col style="width: 0">
+    <col style="width: auto">
+    <col style="width: auto">
+    {% if show_groups %}
+        <col style="width: auto">
+    {% endif %}
+    <col style="width: 0">
 {% endblock %}
 
 {% block trows %}
@@ -25,12 +37,25 @@
             {% else %}
                 <td class="font-italic">-</td>
             {% endif %}
-            {% if problem.problem_group.exists %}
-                <td>{{ problem.problem_group.all|join:", " }}</td>
-            {% else %}
-                <td class="font-italic">-</td>
+            {% if show_groups %}
+                {% if problem.problem_group.exists %}
+                    <td>{{ problem.problem_group.all|join:", " }}</td>
+                {% else %}
+                    <td class="font-italic">-</td>
+                {% endif %}
             {% endif %}
             <td>{{ problem.points }}</td>
         </tr>
     {% endfor %}
 {% endblock %}
+
+{% if show_filter %}
+    {% block aside %}
+    <aside class="card mb-3 p-0" id="problem-filter">
+        <div class="card-header">Filter</div>
+        <div class="card-body pt-3">
+            {% include "./snippet/filter.html" %}
+        </div>
+    </aside>
+    {% endblock %}
+{% endif %}

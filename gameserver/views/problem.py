@@ -25,18 +25,47 @@ class ProblemList(ListView, mixin.MetaMixin):
     title = "Problems"
 
     def get_queryset(self):
-        return (
+        queryset = (
             models.Problem.get_visible_problems(self.request.user)
             .prefetch_related("problem_type")
             .prefetch_related("problem_group")
             .order_by("points", "name")
         )
+        if self.selected_types:
+            queryset = queryset.filter(problem_type__in=self.selected_types)
+        if self.selected_groups and not self.request.in_contest:
+            queryset = queryset.filter(problem_group__in=self.selected_groups)
+
+        return queryset.distinct()
 
     def get(self, request, *args, **kwargs):
+        self.selected_types = list(map(int,request.GET.getlist("type")))
+        self.selected_groups = list(map(int,request.GET.getlist("group")))
+        self.show_groups = request.GET.get("show_groups", False) == "1"
+
         if request.in_contest:
             return redirect("contest_problem_list", slug=request.participation.contest.slug)
         else:
             return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["problem_filters"] = {
+            "type": {
+                "options": models.ProblemType.objects.all(),
+                "selected": self.selected_types,
+                "size": min(models.ProblemType.objects.count(), 6)
+            },
+            "group": {
+                "options": models.ProblemGroup.objects.all(),
+                "selected": self.selected_groups,
+                "size": min(models.ProblemGroup.objects.count(), 4)
+            }
+        }
+
+        context["show_filter"] = True
+        context["show_groups"] = self.show_groups
+        return context
 
 
 class ProblemDetail(

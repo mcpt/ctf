@@ -23,3 +23,13 @@
 		color: var(--unsolved) !important;
 	}
 }
+
+#problem-filter {
+	width: max-content;
+
+	label i.bi {
+		color: #999;
+		font-size: 0.8rem;
+		vertical-align: baseline;
+	}
+}
