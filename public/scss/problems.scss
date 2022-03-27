@@ -41,4 +41,23 @@
 			width: fit-content;
 		}
 	}
+	.card-header {
+		padding-right: 0;
+	}
+	#filter-toggle {
+		user-select: none;
+		padding-right: 1rem;
+		text-align: right;
+		flex-grow: 1;
+	}
+	&.hide {
+		.card {
+			border-color: transparent;
+		}
+		.card-body {
+			visibility: hidden;
+			height: 0;
+			padding-bottom: 0;
+		}
+	}
 }

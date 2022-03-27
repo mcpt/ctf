@@ -53,11 +53,21 @@
     {% block aside %}
     <aside class="mb-3" id="problem-filter">
         <div class="card">
-            <div class="card-header">Filter</div>
+            <div class="card-header d-flex justify-content-between">
+                Filter 
+                <span id="filter-toggle" onclick="toggleFilter()">-</span>
+            </div>
             <div class="card-body pt-3">
                 {% include "./snippet/filter.html" %}
             </div>
         </div>
     </aside>
+    <script>
+        function toggleFilter() {
+            const filterbar = document.querySelector("#problem-filter");
+            filterbar.classList.toggle("hide");
+            document.getElementById("filter-toggle").textContent = filterbar.classList.contains("hide") ? "+" : "-";
+        }
+    </script>
     {% endblock %}
 {% endif %}
