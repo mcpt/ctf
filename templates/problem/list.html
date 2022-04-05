@@ -1,5 +1,10 @@
 {% extends 'table-list.html' %}
+{% load static %}
 {% load color_tags %}
+
+{% block deps %}
+<script type="module" src="{% static 'scripts/toggle_filter.js' %}"></script>
+{% endblock %}
 
 {% block th %}
     {% if request.user.is_authenticated %}
@@ -55,19 +60,12 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between">
                 Filter 
-                <span id="filter-toggle" onclick="toggleFilter()">-</span>
+                <span id="filter-toggle">-</span>
             </div>
             <div class="card-body pt-3">
                 {% include "./snippet/filter.html" %}
             </div>
         </div>
     </aside>
-    <script>
-        function toggleFilter() {
-            const filterbar = document.querySelector("#problem-filter");
-            filterbar.classList.toggle("hide");
-            document.getElementById("filter-toggle").textContent = filterbar.classList.contains("hide") ? "+" : "-";
-        }
-    </script>
     {% endblock %}
 {% endif %}
