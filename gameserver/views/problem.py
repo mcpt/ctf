@@ -29,18 +29,19 @@ class ProblemList(ListView, mixin.MetaMixin):
     title = "Problems"
 
     def get_queryset(self):
-        queryset = (
+        return (
             models.Problem.get_visible_problems(self.request.user)
             .prefetch_related("problem_type")
             .prefetch_related("problem_group")
             .order_by("points", "name")
+            .filter(
+                Q(problem_type__in=self.selected_types) if len(self.selected_types) else Q(),
+                Q(problem_group__in=self.selected_groups)
+                if len(self.selected_groups) and not self.request.in_contest
+                else Q(),
+            )
+            .distinct()
         )
-        if self.selected_types:
-            queryset = queryset.filter(problem_type__in=self.selected_types)
-        if self.selected_groups and not self.request.in_contest:
-            queryset = queryset.filter(problem_group__in=self.selected_groups)
-
-        return queryset.distinct()
 
     def get(self, request, *args, **kwargs):
         self.selected_types = int_list(request.GET.getlist("type"))
@@ -56,14 +57,14 @@ class ProblemList(ListView, mixin.MetaMixin):
         context = super().get_context_data(**kwargs)
         context["problem_filters"] = {
             "type": {
-                "options": models.ProblemType.objects.all(),
+                "options": list(models.ProblemType.objects.all()),
                 "selected": self.selected_types,
-                "size": min(models.ProblemType.objects.count(), 6),
+                "size": min(len(models.ProblemType.objects.all()), 6),
             },
             "group": {
-                "options": models.ProblemGroup.objects.all(),
+                "options": list(models.ProblemGroup.objects.all()),
                 "selected": self.selected_groups,
-                "size": min(models.ProblemGroup.objects.count(), 4),
+                "size": min(len(models.ProblemGroup.objects.all()), 4),
             },
         }
 
