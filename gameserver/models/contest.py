@@ -4,12 +4,12 @@ from datetime import timedelta
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
+from django.core.cache import cache
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Count, F, Max, Min, OuterRef, Q, Subquery, Sum
 from django.db.models.expressions import Window
 from django.db.models.functions import Coalesce, Rank
-from django.core.cache import cache
 from django.urls import reverse
 from django.utils import timezone
 
@@ -96,15 +96,13 @@ class Contest(models.Model):
             return val
         cache.set(self.__meta_key, cache.get(self.__meta_key, default=[]) + [key])
         val = self._ranks(queryset)
-        cache.set(key, val, timeout=None) # TODO: set saner timeout
+        cache.set(key, val, timeout=None)  # TODO: set saner timeout
         return val
-
 
     def ranks(self, queryset=None):
         if queryset is None:
             return self._ranks(queryset)
         return self.cached_ranks("", queryset)
-
 
     def _ranks(self, queryset=None):
         if queryset is None:
@@ -410,5 +408,5 @@ class ContestSubmission(models.Model):
 
     def save(self, *args, **kwargs):
         for key in cache.get(self.participation.contest.__meta_key, default=[]):
-            cache.delete(key) # invalidate cache
+            cache.delete(key)  # invalidate cache
         super().save(*args, **kwargs)

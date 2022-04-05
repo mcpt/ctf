@@ -39,8 +39,8 @@ class ProblemList(ListView, mixin.MetaMixin):
         return queryset.distinct()
 
     def get(self, request, *args, **kwargs):
-        self.selected_types = list(map(int,request.GET.getlist("type")))
-        self.selected_groups = list(map(int,request.GET.getlist("group")))
+        self.selected_types = list(map(int, request.GET.getlist("type")))
+        self.selected_groups = list(map(int, request.GET.getlist("group")))
         self.show_groups = request.GET.get("show_groups", False) == "1"
 
         if request.in_contest:
@@ -54,13 +54,13 @@ class ProblemList(ListView, mixin.MetaMixin):
             "type": {
                 "options": models.ProblemType.objects.all(),
                 "selected": self.selected_types,
-                "size": min(models.ProblemType.objects.count(), 6)
+                "size": min(models.ProblemType.objects.count(), 6),
             },
             "group": {
                 "options": models.ProblemGroup.objects.all(),
                 "selected": self.selected_groups,
-                "size": min(models.ProblemGroup.objects.count(), 4)
-            }
+                "size": min(models.ProblemGroup.objects.count(), 4),
+            },
         }
 
         context["show_filter"] = True
@@ -168,7 +168,7 @@ class ProblemChallenge(LoginRequiredMixin, SingleObjectMixin, View):
         if self.request.in_contest and self.request.participation.contest.has_problem(self.object):
             return f"cp-{self.request.participation.pk}"
         else:
-            print('YEET', self.request.user.pk)
+            print("YEET", self.request.user.pk)
             return f"user-{self.request.user.pk}"
 
     def dispatch(self, request, *args, **kwargs):
