@@ -19,7 +19,9 @@
 {% endblock %}
 
 {% block colgroup %}
-    <col style="width: 0">
+    {% if request.user.is_authenticated %}
+        <col style="width: 0">
+    {% endif %}
     <col style="width: auto">
     <col style="width: auto">
     {% if show_groups %}
