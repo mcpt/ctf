@@ -84,6 +84,10 @@ $head-text: $white;
     }
     @extend %table-hover;
 
+    tbody td {
+        overflow-wrap: anywhere;
+    }
+
     @media screen and (max-width: 768px) {
         &.contest-list {
             tr {

@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
-from django.http import HttpResponseForbidden, JsonResponse
+from django.http import HttpResponseBadRequest, HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views import View
@@ -16,6 +16,10 @@ from .. import forms, models
 from . import mixin
 
 logger = logging.getLogger("django")
+
+
+def int_list(l):
+    return list(map(int, filter(lambda x: x.isnumeric(), l)))
 
 
 class ProblemList(ListView, mixin.MetaMixin):
@@ -30,13 +34,43 @@ class ProblemList(ListView, mixin.MetaMixin):
             .prefetch_related("problem_type")
             .prefetch_related("problem_group")
             .order_by("points", "name")
+            .filter(
+                Q(problem_type__in=self.selected_types) if len(self.selected_types) else Q(),
+                Q(problem_group__in=self.selected_groups)
+                if len(self.selected_groups) and not self.request.in_contest
+                else Q(),
+            )
+            .distinct()
         )
 
     def get(self, request, *args, **kwargs):
+        self.selected_types = int_list(request.GET.getlist("type"))
+        self.selected_groups = int_list(request.GET.getlist("group"))
+        self.show_groups = request.GET.get("show_groups", False) == "1"
+
         if request.in_contest:
             return redirect("contest_problem_list", slug=request.participation.contest.slug)
         else:
             return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["problem_filters"] = {
+            "type": {
+                "options": list(models.ProblemType.objects.all()),
+                "selected": self.selected_types,
+                "size": min(len(models.ProblemType.objects.all()), 6),
+            },
+            "group": {
+                "options": list(models.ProblemGroup.objects.all()),
+                "selected": self.selected_groups,
+                "size": min(len(models.ProblemGroup.objects.all()), 4),
+            },
+        }
+
+        context["show_filter"] = True
+        context["show_groups"] = self.show_groups
+        return context
 
 
 class ProblemDetail(
