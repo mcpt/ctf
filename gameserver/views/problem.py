@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
-from django.http import HttpResponseForbidden, JsonResponse
+from django.http import HttpResponseBadRequest, HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views import View
@@ -16,6 +16,10 @@ from .. import forms, models
 from . import mixin
 
 logger = logging.getLogger("django")
+
+
+def int_list(l):
+    return list(map(int, filter(lambda x: x.isnumeric(), l)))
 
 
 class ProblemList(ListView, mixin.MetaMixin):
@@ -39,8 +43,8 @@ class ProblemList(ListView, mixin.MetaMixin):
         return queryset.distinct()
 
     def get(self, request, *args, **kwargs):
-        self.selected_types = list(map(int, request.GET.getlist("type")))
-        self.selected_groups = list(map(int, request.GET.getlist("group")))
+        self.selected_types = int_list(request.GET.getlist("type"))
+        self.selected_groups = int_list(request.GET.getlist("group"))
         self.show_groups = request.GET.get("show_groups", False) == "1"
 
         if request.in_contest:
