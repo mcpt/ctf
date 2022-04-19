@@ -136,7 +136,6 @@ class Problem(models.Model):
         )
 
     def is_accessible_by(self, user):
-        print("YOINK", self.is_public)
         if self.is_public:
             return True
 
