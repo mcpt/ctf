@@ -15,7 +15,9 @@
             <table>
                 <tbody>
                 {% for ptype, stats in problem_types.items %}
-                    {% include './snippet/participation/progress.html' with solved=stats.solved total=stats.total %}
+                    {% if stats.total > 0 %}
+                        {% include './snippet/participation/progress.html' with solved=stats.solved total=stats.total %}
+                    {% endif %}
                 {% endfor %}
                 </tbody>
                 <tbody class="border-top">
