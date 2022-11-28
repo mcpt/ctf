@@ -33,7 +33,9 @@ class ProblemAdmin(admin.ModelAdmin):
         "problem_type",
         "challenge_spec",
         "is_public",
+        "firstblood",
     ]
+    readonly_fields = ["firstblood"]
     inlines = [
         ProblemFileInline,
     ]

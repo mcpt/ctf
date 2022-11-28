@@ -50,6 +50,8 @@ class Problem(models.Model):
 
     date_created = models.DateTimeField(auto_now_add=True)
 
+    firstblood = models.ForeignKey("Submission", related_name="firstblooded", null=True, blank=True, on_delete=models.PROTECT)
+
     class Meta:
         permissions = (
             ("change_problem_visibility", "Change visibility of problems"),
@@ -115,25 +117,7 @@ class Problem(models.Model):
         return self.submissions.filter(user=user, is_correct=True).exists()
 
     def is_firstblooded_by(self, user):
-        if not self.is_solved_by(user):
-            return False
-
-        user_first_correct_submission = (
-            self.submissions.filter(user=user, is_correct=True).order_by("pk").first()
-        )
-
-        prev_correct_submissions = self.submissions.filter(
-            is_correct=True, pk__lte=user_first_correct_submission.pk
-        ).exclude(
-            Q(problem__author=F("user"))
-            | Q(problem__testers=F("user"))
-            | Q(problem__organizations__member=F("user"))
-        )
-
-        return (
-            prev_correct_submissions.count() == 1
-            and prev_correct_submissions.first() == user_first_correct_submission
-        )
+        return self.firstblood.user == user if self.firstblood else False
 
     def is_accessible_by(self, user):
         if self.is_public:

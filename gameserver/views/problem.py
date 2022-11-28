@@ -128,6 +128,8 @@ class ProblemDetail(
         submission = models.Submission.objects.create(
             user=self.request.user, problem=self.object, is_correct=is_correct
         )
+        if is_correct and self.object.firstblood is None:
+            self.object.firstblood = submission
         if self.contest_object is not None:
             models.ContestSubmission.objects.create(
                 problem=self.contest_object,

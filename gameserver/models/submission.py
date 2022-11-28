@@ -28,15 +28,7 @@ class Submission(models.Model):
 
     @property
     def is_firstblood(self):
-        prev_correct_submissions = Submission.objects.filter(
-            problem=self.problem, is_correct=True, pk__lte=self.pk
-        ).exclude(
-            Q(problem__author=F("user"))
-            | Q(problem__testers=F("user"))
-            | Q(problem__organizations__member=F("user"))
-        )
-
-        return prev_correct_submissions.count() == 1 and prev_correct_submissions.first() == self
+        return self.problem.firstblood == self
 
     @classmethod
     def get_visible_submissions(cls, user):
