@@ -1,8 +1,8 @@
+from django.core.cache import cache
 from django.db import models
 from django.db.models import F, Q
+from django.db.models.signals import post_save
 from django.urls import reverse
-
-# Create your models here.
 
 
 class Submission(models.Model):
@@ -50,3 +50,10 @@ class Submission(models.Model):
             return cls.objects.filter(
                 contest_submission__participation__contest=user.current_contest.contest
             )
+
+def invalidate_total_points_cache(sender, instance, created, **kwargs):
+    # TODO: only invalidate on change
+    cache.delete(f"total_points_{instance.user.id}")
+    cache.delete(f"flags_{instance.user.id}")
+
+post_save.connect(invalidate_total_points_cache, sender=Submission)

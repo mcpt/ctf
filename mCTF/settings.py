@@ -63,7 +63,17 @@ MIDDLEWARE = [
     "gameserver.middleware.ContestMiddleware",
     "django.contrib.flatpages.middleware.FlatpageFallbackMiddleware",
     "gameserver.middleware.RedirectFallbackTemporaryMiddleware",
+    'django.middleware.cache.UpdateCacheMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.cache.FetchFromCacheMiddleware',
 ]
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
 
 ROOT_URLCONF = "mCTF.urls"
 

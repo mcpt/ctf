@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
+from django.core.cache import cache
 from django.db import models
 from django.db.models import Count, F, Min, OuterRef, Q, Subquery, Sum
 from django.db.models.expressions import Window
@@ -61,14 +62,22 @@ class User(AbstractUser):
         return queryset.values("problem", "problem__points").distinct()
 
     def points(self, queryset=None):
-        return self._get_unique_correct_submissions(queryset).aggregate(
+        if queryset is None and (cached := cache.get(f"user_total_points_{self.id}")):
+            return cached
+        computed = self._get_unique_correct_submissions(queryset).aggregate(
             points=Coalesce(Sum("problem__points"), 0)
         )["points"]
+        if queryset is None:
+            cache.set(f"user_total_points_{self.id}", computed)
+        return computed
 
     def flags(self, queryset=None):
-        return (
-            self._get_unique_correct_submissions(queryset).filter(problem__is_public=True).count()
-        )
+        if queryset is None and (cached := cache.get(f"user_flags_{self.id}")):
+            return cached
+        computed = self._get_unique_correct_submissions(queryset).filter(problem__is_public=True).count()
+        if queryset is None:
+            cache.set(f"user_flags_{self.id}", computed)
+        return computed
 
     def rank(self, queryset=None):
         return (
