@@ -4,3 +4,4 @@ mCTF/config.py
 mCTF/cluster_ca.crt
 static/**
 public/scss/*.css
+.build

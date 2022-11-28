@@ -29,7 +29,7 @@ class ProblemList(ListView, mixin.MetaMixin):
     title = "Problems"
 
     def get_queryset(self):
-        return (
+        q = (
             models.Problem.get_visible_problems(self.request.user)
             .prefetch_related("problem_type")
             .prefetch_related("problem_group")
@@ -42,11 +42,15 @@ class ProblemList(ListView, mixin.MetaMixin):
             )
             .distinct()
         )
+        if self.hide_unsolved:
+            q = q.join(Submission(user=self.request.user, is_correct=False))
+        return q
 
     def get(self, request, *args, **kwargs):
         self.selected_types = int_list(request.GET.getlist("type"))
         self.selected_groups = int_list(request.GET.getlist("group"))
         self.show_groups = request.GET.get("show_groups", False) == "1"
+        self.hide_unsolved = request.GET.get("hide_unsolved", False) == "1"
 
         if request.in_contest:
             return redirect("contest_problem_list", slug=request.participation.contest.slug)
@@ -70,6 +74,7 @@ class ProblemList(ListView, mixin.MetaMixin):
 
         context["show_filter"] = True
         context["show_groups"] = self.show_groups
+        context["hide_unsolved"] = self.hide_unsolved
         return context
 
 
