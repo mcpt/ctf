@@ -8,6 +8,7 @@ register = template.Library()
 def debug():
     return settings.DEBUG
 
+
 @register.filter
 def startswith(string, substring):
     return string.startswith(substring)

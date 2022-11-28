@@ -68,9 +68,7 @@ class KyiiTests(OAuth2TestsMixin, TestCase):
                 if self.status_code != 200:
                     raise HTTPError(None)
 
-        request = RequestFactory().get(
-            reverse(self.provider.id + "_login"), dict(process="login")
-        )
+        request = RequestFactory().get(reverse(self.provider.id + "_login"), dict(process="login"))
 
         adapter = KyiiOAuth2Adapter(request)
         app = adapter.get_provider().get_app(request)
@@ -89,9 +87,7 @@ class KyiiTests(OAuth2TestsMixin, TestCase):
               "message": "Invalid Credentials" }
             }""",
         )
-        with patch(
-            ".providers.kyii.views.requests"
-        ) as patched_requests:
+        with patch(".providers.kyii.views.requests") as patched_requests:
             patched_requests.get.return_value = response_with_401
             with self.assertRaises(HTTPError):
                 adapter.complete_login(request, app, token)
@@ -116,9 +112,7 @@ class KyiiTests(OAuth2TestsMixin, TestCase):
         test_email = "raymond.penners@example.com"
         self.login(self.get_mocked_response(verified_email=True))
         email_address = EmailAddress.objects.get(email=test_email, verified=True)
-        self.assertFalse(
-            EmailConfirmation.objects.filter(email_address__email=test_email).exists()
-        )
+        self.assertFalse(EmailConfirmation.objects.filter(email_address__email=test_email).exists())
         account = email_address.user.socialaccount_set.all()[0]
         self.assertEqual(account.extra_data["given_name"], "Raymond")
 
@@ -141,12 +135,8 @@ class KyiiTests(OAuth2TestsMixin, TestCase):
         resp = self.login(self.get_mocked_response(verified_email=False))
         email_address = EmailAddress.objects.get(email=test_email)
         self.assertFalse(email_address.verified)
-        self.assertTrue(
-            EmailConfirmation.objects.filter(email_address__email=test_email).exists()
-        )
-        self.assertTemplateUsed(
-            resp, "account/email/email_confirmation_signup_subject.txt"
-        )
+        self.assertTrue(EmailConfirmation.objects.filter(email_address__email=test_email).exists())
+        self.assertTemplateUsed(resp, "account/email/email_confirmation_signup_subject.txt")
 
     def test_email_verified_stashed(self):
         # http://slacy.com/blog/2012/01/how-to-set-session-variables-in-django-unit-tests/
@@ -164,9 +154,7 @@ class KyiiTests(OAuth2TestsMixin, TestCase):
         self.login(self.get_mocked_response(verified_email=False))
         email_address = EmailAddress.objects.get(email=test_email)
         self.assertTrue(email_address.verified)
-        self.assertFalse(
-            EmailConfirmation.objects.filter(email_address__email=test_email).exists()
-        )
+        self.assertFalse(EmailConfirmation.objects.filter(email_address__email=test_email).exists())
 
     def test_account_connect(self):
         email = "user@example.com"
@@ -177,9 +165,7 @@ class KyiiTests(OAuth2TestsMixin, TestCase):
         self.client.login(username=user.username, password="test")
         self.login(self.get_mocked_response(verified_email=True), process="connect")
         # Check if we connected...
-        self.assertTrue(
-            SocialAccount.objects.filter(user=user, provider=KyiiProvider.id).exists()
-        )
+        self.assertTrue(SocialAccount.objects.filter(user=user, provider=KyiiProvider.id).exists())
         # For now, we do not pick up any new e-mail addresses on connect
         self.assertEqual(EmailAddress.objects.filter(user=user).count(), 1)
         self.assertEqual(EmailAddress.objects.filter(user=user, email=email).count(), 1)
@@ -193,9 +179,7 @@ class KyiiTests(OAuth2TestsMixin, TestCase):
         self.login(self.get_mocked_response(verified_email=False))
         email_address = EmailAddress.objects.get(email=test_email)
         self.assertFalse(email_address.verified)
-        self.assertFalse(
-            EmailConfirmation.objects.filter(email_address__email=test_email).exists()
-        )
+        self.assertFalse(EmailConfirmation.objects.filter(email_address__email=test_email).exists())
 
     @override_settings(
         ACCOUNT_EMAIL_VERIFICATION=account_settings.EmailVerificationMethod.OPTIONAL,

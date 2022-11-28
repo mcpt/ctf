@@ -407,6 +407,6 @@ class ContestSubmission(models.Model):
         return prev_correct_submissions.count() == 1 and prev_correct_submissions.first() == self
 
     def save(self, *args, **kwargs):
-        for key in cache.get(f'contest_ranks_{self.participation.contest.pk}', default=[]):
+        for key in cache.get(f"contest_ranks_{self.participation.contest.pk}", default=[]):
             cache.delete(key)
         super().save(*args, **kwargs)

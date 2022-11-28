@@ -4,9 +4,9 @@ from allauth.socialaccount.providers.base import AuthAction, ProviderAccount
 from allauth.socialaccount.providers.oauth2.provider import OAuth2Provider
 
 
-SCOPE_OPENID = 'openid'
-SCOPE_EMAIL = 'email'
-SCOPE_PROFILE = 'profile'
+SCOPE_OPENID = "openid"
+SCOPE_EMAIL = "email"
+SCOPE_PROFILE = "profile"
 
 
 class KyiiAccount(ProviderAccount):

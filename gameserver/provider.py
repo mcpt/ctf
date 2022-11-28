@@ -5,4 +5,5 @@ class KyiiProvider(OpenIDProvider):
     id = "kyii"
     name = "Kyii"
 
+
 provider_classes = [KyiiProvider]

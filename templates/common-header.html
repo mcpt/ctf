@@ -1,0 +1,51 @@
+{% block common-header %}
+<!-- GENDO START CommonHeader -->
+<!--
+  Gendo replicates common code across Git repos.
+  Copyright (C) 2022  Ken Shibata <+@nyiyui.ca>
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+-->
+<div id="common-header">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New&display=swap');
+    #common-nav {
+      background: #3737b4;
+      z-index: 10;
+    }
+    #common-nav-inner {
+      margin: auto;
+      max-width: 900px;
+      font-size: 16px;
+      font-family: 'Zen Kaku Gothic New', sans-serif;
+      color: #d0d0d0;
+      padding: 4px;
+    }
+    #common-nav-inner a {
+      color: #d0d0d0;
+      text-decoration: none;
+      padding-right: 10px;
+    }
+    #common-nav-inner a:hover {
+      text-decoration: underline;
+    }
+    #common-nav-inner .this {
+      color: #adadad;
+    }
+  </style>
+  <nav id="common-nav">
+    <div id="common-nav-inner">
+      <a href="https://mcpt.ca" style="color: #fff;">
+        <img src="https://mcpt.ca/logo.svg" style="height: 21px; display: inline; vertical-align: middle;" alt="MCPT logo" />
+        MCPT
+      </a>
+        <a href="https://mcpt.ca">OJ</a>
+        <a href="https://learning.mcpt.ca">Learning</a>
+      <span class="this">
+	mCTF
+      </span>
+    </div>
+  </nav>
+</div>
+<!-- GENDO END CommonHeader -->
+{% endblock %}

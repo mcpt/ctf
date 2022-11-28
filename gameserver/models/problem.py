@@ -50,7 +50,9 @@ class Problem(models.Model):
 
     date_created = models.DateTimeField(auto_now_add=True)
 
-    firstblood = models.ForeignKey("Submission", related_name="firstblooded", null=True, blank=True, on_delete=models.PROTECT)
+    firstblood = models.ForeignKey(
+        "Submission", related_name="firstblooded", null=True, blank=True, on_delete=models.PROTECT
+    )
 
     class Meta:
         permissions = (
