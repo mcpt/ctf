@@ -68,7 +68,7 @@ class User(AbstractUser):
             points=Coalesce(Sum("problem__points"), 0)
         )["points"]
         if queryset is None:
-            cache.set(f"user_total_points_{self.id}", computed)
+            cache.set(f"user_total_points_{self.id}", computed, timeout=None)
         return computed
 
     def flags(self, queryset=None):
@@ -76,7 +76,7 @@ class User(AbstractUser):
             return cached
         computed = self._get_unique_correct_submissions(queryset).filter(problem__is_public=True).count()
         if queryset is None:
-            cache.set(f"user_flags_{self.id}", computed)
+            cache.set(f"user_flags_{self.id}", computed, timeout=None)
         return computed
 
     def rank(self, queryset=None):
