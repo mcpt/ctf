@@ -66,6 +66,8 @@ MIDDLEWARE = [
     'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
+    'gameserver.middleware.ErrorLogMiddleware',
+    # ↑ keep last to log errors from middlewares
 ]
 
 CACHES = {
