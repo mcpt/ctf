@@ -44,6 +44,8 @@ class ProblemList(ListView, mixin.MetaMixin):
         )
         if self.hide_unsolved:
             q = q.join(Submission(user=self.request.user, is_correct=False))
+        if self.nfts:
+            q = q.filter(name__contains=self.nfts)
         return q
 
     def get(self, request, *args, **kwargs):
@@ -51,6 +53,7 @@ class ProblemList(ListView, mixin.MetaMixin):
         self.selected_groups = int_list(request.GET.getlist("group"))
         self.show_groups = request.GET.get("show_groups", False) == "1"
         self.hide_unsolved = request.GET.get("hide_unsolved", False) == "1"
+        self.nfts = request.GET.get("nfts", None)
 
         if request.in_contest:
             return redirect("contest_problem_list", slug=request.participation.contest.slug)
