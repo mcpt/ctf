@@ -53,7 +53,7 @@ class Submission(models.Model):
 
 def invalidate_total_points_cache(sender, instance, created, **kwargs):
     # TODO: only invalidate on change
-    cache.delete(f"total_points_{instance.user.id}")
-    cache.delete(f"flags_{instance.user.id}")
+    instance.user.cache_points = None
+    instance.user.cache_flags = None
 
 post_save.connect(invalidate_total_points_cache, sender=Submission)

@@ -73,7 +73,7 @@ class User(AbstractUser):
         return queryset.values("problem", "problem__points").distinct()
 
     def points(self, queryset=None):
-        if queryset is None and self.cache_points:
+        if queryset is None and self.cache_points is not None:
             return self.cache_points
         computed = self._get_unique_correct_submissions(queryset).aggregate(
             points=Coalesce(Sum("problem__points"), 0)
@@ -84,7 +84,7 @@ class User(AbstractUser):
         return computed
 
     def flags(self, queryset=None):
-        if queryset is None and self.cache_flags:
+        if queryset is None and self.cache_flags is not None:
             return self.cache_flags
         computed = self._get_unique_correct_submissions(queryset).filter(problem__is_public=True).count()
         if queryset is None:
@@ -117,28 +117,14 @@ class User(AbstractUser):
         )
 
         return (
-            queryset.annotate(
-                points=Coalesce(
-                    Sum(
-                        "submission__problem__points",
-                        filter=Q(submission__in=Subquery(submissions_with_points)),
-                    ),
-                    0,
-                ),
-                flags=Coalesce(
-                    Count(
-                        "submission__pk", filter=Q(submission__in=Subquery(submissions_with_points))
-                    ),
-                    0,
-                ),
-            )
+            queryset
             .annotate(
                 rank=Window(
                     expression=Rank(),
-                    order_by=F("points").desc(),
+                    order_by=F("cache_points").desc(),
                 )
             )
-            .order_by("rank", "flags")
+            .order_by("rank", "cache_flags")
         )
 
     def has_attempted(self, problem):
