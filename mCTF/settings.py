@@ -309,4 +309,9 @@ DEFAULT_TIMEZONE = "UTC"
 try:
     from mCTF.config import *
 except ImportError:
-    print("Please create a config file to override values in settings.py")
+    raise TypeError("Please create a config file to override values in settings.py")
+
+if DEFAULT_FILE_STORAGE == "":
+    raise TypeError("DEFAULT_FILE_STORAGE must not be blank")
+if STATICFILES_STORAGE == "":
+    raise TypeError("STATICFILES_STORAGE must not be blank")

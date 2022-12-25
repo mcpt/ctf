@@ -2,7 +2,6 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
-from django.core.cache import cache
 from django.db import models
 from django.db.models import Count, F, Min, OuterRef, Q, Subquery, Sum
 from django.db.models.expressions import Window
@@ -52,6 +51,18 @@ class User(AbstractUser):
         blank=True,
     )
 
+    cache_points = models.IntegerField(
+        "Total Points Cache",
+        null=True,
+        default=None,
+    )
+
+    cache_flags = models.IntegerField(
+        "Total Flags Cache",
+        null=True,
+        default=None,
+    )
+
     def get_absolute_url(self):
         return reverse("user_detail", args=[self.username])
 
@@ -62,21 +73,23 @@ class User(AbstractUser):
         return queryset.values("problem", "problem__points").distinct()
 
     def points(self, queryset=None):
-        if queryset is None and (cached := cache.get(f"user_total_points_{self.id}")):
-            return cached
+        if queryset is None and self.cache_points:
+            return self.cache_points
         computed = self._get_unique_correct_submissions(queryset).aggregate(
             points=Coalesce(Sum("problem__points"), 0)
         )["points"]
         if queryset is None:
-            cache.set(f"user_total_points_{self.id}", computed, timeout=None)
+            self.cache_points = computed
+            self.save()
         return computed
 
     def flags(self, queryset=None):
-        if queryset is None and (cached := cache.get(f"user_flags_{self.id}")):
-            return cached
+        if queryset is None and self.cache_flags:
+            return self.cache_flags
         computed = self._get_unique_correct_submissions(queryset).filter(problem__is_public=True).count()
         if queryset is None:
-            cache.set(f"user_flags_{self.id}", computed, timeout=None)
+            self.cache_flags = computed
+            self.save()
         return computed
 
     def rank(self, queryset=None):
