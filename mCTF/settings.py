@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
-    "providers.kyii",
     "django_bootstrap5",
     "sass_processor",
     "adminsortable2",
