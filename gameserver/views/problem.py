@@ -42,8 +42,8 @@ class ProblemList(ListView, mixin.MetaMixin):
             )
             .distinct()
         )
-        if self.hide_unsolved:
-            q = q.join(Submission(user=self.request.user, is_correct=False))
+        if self.hide_solved and self.request.user.is_authenticated:
+            q = q.exclude(submission__in=self.request.user.submissions.filter(is_correct=True).all())
         if self.nfts:
             q = q.filter(name__contains=self.nfts)
         return q
@@ -52,7 +52,7 @@ class ProblemList(ListView, mixin.MetaMixin):
         self.selected_types = int_list(request.GET.getlist("type"))
         self.selected_groups = int_list(request.GET.getlist("group"))
         self.show_groups = request.GET.get("show_groups", False) == "1"
-        self.hide_unsolved = request.GET.get("hide_unsolved", False) == "1"
+        self.hide_solved = request.GET.get("hide_solved", False) == "1"
         self.nfts = request.GET.get("nfts", None)
 
         if request.in_contest:
@@ -77,7 +77,7 @@ class ProblemList(ListView, mixin.MetaMixin):
 
         context["show_filter"] = True
         context["show_groups"] = self.show_groups
-        context["hide_unsolved"] = self.hide_unsolved
+        context["hide_solved"] = self.hide_solved
         return context
 
 

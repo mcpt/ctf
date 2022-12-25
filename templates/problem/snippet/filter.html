@@ -15,9 +15,13 @@
     <div class="form-check">
         <input class="form-check-input" type="checkbox" name="show_groups" id="show_groups" value="1" {% if show_groups %}checked{% endif %}>
         <label class="form-check-label" for="show_groups">Show groups</label>
-        <input class="form-check-input" type="checkbox" name="hide_unsolved" id="hide_unsolved" value="1" {% if hide_unsolved %}checked{% endif %}>
-        <label class="form-check-label" for="hide_unsolved">Hide Unsolved</label>
     </div>
+    {% if request.user.is_authenticated %}
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="hide_solved" id="hide_solved" value="1" {% if hide_solved %}checked{% endif %}>
+        <label class="form-check-label" for="hide_solved">Hide Solved</label>
+    </div>
+    {% endif %}
 
     <button type="submit" class="btn btn-sm btn-primary ms-2 mt-3 float-end">Filter</button>
 </form>
