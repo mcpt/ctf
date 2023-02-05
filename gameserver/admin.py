@@ -78,6 +78,8 @@ class ProblemAdmin(admin.ModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         fields = self.readonly_fields
+        if request.user.is_superuser:
+            return fields
         if not request.user.has_perm("gameserver.change_problem_visibility"):
             fields += ("is_public",)
         return fields
