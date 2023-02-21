@@ -72,7 +72,7 @@
           instance.type = "emperor";
           instance.vassals.youcopter = {
             type = "normal";
-            pythonPackages = lib: self.outputs.packages.${system}.default;
+            pythonPackages = lib: [ self.outputs.packages.${system}.default ];
             http = "127.0.0.1:8080";
             master = true;
             vacuum = true;
