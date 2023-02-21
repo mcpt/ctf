@@ -2,9 +2,11 @@
   inputs = {
     nixpkgs.url = github:NixOS/nixpkgs/nixos-22.11;
     flake-utils.url = github:numtide/flake-utils;
+    poetry2nix.url = github:nix-community/poetry2nix;
+    poetry2nix.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs, flake-utils, ... }@attrs: flake-utils.lib.eachSystem [ "x86_64-linux" ] (system: let
+  outputs = { self, nixpkgs, flake-utils, poetry2nix, ... }@attrs: flake-utils.lib.eachSystem [ "x86_64-linux" ] (system: with (poetry2nix.legacyPackages.${system}); let
     pkgs = nixpkgs.legacyPackages.${system};
     add-setuptools = super: name: {
       ${name} = super.${name}.overridePythonAttrs (
@@ -24,14 +26,17 @@
     };
     autologin = { ... }: { services.getty.autologinUser = "root"; };
   in {
-    devShells.default = (pkgs.poetry2nix.mkPoetryEnv common // {
+    devShells.default = (poetry2nix.mkPoetryEnv common // {
       editablePackageSources = {
         ctf = ./.;
       };
     }).env.overrideAttrs (prev: {
       buildInputs = [ pkgs.python310 ];
     });
-    packages.default = pkgs.poetry2nix.mkPoetryApplication common // { };
+    #packages = builtins.foldl' (a: b: a // b) {} (
+    #  map (p: { ${p.name} = p; }) (mkPoetryPackages common).poetryPackages 
+    #);
+    packages.default = mkPoetryApplication common // { };
     checks.all = nixosLib.runTest {
       name = "all";
       hostPkgs = pkgs;
