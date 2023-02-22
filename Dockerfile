@@ -4,7 +4,8 @@ RUN adduser --system --home /app --gecos "mCTF" ctf && \
     groupadd ctf && \
     usermod -g ctf ctf && \
     apt-get update && \
-    apt-get install -y build-essential && \ # cc needed for sass
+    apt-get install -y build-essential && \
+    # cc needed for sass \
     apt-get install -y uwsgi uwsgi-plugin-python3 && \
     rm -rf /var/lib/apt/lists/*
 
