@@ -1,19 +1,27 @@
-FROM python:3.9-slim
+FROM python:3.10.10-slim@sha256:f3be7f3778b538bdaa97a5dbb09c7427bdb3ac85e40aaa32eb4d9b3d66320e47
 
-RUN apt-get update
-
-RUN apt-get install -y gcc python3-dev libpq-dev libffi-dev libssl-dev
-
-RUN python3 -m pip install --no-cache-dir psycopg2
+RUN adduser --system --home /app --gecos "mCTF" ctf && \
+    groupadd ctf && \
+    usermod -g ctf ctf && \
+    apt-get update && \
+    apt-get install -y uwsgi uwsgi-plugin-python3 && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
+USER ctf
+RUN python -m pip install --no-cache-dir poetry
 
-COPY requirements.txt /app/
+COPY poetry.lock pyproject.toml /app/
+RUN python -m poetry config virtualenvs.in-project true && \
+    python -m poetry install --no-root
 
-RUN python3 -m pip install -r requirements.txt
+USER root
+RUN rm -rf /var/cache/*
+USER ctf
 
 COPY . /app/
 
-EXPOSE 8000
-
-CMD ["gunicorn", "mCTF.wsgi", "-b", "0.0.0.0:8000"]
+EXPOSE 28730
+COPY uwsgi.ini /app/
+USER root
+CMD ["uwsgi", "--ini", "/app/uwsgi.ini"]

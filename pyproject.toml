@@ -26,6 +26,11 @@ version = "0.1.0"
 description = ""
 authors = []
 readme = "README.md"
+packages = [
+    { include = "mCTF" },
+    { include = "gameserver" },
+    { include = "providers" },
+]
 
 [tool.poetry.dependencies]
 python = "^3.10"

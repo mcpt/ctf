@@ -4,7 +4,7 @@
     flake-utils.url = github:numtide/flake-utils;
   };
 
-  outputs = { self, nixpkgs, flake-utils, ... }@attrs: flake-utils.lib.eachSystem [ "x86_64-linux" ] (system: let
+  outputs = { self, nixpkgs, flake-utils, ... }@attrs: flake-utils.lib.eachSystem [ "x86_64-linux" "aarch64-linux" ] (system: let
     pkgs = nixpkgs.legacyPackages.${system};
     add-setuptools = super: name: {
       ${name} = super.${name}.overridePythonAttrs (
@@ -32,6 +32,7 @@
       buildInputs = [ pkgs.python310 ];
     });
     packages.default = pkgs.poetry2nix.mkPoetryApplication common // { };
+    packages.image = import ./image.nix { inherit pkgs; };
     checks.all = nixosLib.runTest {
       name = "all";
       hostPkgs = pkgs;
@@ -43,7 +44,45 @@
       };
       testScript = ''
         start_all()
+        default.wait_for_unit('uwsgi.service')
       '';
+    };
+    checks.fastrouter = let
+      user = "youcopter-uwsgi";
+      group = "youcopter-uwsgi";
+      worker = { pkgs, ... }: {
+        imports = [ autologin ];
+        users.groups.${user} = {};
+        users.users.${group} = {
+          isSystemUser = true;
+          description = "Youcopter uWSGI";
+          group = group;
+        };
+        services.uwsgi = {
+          enable = true;
+          plugins = [ "python3" ];
+          instance.type = "emperor";
+          instance.vassals.youcopter = {
+            type = "normal";
+            pythonPackages = lib: [ self.outputs.packages.${system}.default ];
+            subscribe-to = "main:7000:example.net";
+            master = true;
+            vacuum = true;
+
+            uid = user;
+            gid = group;
+
+            plugins = [ "python3" ];
+
+            module = "mCTF.wsgi:application";
+            env = [ "DJANGO_SETTINGS_MODULE=mCTF.settings" ];
+          };
+        };
+      };
+    in nixosLib.runTest {
+      name = "fastrouter";
+      hostPkgs = pkgs;
+      nodes.worker1 = worker;
     };
     nixosModules.default = { config, lib, pkgs, ... }: with lib; with types; let
       cfg = config.youcopter.services.uwsgi;
@@ -51,7 +90,7 @@
       group = "youcopter-uwsgi";
     in {
       options.youcopter.services.uwsgi = {
-        enable = mkEnableOption "Youmu (mCTF) barebones uwsgi: CTF platform supporting multiple parallel contests";
+        enable = mkEnableOption "Youcopter (mCTF) barebones uwsgi: CTF platform supporting multiple parallel contests";
         config = mkOption {
           type = submodule {
             options = {
@@ -63,7 +102,7 @@
         users.groups.${user} = {};
         users.users.${group} = {
           isSystemUser = true;
-          description = "Youmu uWSGI";
+          description = "Youcopter uWSGI";
           group = group;
         };
         services.uwsgi = {
