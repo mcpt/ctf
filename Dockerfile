@@ -16,10 +16,9 @@ RUN python -m pip install --no-cache-dir poetry
 COPY poetry.lock pyproject.toml /app/
 RUN python -m poetry config virtualenvs.in-project true && \
     python -m poetry install --no-root
+USER root
 RUN apt-get purge -y build-essential && \
     rm -rf /var/lib/apt/lists/*
-
-USER root
 RUN rm -rf /var/cache/*
 USER ctf
 
