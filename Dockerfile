@@ -4,6 +4,7 @@ RUN adduser --system --home /app --gecos "mCTF" ctf && \
     groupadd ctf && \
     usermod -g ctf ctf && \
     apt-get update && \
+    apt-get install -y build-essential && \ # cc needed for sass
     apt-get install -y uwsgi uwsgi-plugin-python3 && \
     rm -rf /var/lib/apt/lists/*
 
@@ -14,6 +15,8 @@ RUN python -m pip install --no-cache-dir poetry
 COPY poetry.lock pyproject.toml /app/
 RUN python -m poetry config virtualenvs.in-project true && \
     python -m poetry install --no-root
+RUN apt-get purge -y build-essential && \
+    rm -rf /var/lib/apt/lists/*
 
 USER root
 RUN rm -rf /var/cache/*
