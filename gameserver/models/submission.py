@@ -55,5 +55,6 @@ def invalidate_total_points_cache(sender, instance, created, **kwargs):
     # TODO: only invalidate on change
     instance.user.cache_points = None
     instance.user.cache_flags = None
+    instance.user.save()
 
 post_save.connect(invalidate_total_points_cache, sender=Submission)
