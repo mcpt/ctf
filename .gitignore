@@ -5,3 +5,4 @@ mCTF/cluster_ca.crt
 static/**
 .build
 /.direnv
+/result
