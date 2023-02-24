@@ -29,7 +29,7 @@
         ctf = ./.;
       };
     }).env.overrideAttrs (prev: {
-      buildInputs = [ pkgs.python310 ];
+      buildInputs = [ pkgs.python310 pkgs.poetry ];
     });
     packages.default = pkgs.poetry2nix.mkPoetryApplication common // { };
     packages.image = import ./image.nix { inherit pkgs; };

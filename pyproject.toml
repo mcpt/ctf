@@ -76,6 +76,7 @@ sqlparse = "0.4.2"
 urllib3 = "1.26.8"
 webencodings = "0.5.1"
 websocket-client = "1.2.3"
+uwsgi = "*"
 
 
 [build-system]
