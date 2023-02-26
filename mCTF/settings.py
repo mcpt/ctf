@@ -305,6 +305,10 @@ SILENCED_SYSTEM_CHECKS = ["urls.W002"]
 
 DEFAULT_TIMEZONE = "UTC"
 
+MISTUNE_PLUGINS = (
+    "strikethrough",
+)
+
 try:
     from mCTF.config import *
 except ImportError:

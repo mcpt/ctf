@@ -10,7 +10,10 @@ from django.utils.safestring import mark_safe
 
 from . import bleach_allowlist
 
-render = mistune.create_markdown(renderer=mistune.HTMLRenderer(escape=False))
+render = mistune.create_markdown(
+    renderer=mistune.HTMLRenderer(escape=False),
+    plugins=settings.MISTUNE_PLUGINS,
+)
 
 register = template.Library()
 
@@ -29,6 +32,7 @@ cleaner = sanitizer.Cleaner(
         "br",
         "div",
         "p",
+        "del",
         "a",
         "img",
         *["h{}".format(i) for i in range(1, 7)],
@@ -55,4 +59,6 @@ cleaner = sanitizer.Cleaner(
 @register.filter
 @stringfilter
 def markdown(field_name):
-    return mark_safe(cleaner.clean(render(re.sub(bodge_pattern, bodge_replace, field_name))))
+    raw = render(re.sub(bodge_pattern, bodge_replace, field_name))
+    print(raw)
+    return mark_safe(cleaner.clean(raw))
