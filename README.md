@@ -9,3 +9,6 @@ A platform to host as many CTF contests and problems as you want.
 
 ## Installation
 Installation instructions are currently a work in progress. Feel free to join [our Discord](https://discord.gg/cXzz9eR) if you have any questions.
+
+## Troubleshooting
+- If Django hangs while booting (e.g. no response comes from uWSGI, or worker is killed frequently in Gunicorn), it may be hanging trying to connect to the cluster.
