@@ -26,6 +26,15 @@ class Submission(models.Model):
     def __str__(self):
         return f"{self.user.username}'s submission for {self.problem.name}"
 
+    def save(self, *args, **kwargs):
+        # TODO: incrementally update instead of resetting cache
+        print('user1', self.user, self.user.cache_points, self.user.cache_flags)
+        self.user.cache_points = None
+        self.user.cache_flags = None
+        self.user.save()
+        print('user2', self.user, self.user.cache_points, self.user.cache_flags)
+        return super().save(*args, **kwargs)
+
     @property
     def is_firstblood(self):
         return self.problem.firstblood == self
@@ -50,11 +59,3 @@ class Submission(models.Model):
             return cls.objects.filter(
                 contest_submission__participation__contest=user.current_contest.contest
             )
-
-def invalidate_total_points_cache(sender, instance, created, **kwargs):
-    # TODO: only invalidate on change
-    instance.user.cache_points = None
-    instance.user.cache_flags = None
-    instance.user.save()
-
-post_save.connect(invalidate_total_points_cache, sender=Submission)

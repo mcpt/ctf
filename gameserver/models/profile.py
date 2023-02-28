@@ -73,21 +73,21 @@ class User(AbstractUser):
         return queryset.values("problem", "problem__points").distinct()
 
     def points(self, queryset=None):
-        if queryset is None and self.cache_points is not None:
+        if False and queryset is None and self.cache_points is not None:
             return self.cache_points
         computed = self._get_unique_correct_submissions(queryset).aggregate(
             points=Coalesce(Sum("problem__points"), 0)
         )["points"]
-        if queryset is None:
+        if queryset is None and self.cache_points is None:
             self.cache_points = computed
             self.save()
         return computed
 
     def flags(self, queryset=None):
-        if queryset is None and self.cache_flags is not None:
+        if False and queryset is None and self.cache_flags is not None:
             return self.cache_flags
         computed = self._get_unique_correct_submissions(queryset).filter(problem__is_public=True).count()
-        if queryset is None:
+        if queryset is None and self.cache_flags is None:
             self.cache_flags = computed
             self.save()
         return computed
@@ -117,15 +117,29 @@ class User(AbstractUser):
         )
 
         return (
-            queryset
+            queryset.annotate(
+                points=Coalesce(
+                    Sum(
+                        "submission__problem__points",
+                        filter=Q(submission__in=Subquery(submissions_with_points)),
+                    ),
+                    0,
+                ),
+                flags=Coalesce(
+                    Count(
+                        "submission__pk", filter=Q(submission__in=Subquery(submissions_with_points))
+                    ),
+                    0,
+                ),
+            )
             .annotate(
                 rank=Window(
                     expression=Rank(),
-                    order_by=F("cache_points").desc(),
+                    order_by=F("points").desc(),
                 )
             )
-            .order_by("rank", "cache_flags")
-        )
+            .order_by("rank", "flags")
+         )
 
     def has_attempted(self, problem):
         if isinstance(problem, ContestProblem):
