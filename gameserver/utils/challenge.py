@@ -99,8 +99,8 @@ def create_challenge_instance(challenge_spec, problem_id, problem_flag, instance
                         | (
                             {
                                 "env": [
-                                    (env, {"name": "FLAG", "value": problem_flag})[
-                                        env["name"] == "FLAG"
+                                    (env, {"name": env["name"], "value": problem_flag})[
+                                        env["name"] in ("FLAG", "JAIL_ENV_FLAG")
                                     ]
                                     for env in container["env"]
                                 ]
