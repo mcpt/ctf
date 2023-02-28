@@ -16,12 +16,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='user',
             name='cache_flags',
-            field=models.IntegerField(default=None, verbose_name='Total Flags Cache'),
+            field=models.IntegerField(default=None, null=True, verbose_name='Total Flags Cache'),
         ),
         migrations.AlterField(
             model_name='user',
             name='cache_points',
-            field=models.IntegerField(default=None, verbose_name='Total Points Cache'),
+            field=models.IntegerField(default=None, null=True, verbose_name='Total Points Cache'),
         ),
         migrations.CreateModel(
             name='UserCache',
