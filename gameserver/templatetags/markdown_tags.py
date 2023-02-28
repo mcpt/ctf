@@ -60,5 +60,4 @@ cleaner = sanitizer.Cleaner(
 @stringfilter
 def markdown(field_name):
     raw = render(re.sub(bodge_pattern, bodge_replace, field_name))
-    print(raw)
     return mark_safe(cleaner.clean(raw))

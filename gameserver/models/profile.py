@@ -8,6 +8,7 @@ from django.db.models.expressions import Window
 from django.db.models.functions import Coalesce, Rank
 from django.urls import reverse
 
+from .cache import UserCache
 from .choices import organization_request_status_choices, timezone_choices
 from .contest import ContestParticipation, ContestProblem, ContestSubmission
 from .problem import Problem
@@ -51,18 +52,6 @@ class User(AbstractUser):
         blank=True,
     )
 
-    cache_points = models.IntegerField(
-        "Total Points Cache",
-        null=True,
-        default=None,
-    )
-
-    cache_flags = models.IntegerField(
-        "Total Flags Cache",
-        null=True,
-        default=None,
-    )
-
     def get_absolute_url(self):
         return reverse("user_detail", args=[self.username])
 
@@ -73,24 +62,12 @@ class User(AbstractUser):
         return queryset.values("problem", "problem__points").distinct()
 
     def points(self, queryset=None):
-        if False and queryset is None and self.cache_points is not None:
-            return self.cache_points
-        computed = self._get_unique_correct_submissions(queryset).aggregate(
-            points=Coalesce(Sum("problem__points"), 0)
-        )["points"]
-        if queryset is None and self.cache_points is None:
-            self.cache_points = computed
-            self.save()
-        return computed
+        cache = UserCache.get(user=self, participation=None)
+        return cache.points
 
     def flags(self, queryset=None):
-        if False and queryset is None and self.cache_flags is not None:
-            return self.cache_flags
-        computed = self._get_unique_correct_submissions(queryset).filter(problem__is_public=True).count()
-        if queryset is None and self.cache_flags is None:
-            self.cache_flags = computed
-            self.save()
-        return computed
+        cache = UserCache.get(user=self, participation=None)
+        return cache.flags
 
     def rank(self, queryset=None):
         return (
@@ -116,7 +93,7 @@ class User(AbstractUser):
             .values("sub_pk")
         )
 
-        return (
+        q = (
             queryset.annotate(
                 points=Coalesce(
                     Sum(
@@ -139,7 +116,9 @@ class User(AbstractUser):
                 )
             )
             .order_by("rank", "flags")
-         )
+        )
+        print(list(q.values("rank", "flags", "username")))
+        return q
 
     def has_attempted(self, problem):
         if isinstance(problem, ContestProblem):

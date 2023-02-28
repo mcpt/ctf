@@ -4,6 +4,8 @@ from django.db.models import F, Q
 from django.db.models.signals import post_save
 from django.urls import reverse
 
+from .cache import UserCache
+
 
 class Submission(models.Model):
     user = models.ForeignKey(
@@ -28,11 +30,8 @@ class Submission(models.Model):
 
     def save(self, *args, **kwargs):
         # TODO: incrementally update instead of resetting cache
-        print('user1', self.user, self.user.cache_points, self.user.cache_flags)
-        self.user.cache_points = None
-        self.user.cache_flags = None
-        self.user.save()
-        print('user2', self.user, self.user.cache_points, self.user.cache_flags)
+        user = self.user
+        UserCache.invalidate(user, user.current_contest)
         return super().save(*args, **kwargs)
 
     @property

@@ -60,6 +60,10 @@ class Problem(models.Model):
             ("edit_all_problems", "Edit all problems"),
         )
 
+    #def save(self, *args, **kwargs):
+    #    # TODO: reset cache for everyone all solvers
+    #    return super().save(*args, **kwargs)
+
     def __str__(self):
         return self.name
 

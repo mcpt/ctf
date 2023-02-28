@@ -1,3 +1,4 @@
+from .cache import *
 from .choices import *
 from .comment import *
 from .contest import *

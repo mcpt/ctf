@@ -249,6 +249,7 @@ class UserAdmin(admin.ModelAdmin):
 
 
 admin.site.register(User, UserAdmin)
+admin.site.register(models.UserCache)
 admin.site.register(models.Problem, ProblemAdmin)
 admin.site.register(models.Submission)
 admin.site.register(models.ProblemType)
