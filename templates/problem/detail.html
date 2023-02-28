@@ -113,9 +113,6 @@
             {% if problem.problem_type.all %}
             <li><b>Type{{ problem.problem_type.all|pluralize:"s" }}:</b> {{ problem.problem_type.all|join:", " }}</li>
             {% endif %}
-	    <li class="admin">
-                <a href="{% url 'admin:gameserver_problem_change' object_id=problem.id %}">Admin</a>
-	    </li>
         </ul>
         <hr>
         {% if request.user.is_authenticated %}
