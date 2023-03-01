@@ -10,7 +10,7 @@
 <div class="ocsp alert alert-warning" role="alert">
     <h4 class="alert-heading">Problem Available in Ongoing Contest(s)</h4>
     <p class="mb-0">
-        This problem is available in the following <b>ongoing</b> contests.
+        This problem is available in the following <strong>ongoing</strong> contests.
         (You are not in any contest.)
         Make sure to join the correct contest that you want to submit for.
         <ul>
@@ -112,6 +112,9 @@
             {% endif %}
             {% if problem.problem_type.all %}
             <li><b>Type{{ problem.problem_type.all|pluralize:"s" }}:</b> {{ problem.problem_type.all|join:", " }}</li>
+            {% endif %}
+            {% if request.user.is_staff %}
+            <li><a href="{% url 'admin:gameserver_problem_change' object_id=problem.id %}">Admin</a>
             {% endif %}
         </ul>
         <hr>
