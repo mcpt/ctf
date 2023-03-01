@@ -26,7 +26,7 @@ class ProblemList(ListView, mixin.MetaMixin):
     template_name = "problem/list.html"
     context_object_name = "problems"
     paginate_by = 50
-    title = "Problems"
+    title = "Practice Problems"
 
     def get_queryset(self):
         q = (
