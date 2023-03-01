@@ -40,7 +40,8 @@ class UserCache(models.Model):
             obj.save()
             return obj
         else:
-            return q.get()
+            return q.first()
+            # TODO: cleanup duplicates
 
     @classmethod
     def invalidate(cls, user: "User", participation: Optional["ContestParticipation"]) -> None:
