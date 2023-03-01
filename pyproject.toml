@@ -26,11 +26,11 @@ version = "0.1.0"
 description = ""
 authors = []
 readme = "README.md"
-packages = [
-    { include = "mCTF" },
-    { include = "gameserver" },
-    { include = "providers" },
-]
+#packages = [
+#    { include = "mCTF" },
+#    { include = "gameserver" },
+#    { include = "providers" },
+#]
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -76,8 +76,8 @@ sqlparse = "0.4.2"
 urllib3 = "1.26.8"
 webencodings = "0.5.1"
 websocket-client = "1.2.3"
-uwsgi = "*"
 
+gunicorn = "*"
 
 [build-system]
 requires = ["poetry-core"]

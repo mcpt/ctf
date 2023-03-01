@@ -27,7 +27,9 @@ COPY . /app/
 COPY ./mCTF/docker_config.py /app/mCTF/config.py
 
 EXPOSE 28730
-COPY uwsgi.ini /app/
 USER root
-CMD ["uwsgi", "--ini", "/app/uwsgi.ini"]
-CMD /app/.venv/bin/uwsgi --ini /app/uwsgi.ini
+CMD /app/.venv/bin/gunicorn \
+      --bind 0.0.0.0:28730 \
+      --error-logfile - \
+      --config /app/container/gunicorn.py \
+      mCTF.wsgi:application
