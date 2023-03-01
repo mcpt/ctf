@@ -26,10 +26,9 @@ USER ctf
 COPY . /app/
 COPY ./mCTF/docker_config.py /app/mCTF/config.py
 
-EXPOSE 28730
 USER root
 CMD /app/.venv/bin/gunicorn \
-      --bind 0.0.0.0:28730 \
+      --bind unix:/run/gunicorn.sock \
       --error-logfile - \
       --config /app/container/gunicorn.py \
       mCTF.wsgi:application
