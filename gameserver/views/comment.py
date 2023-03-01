@@ -28,11 +28,11 @@ class Comment(DetailView, mixin.MetaMixin, mixin.CommentMixin):
 @require_POST
 @login_required
 def add_comment(request, parent_type, parent_id):
+    text = request.POST["text"]
     if parent_type == "problem":
         parent = get_object_or_404(models.Problem, slug=parent_id)
         if not parent.is_public:
             return HttpResponseForbidden()
-        text = request.POST["text"]
         if text == parent.flag:
             messages.error(request, "Flags are disallowed in comments.")
             return redirect(parent)
