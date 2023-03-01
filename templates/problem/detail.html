@@ -4,6 +4,28 @@
 {% load static %}
 
 {% block before_cols %}
+{% if request.user.is_authenticated and not request.in_contest and problem.is_public and ongoing_contests %}
+<div class="alert alert-dark" role="alert">
+    <h4 class="alert-heading">
+        <i class="bi bi-info-circle-fill"></i>
+        This is a practice problem.
+    </h4>
+    <p>
+        If you wish to participate in one of our ongoing contests instead, make sure to join it to see its problems.
+    </p>
+    <hr>
+    <ul class="mb-1">
+        {% for ongoing_contest in ongoing_contests %}
+        <li>
+            <a href="{{ ongoing_contest.get_absolute_url }}">
+                {{ ongoing_contest }}
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
 {% with ocsp=problem.ongoing_contests_problem %}
 {% if not request.in_contest %}
 {% if ocsp %}

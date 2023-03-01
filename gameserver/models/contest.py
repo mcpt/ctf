@@ -215,6 +215,12 @@ class Contest(models.Model):
         ).distinct()
 
     @classmethod
+    def get_ongoing_contests(cls, user):
+        return cls.get_visible_contests(user).filter(
+            start_time__lte=timezone.now(), end_time__gt=timezone.now()
+        )
+
+    @classmethod
     def get_editable_contests(cls, user):
         if not user.is_authenticated:
             return cls.objects.none()

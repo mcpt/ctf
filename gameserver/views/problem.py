@@ -167,6 +167,7 @@ class ProblemDetail(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["contest_problem"] = self.contest_object
+        context["ongoing_contests"] = models.Contest.get_ongoing_contests(self.request.user)
         return context
 
 
