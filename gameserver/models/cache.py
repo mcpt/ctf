@@ -28,7 +28,7 @@ class UserCache(models.Model):
         unique_together = ('user', 'participation')
 
     def __str__(self) -> str:
-        return f'{self.user} {"global" if self.participation is None else participation}'
+        return f'{self.user} {"global" if self.participation is None else self.participation}'
 
     @classmethod
     def get(cls, user: "User", participation: Optional["ContestParticipation"]) -> "UserCache":
