@@ -80,8 +80,9 @@ class ProblemAdmin(admin.ModelAdmin):
         fields = self.readonly_fields
         if request.user.is_superuser:
             return fields
-        if not request.user.has_perm("gameserver.change_problem_visibility"):
-            fields += ("is_public",)
+        if request.user.is_superuser or request.user.has_perm("gameserver.change_problem_visibility"):
+            return fields
+        fields += ("is_public",)
         return fields
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
