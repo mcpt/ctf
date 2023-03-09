@@ -45,6 +45,7 @@ class Problem(models.Model):
     flag = models.CharField(max_length=256)
     points = models.PositiveSmallIntegerField()
     challenge_spec = models.JSONField(null=True, blank=True)
+    log_submission_content = models.BooleanField(default=False)
 
     is_public = models.BooleanField(default=False)
 

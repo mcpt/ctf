@@ -127,9 +127,17 @@ class ProblemDetail(
         else:
             return self.form_invalid(form)
 
-    def _create_submission_object(self, is_correct=False):
+    def _create_submission_object(self, form, is_correct=None):
+        if is_correct is None:
+            raise TypeError("is_correct must be supplied")
+        kwargs = {}
+        if self.object.log_submission_content:
+            print(form.data)
+            print(form.data['flag'])
+            kwargs["content"] = form.data["flag"]
         submission = models.Submission.objects.create(
-            user=self.request.user, problem=self.object, is_correct=is_correct
+            user=self.request.user, problem=self.object, is_correct=is_correct,
+            **kwargs,
         )
         if is_correct and self.object.firstblood is None:
             self.object.firstblood = submission
@@ -156,11 +164,11 @@ class ProblemDetail(
             messages.info(
                 self.request, "Your flag is correct, but you have already solved this problem."
             )
-        self._create_submission_object(is_correct=True)
+        self._create_submission_object(form, is_correct=True)
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        self._create_submission_object(is_correct=False)
+        self._create_submission_object(form, is_correct=False)
         messages.error(self.request, "Your flag is incorrect.")
         return super().form_invalid(form)
 

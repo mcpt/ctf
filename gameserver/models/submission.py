@@ -24,6 +24,7 @@ class Submission(models.Model):
     )
     is_correct = models.BooleanField(default=False)
     date_created = models.DateTimeField(auto_now_add=True)
+    content = models.CharField(max_length=256, null=True, default=None)
 
     def __str__(self):
         return f"{self.user.username}'s submission for {self.problem.name}"

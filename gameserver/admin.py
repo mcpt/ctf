@@ -29,6 +29,7 @@ class ProblemAdmin(admin.ModelAdmin):
         "summary",
         "points",
         "flag",
+        "log_submission_content",
         "problem_group",
         "problem_type",
         "challenge_spec",
