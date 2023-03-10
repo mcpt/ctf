@@ -143,6 +143,7 @@ def create_challenge_instance(challenge_spec, problem_id, problem_flag, instance
                         if "imagePullSecret" in container["image"]
                     ],
                     "autoMountServiceAccountToken": False,
+                    "enableServiceLinks": False,
                     "restartPolicy": "OnFailure",
                     "runtimeClassName": challenge_cluster["runtimeClassNames"][
                         challenge_spec["runtimeClassName"]
