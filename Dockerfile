@@ -1,4 +1,4 @@
-FROM python:3.10.10-slim@sha256:f3be7f3778b538bdaa97a5dbb09c7427bdb3ac85e40aaa32eb4d9b3d66320e47
+FROM python:3.11.5-slim@sha256:3542a2fcc89c24f7f4ed6fa6b1892175452cf8b612cc86168bd849b48b092a95
 
 RUN adduser --system --home /app --gecos "mCTF" ctf && \
     groupadd ctf && \
