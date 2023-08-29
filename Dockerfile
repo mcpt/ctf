@@ -12,7 +12,7 @@ WORKDIR /app2/media
 WORKDIR /app2/static
 WORKDIR /app
 USER ctf
-RUN python -m pip install --no-cache-dir poetry
+RUN python -m pip install --no-cache-dir --no-warn-script-location poetry 
 
 COPY poetry.lock pyproject.toml /app/
 RUN python -m poetry config virtualenvs.in-project true && \
