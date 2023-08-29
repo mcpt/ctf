@@ -5,7 +5,7 @@ RUN adduser --system --home /app --gecos "mCTF" ctf && \
     usermod -g ctf ctf && \
     apt-get update && \
     apt-get install -y build-essential && \
-    apt-get install -y libsass-dev && \
+    apt-get install -y libsass-dev libffi-dev && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app2/media
