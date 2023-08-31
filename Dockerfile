@@ -4,8 +4,8 @@ RUN adduser --system --home /app --gecos "mCTF" ctf && \
     groupadd ctf && \
     usermod -g ctf ctf && \
     apt-get update && \
-    apt-get install -y build-essential && \
-    apt-get install -y libsass-dev libffi-dev && \
+    apt-get install -y build-essential python3-dev libpq-dev libsass-dev libffi-dev && \
+    pg_config --version && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app2/media
@@ -17,6 +17,7 @@ RUN python -m pip install --no-cache-dir --no-warn-script-location poetry
 COPY poetry.lock pyproject.toml /app/
 RUN python -m poetry config virtualenvs.in-project true && \
     python -m poetry install --no-root
+RUN /app/.venv/bin/pip install psycopg2
 USER root
 RUN apt-get purge -y build-essential && \
     rm -rf /var/lib/apt/lists/*
