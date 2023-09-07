@@ -4,7 +4,7 @@ RUN adduser --system --home /app --gecos "mCTF" ctf && \
     groupadd ctf && \
     usermod -g ctf ctf && \
     apt-get update && \
-    apt-get install -y build-essential python3-dev libpq-dev libsass-dev libffi-dev && \
+    apt-get install -y build-essential python3-dev libpq-dev sassc libsass-dev libffi-dev && \
     pg_config --version && \
     rm -rf /var/lib/apt/lists/*
 
@@ -20,14 +20,23 @@ RUN python -m poetry config virtualenvs.in-project true && \
 RUN /app/.venv/bin/pip install psycopg2
 USER root
 RUN apt-get purge -y build-essential && \
-    rm -rf /var/lib/apt/lists/*
-RUN rm -rf /var/cache/*
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /var/cache/*
 USER ctf
 
 COPY . /app/
 COPY ./mCTF/docker_config.py /app/mCTF/config.py
-
 USER root
+RUN set -eux; cd /app/public/scss; mkdir out; for f in *.scss; \ 
+    do \
+      sassc --style compressed -- "$f" "out/${f%.scss}.css"; \
+    done; \
+    mv out/* .; \
+    chmod a+r /app/public/scss/*.css
+
+RUN apt-get purge -y sassc && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /var/cache/*
 EXPOSE 28730
 CMD /app/.venv/bin/gunicorn \
       --bind :28730 \
