@@ -8,8 +8,8 @@ on:
   push:
 
 env:
-  REGISTRY: docker.io
-  IMAGE_NAME: nyiyui/ctf2
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   build-and-push-image:
@@ -26,8 +26,8 @@ jobs:
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
         with:
           registry: ${{ env.REGISTRY }}
-          username: nyiyui
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
