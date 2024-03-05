@@ -309,17 +309,13 @@ class ContestParticipation(models.Model):
             points = self.points
         else:
             points = self.points()
-
-        return (
-            self.contest.ranks()
-            .filter(
-                Q(points__gt=points)
-                | Q(points=points, most_recent_solve_time__lt=self.last_solve_time)
-            )
-            .distinct()
-            .count()
-            + 1
-        )
+        
+        return self.contest.ranks() \
+            .annotate(num_participants=Count('participants')) \
+            .filter(Q(points__gt=points) |
+                    Q(points=points,
+                      most_recent_solve_time__lt=self.last_solve_time)) \
+            .count() + 1
 
     def has_attempted(self, problem):
         return problem.is_attempted_by(self)

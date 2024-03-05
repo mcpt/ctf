@@ -178,8 +178,8 @@ class ContestScoreboard(SingleObjectMixin, ListView, mixin.MetaMixin):
         return "Scoreboard for " + self.object.name
 
     def get_queryset(self):
-        return self.object.ranks().select_related("team")
-
+        return self.object.ranks().prefetch_related('team', 'submissions__problem')
+    
     def get(self, request, *args, **kwargs):
         self.object = self.get_object(queryset=models.Contest.objects.all())
         return super().get(request, *args, **kwargs)
