@@ -85,7 +85,7 @@ urlpatterns = [
     ),
     path(
         "contest/<str:slug>/scoreboard",
-        cache_page(45)(views.ContestScoreboard.as_view()), # cache for 45s
+        cache_page(60 * 5)(views.ContestScoreboard.as_view()), # cache for 5m
         name="contest_scoreboard",
     ),
     path(
