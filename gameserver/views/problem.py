@@ -132,8 +132,6 @@ class ProblemDetail(
             raise TypeError("is_correct must be supplied")
         kwargs = {}
         if self.object.log_submission_content:
-            print(form.data)
-            print(form.data['flag'])
             kwargs["content"] = form.data["flag"]
         submission = models.Submission.objects.create(
             user=self.request.user, problem=self.object, is_correct=is_correct,

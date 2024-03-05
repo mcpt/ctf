@@ -33,7 +33,6 @@ class UserCache(models.Model):
     @classmethod
     def get(cls, user: "User", participation: Optional["ContestParticipation"]) -> "UserCache":
         assert user is not None
-        print('get', user, participation)
         q = cls.objects.filter(user=user, participation=participation)
         if not q:
             obj = cls.fill_cache(user, participation)
@@ -46,7 +45,6 @@ class UserCache(models.Model):
     @classmethod
     def invalidate(cls, user: "User", participation: Optional["ContestParticipation"]) -> None:
         assert user is not None
-        print('invalidate', user, participation)
         q = cls.objects.filter(user=user, participation=participation)
         obj = cls.fill_cache(user, participation)
         if not q:
@@ -57,7 +55,6 @@ class UserCache(models.Model):
     @classmethod
     def fill_cache(cls, user: "User", participation: Optional["ContestParticipation"]) -> "UserCache":
         assert user is not None
-        print('fill_cache', user, participation)
         if participation is None:
             queryset = user._get_unique_correct_submissions().filter(problem__is_public=True)
         else:
