@@ -80,13 +80,13 @@ class User(AbstractUser):
         )
 
     @classmethod
+    
     def ranks(cls, queryset=None):
         if queryset is None:
             queryset = cls.objects.all()
 
         submissions_with_points = (
             Submission.objects.filter(user=OuterRef("pk"), is_correct=True, problem__is_public=True)
-            .order_by()
             .values("problem")
             .distinct()
             .annotate(sub_pk=Min("pk"))
@@ -117,7 +117,6 @@ class User(AbstractUser):
             )
             .order_by("rank", "flags")
         )
-        print(list(q.values("rank", "flags", "username")))
         return q
 
     def has_attempted(self, problem):
