@@ -17,13 +17,14 @@ Installation instructions are currently a work in progress. Feel free to join [o
 3. docker build -t mctf .
 4. docker run -p 28730:28730 mctf
 5. docker exec -it <container_id> /bin/bash
-6. Run
+6. 
 
 ```
 . .venv/bin/activate
 python manage.py migrate
 python manage.py createsuperuser
 ```
+7. in the docker container, go to /public/scss and delete all *.css files (`rm *.css`)
 
 
 ## Troubleshooting

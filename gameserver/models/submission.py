@@ -59,3 +59,10 @@ class Submission(models.Model):
             return cls.objects.filter(
                 contest_submission__participation__contest=user.current_contest.contest
             )
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['user']),
+            models.Index(fields=['problem']),
+            models.Index(fields=['is_correct']),
+        ]
