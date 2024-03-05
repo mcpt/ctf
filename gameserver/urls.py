@@ -1,5 +1,4 @@
 from django.urls import path
-from django.views.decorators.cache import cache_page
 from . import views
 
 urlpatterns = [
@@ -85,7 +84,7 @@ urlpatterns = [
     ),
     path(
         "contest/<str:slug>/scoreboard",
-        cache_page(60 * 5)(views.ContestScoreboard.as_view()), # cache for 5m
+        views.ContestScoreboard.as_view(), # cache for 5m
         name="contest_scoreboard",
     ),
     path(
