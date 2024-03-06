@@ -9,6 +9,7 @@ from django.views.generic import DetailView, ListView
 from django.views.generic.base import RedirectView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import CreateView, FormMixin, FormView
+from django.core.cache import cache
 
 from .. import forms, models
 from . import mixin
