@@ -293,7 +293,7 @@ class ContestParticipation(models.Model):
 
     @property
     def last_solve_time(self):
-        last_solve = self.last_solve
+            last_solve = self.last_solve
         if last_solve is not None:
             return last_solve.submission.date_created
         else:
@@ -414,29 +414,40 @@ class ContestSubmission(models.Model):
         super().save(*args, **kwargs)
 
 
-class UserScore(models.Model)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+from django.db import models, transaction
+from django.db.models import F
+from typing import Optional
+from django.contrib.auth.models import User
+
+class ContestScore(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    team = models.ForeignKey(Team, on_delete=models.CASCADE, null=True, blank=True)
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE) 
-    points = models.PositiveIntegerField(help_text="The amount of points a user has.")
+    points = models.PositiveIntegerField(help_text="The amount of points.", default=0)
+    flag_count = models.PositiveIntegerField(help_text="The amount of flags the user/team has.", default=0)
 
     @classmethod
-    def update(cls, user: User, contest: Contest, new_score: Optional[int] = None, change_in_score: Optional[int] = None):
-        if not new_score and not change_in_score:
-            raise ValueError("You must specify either a change in score or a new score")
-        
-        queryset = cls.objects.filter(user=user, contest=contest)
+    def update(cls, change_in_score: int, contest: Contest, user: Optional[User] = None, team: Optional[Team] = None, update_flags: bool = False):
+
+        if not user and not team:
+            raise ValueError("You must specify either a user or a team")
+
+        queryset = cls.objects.filter(contest=contest)
+        if user:
+            queryset = queryset.filter(user=user)
+        elif team:
+            queryset = queryset.filter(team=team)
         
         with transaction.atomic():
             queryset.select_for_update()
-            if change_in_score is not None:
-                queryset.update(points=F('points') + change_in_score)             
+
+            if update_flags:
+                queryset.update(points=F('points') + change_in_score)   
             else:
-                queryset.update(points=new_score)
+                queryset.update(points=F('points') + change_in_score, flag_count=F('flag_count') + 1)   
 
-        class Meta:
-            indexes = [
-                models.Index(fields=['user', 'contest']), # composite index speeding up queries on both user and contest.
-            ]
-
-
-        
+    class Meta:
+        indexes = [
+            models.Index(fields=['user', 'contest']),  # Composite index for user and contest
+            models.Index(fields=['team', 'contest']),  # Composite index for team and contest
+        ]
