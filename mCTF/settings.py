@@ -62,9 +62,7 @@ MIDDLEWARE = [
     "gameserver.middleware.ContestMiddleware",
     "django.contrib.flatpages.middleware.FlatpageFallbackMiddleware",
     "gameserver.middleware.RedirectFallbackTemporaryMiddleware",
-    'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.cache.FetchFromCacheMiddleware',
     'gameserver.middleware.ErrorLogMiddleware',
     # ↑ keep last to log errors from middlewares
 ]
