@@ -293,7 +293,7 @@ class ContestParticipation(models.Model):
 
     @property
     def last_solve_time(self):
-            last_solve = self.last_solve
+        last_solve = self.last_solve
         if last_solve is not None:
             return last_solve.submission.date_created
         else:
