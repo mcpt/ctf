@@ -145,7 +145,8 @@ class ProblemDetail(
                 submission=submission,
                 participation=self.request.participation,
             )
-            #models.ContestScore.
+            if is_correct:
+                models.ContestScore.update_or_create(participation=self.request.participation, change_in_points = self.object.points, update_flags=True)
         return submission
 
     def get_form_kwargs(self, *args, **kwargs):
