@@ -412,3 +412,31 @@ class ContestSubmission(models.Model):
         for key in cache.get(f"contest_ranks_{self.participation.contest.pk}", default=[]):
             cache.delete(key)
         super().save(*args, **kwargs)
+
+
+class UserScore(models.Model)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE) 
+    points = models.PositiveIntegerField(help_text="The amount of points a user has.")
+
+    @classmethod
+    def update(cls, user: User, contest: Contest, new_score: Optional[int] = None, change_in_score: Optional[int] = None):
+        if not new_score and not change_in_score:
+            raise ValueError("You must specify either a change in score or a new score")
+        
+        queryset = cls.objects.filter(user=user, contest=contest)
+        
+        with transaction.atomic():
+            queryset.select_for_update()
+            if change_in_score is not None:
+                queryset.update(points=F('points') + change_in_score)             
+            else:
+                queryset.update(points=new_score)
+
+        class Meta:
+            indexes = [
+                models.Index(fields=['user', 'contest']), # composite index speeding up queries on both user and contest.
+            ]
+
+
+        
