@@ -428,7 +428,7 @@ class ContestScore(models.Model):
     flag_count = models.PositiveIntegerField(help_text="The amount of flags the user/team has.", default=0)
 
     @classmethod
-    def update(cls, change_in_score: int, contest: Contest, user: Optional[User] = None, team: Optional[Team] = None, update_flags: bool = False):
+    def update_or_create(cls, change_in_score: int, contest: Contest, user: Optional[User] = None, team: Optional[Team] = None, update_flags: bool = True):
 
         if not user and not team:
             raise ValueError("You must specify either a user or a team")
@@ -438,6 +438,9 @@ class ContestScore(models.Model):
             queryset = queryset.filter(user=user)
         elif team:
             queryset = queryset.filter(team=team)
+        if not queryset.exists(): # no user/team found matching that
+            cls.objects.create(contest=contest, user=user, team=team, flag_count=int(update_flags), points=change_in_score) 
+            return cls.update_or_create(contest=contest, change_in_score=change_in_score, user=user, team=team, update_flags=update_flags)
         
         with transaction.atomic():
             queryset.select_for_update()

@@ -145,6 +145,7 @@ class ProblemDetail(
                 submission=submission,
                 participation=self.request.participation,
             )
+            #models.ContestScore.
         return submission
 
     def get_form_kwargs(self, *args, **kwargs):
