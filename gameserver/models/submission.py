@@ -64,6 +64,5 @@ class Submission(models.Model):
         indexes = [
             models.Index(fields=['user']),
             models.Index(fields=['problem']),
-            models.Index(fields=['is_correct']),
-            models.Index(fields=['problem__is_public']),
+            models.Index(fields=['is_correct'])
         ]
