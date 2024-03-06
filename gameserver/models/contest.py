@@ -300,9 +300,10 @@ class ContestParticipation(models.Model):
             return self.contest.start_time
 
     @property
-    def time_taken(self):
+    def time_taken(self) -> str:
+        """Returns the total amount of time the user has spent on the contest"""
         solve_time = self.last_solve_time
-        return timedelta(seconds=round((solve_time - self.contest.start_time).total_seconds()))
+        return timedelta(seconds=round((solve_time - self.contest.start_time).strfdelta()))
 
     def rank(self):
         if isinstance(self.points, int):
