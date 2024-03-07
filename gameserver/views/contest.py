@@ -186,8 +186,7 @@ class ContestScoreboard(SingleObjectMixin, ListView, mixin.MetaMixin):
             cache.set(cache_key, queryset, 5 * 5)  # Cache for 5 minutes (300 seconds)
         return queryset
     
-    @staticmethod
-    def _get_contest(slug):
+    def _get_contest(self, slug):
         cache_key = f"contest_{slug}_scoreboard_contest"
         contest = cache.get(cache_key)
         if not contest or self.request.GET.get('cache_reset', '').casefold() == "yaaaa":
