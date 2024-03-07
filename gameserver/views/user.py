@@ -27,11 +27,16 @@ class UserList(ListView, mixin.MetaMixin):
     model = models.User
     template_name = "user/list.html"
     context_object_name = "users"
-    paginate_by = 40
+    paginate_by = 35
     title = "Users"
 
     def get_queryset(self):
-        return models.User.ranks()
+        cache_key = f"users_page_global_cache"
+        queryset = cache.get(cache_key)
+        if not queryset or self.request.GET.get('cache_reset', '').casefold() == "yaaaa":
+            queryset = models.User.ranks()
+            cache.set(cache_key, queryset, 5 * 5)  # Cache for 5 minutes (300 seconds)
+        return queryset
 
     def get(self, request, *args, **kwargs):
         if request.in_contest:
