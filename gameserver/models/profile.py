@@ -1,16 +1,15 @@
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Count, F, Min, OuterRef, Q, Subquery, Sum
 from django.db.models.expressions import Window
 from django.db.models.functions import Coalesce, Rank
 from django.urls import reverse
 
-from .cache import UserCache
+from .cache import UserScore
 from .choices import organization_request_status_choices, timezone_choices
-from .contest import ContestParticipation, ContestProblem, ContestSubmission
+from .contest import ContestParticipation, ContestProblem
 from .problem import Problem
 from .submission import Submission
 
@@ -62,11 +61,11 @@ class User(AbstractUser):
         return queryset.values("problem", "problem__points").distinct()
 
     def points(self, queryset=None):
-        cache = UserCache.get(user=self, participation=None)
+        cache = UserScore.get(user=self)
         return cache.points
 
     def flags(self, queryset=None):
-        cache = UserCache.get(user=self, participation=None)
+        cache = UserScore.get(user=self)
         return cache.flags
 
     def rank(self, queryset=None):

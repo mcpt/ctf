@@ -1,7 +1,5 @@
-import uuid
 from datetime import timedelta
 
-from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
@@ -13,7 +11,11 @@ from django.db.models.functions import Coalesce, Rank
 from django.urls import reverse
 from django.utils import timezone
 
+from django.db import models
+from django.db.models import F
 from . import abstract
+from functools import cached_property 
+from .cache import ContestScore
 
 # Create your models here.
 
@@ -56,27 +58,27 @@ class Contest(models.Model):
     def get_absolute_url(self):
         return reverse("contest_detail", args=[self.slug])
 
-    @property
+    @cached_property
     def is_private(self):
         return not self.is_public
 
-    @property
+    @cached_property
     def teams_allowed(self):
         return self.max_team_size is None or self.max_team_size > 1
 
-    @property
+    @cached_property
     def is_started(self):
         return self.start_time <= timezone.now()
 
-    @property
+    @cached_property
     def is_finished(self):
         return self.end_time < timezone.now()
 
-    @property
+    @cached_property
     def is_ongoing(self):
         return self.is_started and not self.is_finished
 
-    @property
+    @cached_property
     def duration(self):
         return self.end_time - self.start_time
 
@@ -86,7 +88,7 @@ class Contest(models.Model):
         else:
             return self.problems.filter(problem__pk=problem.pk).exists()
 
-    @property
+    @cached_property
     def __meta_key(self):
         return f"contest_ranks_{self.pk}"
 
@@ -251,7 +253,7 @@ class ContestParticipation(models.Model):
     def get_absolute_url(self):
         return reverse("contest_participation_detail", args=[self.pk])
 
-    @property
+    @cached_property
     def participant(self):
         if self.team is None:
             return self.participants.first()
@@ -275,7 +277,7 @@ class ContestParticipation(models.Model):
     def flags(self):
         return self._get_unique_correct_submissions().count()
 
-    @property
+    @cached_property
     def last_solve(self):
         submissions = (
             self.submissions.filter(submission__is_correct=True)
@@ -291,7 +293,7 @@ class ContestParticipation(models.Model):
         else:
             return None
 
-    @property
+    @cached_property
     def last_solve_time(self):
         last_solve = self.last_solve
         if last_solve is not None:
@@ -299,7 +301,7 @@ class ContestParticipation(models.Model):
         else:
             return self.contest.start_time
 
-    @property
+    @cached_property
     def time_taken(self) -> str:
         """Returns the total amount of time the user has spent on the contest"""
         solve_time = self.last_solve_time
@@ -330,7 +332,7 @@ class ContestParticipation(models.Model):
 
 class ContestProblem(models.Model):
     contest = models.ForeignKey(
-        Contest, on_delete=models.CASCADE, related_name="problems", related_query_name="problem"
+        Contest, on_delete=models.CASCADE, related_name="problems", related_query_name="problem", db_index=True
     )
     problem = models.ForeignKey(
         "Problem", on_delete=models.CASCADE, related_name="contests", related_query_name="contest"
@@ -397,11 +399,11 @@ class ContestSubmission(models.Model):
     def __str__(self):
         return f"{self.participation.participant}'s submission for {self.problem.problem.name} in {self.problem.contest.name}"
 
-    @property
+    @cached_property
     def is_correct(self):
         return self.submission.is_correct
 
-    @property
+    @cached_property
     def is_firstblood(self):
         prev_correct_submissions = ContestSubmission.objects.filter(
             problem=self.problem, submission__is_correct=True, pk__lte=self.pk
@@ -410,33 +412,5 @@ class ContestSubmission(models.Model):
         return prev_correct_submissions.count() == 1 and prev_correct_submissions.first() == self
 
     def save(self, *args, **kwargs):
-        for key in cache.get(f"contest_ranks_{self.participation.contest.pk}", default=[]):
-            cache.delete(key)
+        ContestScore.invalidate(self.participation)
         super().save(*args, **kwargs)
-
-
-from django.db import models, transaction
-from django.db.models import F
-from typing import Optional
-from django.contrib.auth.models import User
-
-class ContestScore(models.Model):
-    participation=models.ForeignKey(ContestParticipation, on_delete=CASCADE, db_index=True)
-    points = models.PositiveIntegerField(help_text="The amount of points.", default=0)
-    flag_count = models.PositiveIntegerField(help_text="The amount of flags the user/team has.", default=0)
-
-    @classmethod
-    def update_or_create(cls, change_in_score: int, participant: ContestParticipation, update_flags: bool = True):
-        queryset = cls.objects.filter(participation=participant)
-        
-        if not queryset.exists(): # no user/team found matching that
-            cls.objects.create(participation=participant, flag_count=int(update_flags), points=change_in_score) 
-            return cls.update_or_create(contest=contest, change_in_score=change_in_score, user=user, team=team, update_flags=update_flags)
-        
-        with transaction.atomic():
-            queryset.select_for_update()
-
-            if update_flags:
-                queryset.update(points=F('points') + change_in_score)   
-            else:
-                queryset.update(points=F('points') + change_in_score, flag_count=F('flag_count') + 1)   

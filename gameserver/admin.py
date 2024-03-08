@@ -4,7 +4,6 @@ from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.flatpages.admin import FlatPageAdmin
 from django.contrib.flatpages.models import FlatPage
-from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
 from . import models
@@ -252,7 +251,8 @@ class UserAdmin(admin.ModelAdmin):
 
 
 admin.site.register(User, UserAdmin)
-admin.site.register(models.UserCache)
+admin.site.register(models.ContestScore)
+admin.site.register(models.UserScore)
 admin.site.register(models.Problem, ProblemAdmin)
 admin.site.register(models.Submission)
 admin.site.register(models.ProblemType)

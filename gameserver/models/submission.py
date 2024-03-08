@@ -1,11 +1,5 @@
-from django.core.cache import cache
 from django.db import models
-from django.db.models import F, Q
-from django.db.models.signals import post_save
-from django.urls import reverse
-
-from .cache import UserCache
-
+from django.db.models import Q
 
 class Submission(models.Model):
     user = models.ForeignKey(
@@ -17,7 +11,7 @@ class Submission(models.Model):
         related_query_name="submission",
     )
     problem = models.ForeignKey(
-        "Problem",
+        "Problemlem",
         on_delete=models.CASCADE,
         related_name="submissions",
         related_query_name="submission",
@@ -30,9 +24,8 @@ class Submission(models.Model):
         return f"{self.user.username}'s submission for {self.problem.name}"
 
     def save(self, *args, **kwargs):
-        # TODO: incrementally update instead of resetting cache
-        user = self.user
-        UserCache.invalidate(user, user.current_contest)
+        if self.is_correct and self.problem.is_public:
+            UserScore.update_or_create(user=self.user, change_in_score=self.problem.points, update_flags=True)
         return super().save(*args, **kwargs)
 
     @property
