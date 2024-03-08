@@ -1,4 +1,5 @@
 from django.db import models
+from .cache import UserScore
 from django.db.models import Q
 
 class Submission(models.Model):
@@ -11,7 +12,7 @@ class Submission(models.Model):
         related_query_name="submission",
     )
     problem = models.ForeignKey(
-        "Problemlem",
+        "Problem",
         on_delete=models.CASCADE,
         related_name="submissions",
         related_query_name="submission",
