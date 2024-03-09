@@ -260,12 +260,10 @@ class ContestParticipation(models.Model):
 
     def _get_unique_correct_submissions(self):
         # Switch to ContestProblem -> Problem Later
-        return (
-            self.submissions.filter(submission__is_correct=True)
-            .values("submission__problem", "problem__points")
-            .distinct()
-        )
-
+        return (self.submissions.filter(submission__is_correct=True)
+                .select_related('problem')
+                .values('problem','problem__points').distinct())
+    
     def points(self):
         points = self._get_unique_correct_submissions().aggregate(
             points=Coalesce(Sum("problem__points"), 0)
@@ -382,6 +380,7 @@ class ContestSubmission(models.Model):
         on_delete=models.CASCADE,
         related_name="submissions",
         related_query_name="submission",
+        db_index=True,
     )
     problem = models.ForeignKey(
         ContestProblem,
@@ -390,7 +389,8 @@ class ContestSubmission(models.Model):
         related_query_name="submission",
     )
     submission = models.OneToOneField(
-        "Submission", on_delete=models.CASCADE, related_name="contest_submission"
+        "Submission", on_delete=models.CASCADE, related_name="contest_submission",
+        db_index=True,
     )
 
     def __str__(self):
