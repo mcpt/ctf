@@ -36,7 +36,7 @@ class UserList(ListView, mixin.MetaMixin):
         queryset = cache.get(cache_key)
         if not queryset or self.request.GET.get('cache_reset', '').casefold() == "yaaaa":
             queryset = models.User.ranks()
-            cache.set(cache_key, queryset, 5 * 5)  # Cache for 5 minutes (300 seconds)
+            cache.set(cache_key, queryset, 10 * 60)  # Cache for 10 minutes (600 seconds)
         return queryset
 
     def get(self, request, *args, **kwargs):
