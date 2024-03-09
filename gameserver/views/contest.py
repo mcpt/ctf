@@ -183,15 +183,15 @@ class ContestScoreboard(SingleObjectMixin, ListView, mixin.MetaMixin):
         queryset = cache.get(cache_key)
         if not queryset or self.request.GET.get('cache_reset', '').casefold() == "yaaaa":
             queryset = self.object.ranks().prefetch_related('team', 'submissions__problem')
-            cache.set(cache_key, queryset, 5 * 5)  # Cache for 5 minutes (300 seconds)
+            cache.set(cache_key, queryset, 60 * 5)  # Cache for 5 minutes (300 seconds)
         return queryset
     
     def _get_contest(self, slug):
-        cache_key = f"contest_{slug}_scoreboard_contest"
-        contest = cache.get(cache_key)
-        if not contest or self.request.GET.get('cache_reset', '').casefold() == "yaaaa":
-            contest = get_object_or_404(models.Contest, slug=slug)
-            cache.set(cache_key, contest, 5 * 5)  # Cache for 5 minutes (300 seconds)
+        # cache_key = f"contest_{slug}_scoreboard_contest"
+        # contest = cache.get(cache_key)
+        # if not contest or self.request.GET.get('cache_reset', '').casefold() == "yaaaa":
+        contest = get_object_or_404(models.Contest, slug=slug)
+            # cache.set(cache_key, contest, 60 * 5)  # Cache for 5 minutes (300 seconds)
         return contest
     
     def get(self, request, *args, **kwargs):
