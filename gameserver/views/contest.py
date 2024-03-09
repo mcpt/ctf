@@ -110,22 +110,38 @@ class ContestDetail(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if self.request.user.is_authenticated:
-            context["user_accessible"] = self.object.is_accessible_by(self.request.user)
-            context["user_participation"] = self.request.user.participation_for_contest(self.object)
-            context["team_participant_count"] = {
-                team_pk: participant_count
-                for team_pk, participant_count in self.request.user.teams.annotate(
-                    participant_count=Count(
-                        "contest_participations__participants",
-                        filter=Q(contest_participations__contest=self.object),
-                    )
-                ).values_list("pk", "participant_count")
-            }
-        context["top_participations"] = self.object.ranks()[:10]
+        user = self.request.user
+        if user.is_authenticated:
+            if (data := cache.get(f"contest_{self.object.slug}_participant_count")) is None:
+                context["user_accessible"] = self.object.is_accessible_by(user)
+                context["user_participation"] = user.participation_for_contest(self.object)
+                team_participant_count = (
+                    user.teams.annotate(
+                        participant_count=Count(
+                            "contest_participations__participants",
+                            filter=Q(contest_participations__contest=self.object),
+                        )
+                    ).values_list("pk", "participant_count")
+                )
+                context["team_participant_count"] = {team_pk: participant_count for team_pk, participant_count in
+                                                         team_participant_count}
+                cache.set(f"contest_{self.object.slug}_participant_count", context["team_participant_count"], 60 * 3)  # Cache for 3 minutes (180 seconds) \
+            else:
+                context["team_participant_count"] = data
+        
+        top_participations = cache_this(self.object.ranks().prefetch_related("participants", "team"), f"contest_{self.object.slug}_ranks", 60 * 5)  # Cache for 5 minutes (300 seconds)
+        context["top_participations"] = top_participations[:10]
+        
         return context
 
 
+def cache_this(queryset, cache_key: str, timeout: int = 60 * 5):
+    from django.db import connection
+    data = cache.get(cache_key)
+    if not data:
+        data = list(queryset)
+        cache.set(cache_key, data, timeout)
+    return data
 @method_decorator(require_POST, name="dispatch")
 class ContestLeave(LoginRequiredMixin, RedirectView):
     pattern_name = "contest_detail"
@@ -239,45 +255,45 @@ class ContestParticipationDetail(DetailView, mixin.MetaMixin, mixin.CommentMixin
 
     def get_description(self):
         return self.object.__str__()
-
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        context["recent_contest_submissions"] = self.object.submissions.order_by("-pk")[:10]
-
-        contest_problems = self.object.contest.problems
-        participant_submissions = self.object._get_unique_correct_submissions()
-
-        context["problem_types"] = {
-            ptype: {
-                "total": ptype.pc,
-                "solved": ptype.pcc,
+        
+        # Fetch related objects in advance to reduce queries
+        contest = self.object.contest.prefetch_related("problems__problem_type")
+        
+        # Fetch submissions in advance to reduce queries
+        participant_submissions = self.object._get_unique_correct_submissions().select_related("problem__problem_type")
+        
+        # Calculate total and solved problem counts by problem type
+        problem_types = {}
+        for problem_type in models.ProblemType.objects.annotate(
+                pc=Count('problems', filter=Q(problems__contest=contest)),
+                pcc=Count('problems', filter=Q(problems__contest=contest, problems__in=participant_submissions))
+        ):
+            problem_types[problem_type] = {
+                'total': problem_type.pc,
+                'solved': problem_type.pcc,
             }
-            for ptype in models.ProblemType.objects.annotate(
-                pc=Count("problems", filter=Q(problems__in=contest_problems.values("problem"))),
-                pcc=Count(
-                    "problems",
-                    filter=Q(
-                        problems__in=contest_problems.filter(
-                            submission__in=participant_submissions.values("pk")
-                        ).values("problem")
-                    ),
-                ),
-            )
-        }
-
-        if pus := contest_problems.filter(problem__problem_type=None):
-            context["problem_types"]["Other"] = {
-                "total": pus.count(),
-                "solved": participant_submissions.filter(
-                    problem__problem__problem_type=None
-                ).count(),
+        
+        # Handle problems without a specific problem type
+        other_problems = contest.filter(problem__problem_type=None)
+        other_solved = participant_submissions.filter(problem__problem_type=None).count()
+        if other_problems.exists():
+            problem_types['Other'] = {
+                'total': other_problems.count(),
+                'solved': other_solved,
             }
-
-        # new queries instead of summation in case a problem has multiple problem_types
-        context["problem_types_total"] = {
-            "total": contest_problems.count(),
-            "solved": participant_submissions.count(),
+        
+        # Calculate total problem counts
+        total_problems = contest.count()
+        total_solved = participant_submissions.count()
+        
+        context['recent_contest_submissions'] = self.object.submissions.order_by('-pk')[:10]
+        context['problem_types'] = problem_types
+        context['problem_types_total'] = {
+            'total': total_problems,
+            'solved': total_solved,
         }
         return context
 
