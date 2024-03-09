@@ -259,41 +259,41 @@ class ContestParticipationDetail(DetailView, mixin.MetaMixin, mixin.CommentMixin
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        # Fetch related objects in advance to reduce queries
-        contest = self.object.contest.prefetch_related("problems__problem_type")
+        context["recent_contest_submissions"] = self.object.submissions.order_by("-pk")[:10]
         
-        # Fetch submissions in advance to reduce queries
-        participant_submissions = self.object._get_unique_correct_submissions().select_related("problem__problem_type")
+        contest_problems = self.object.contest.problems
+        participant_submissions = self.object._get_unique_correct_submissions()
         
-        # Calculate total and solved problem counts by problem type
-        problem_types = {}
-        for problem_type in models.ProblemType.objects.annotate(
-                pc=Count('problems', filter=Q(problems__contest=contest)),
-                pcc=Count('problems', filter=Q(problems__contest=contest, problems__in=participant_submissions))
-        ):
-            problem_types[problem_type] = {
-                'total': problem_type.pc,
-                'solved': problem_type.pcc,
+        context["problem_types"] = {
+            ptype: {
+                "total": ptype.pc,
+                "solved": ptype.pcc,
+            }
+            for ptype in models.ProblemType.objects.annotate(
+                pc=Count("problems", filter=Q(problems__in=contest_problems.values("problem"))),
+                pcc=Count(
+                    "problems",
+                    filter=Q(
+                        problems__in=contest_problems.filter(
+                            submission__in=participant_submissions.values("pk")
+                        ).values("problem")
+                    ),
+                ),
+            )
+        }
+        
+        if pus := contest_problems.filter(problem__problem_type=None):
+            context["problem_types"]["Other"] = {
+                "total": pus.count(),
+                "solved": participant_submissions.filter(
+                    problem__problem__problem_type=None
+                ).count(),
             }
         
-        # Handle problems without a specific problem type
-        other_problems = contest.filter(problem__problem_type=None)
-        other_solved = participant_submissions.filter(problem__problem_type=None).count()
-        if other_problems.exists():
-            problem_types['Other'] = {
-                'total': other_problems.count(),
-                'solved': other_solved,
-            }
-        
-        # Calculate total problem counts
-        total_problems = contest.count()
-        total_solved = participant_submissions.count()
-        
-        context['recent_contest_submissions'] = self.object.submissions.order_by('-pk')[:10]
-        context['problem_types'] = problem_types
-        context['problem_types_total'] = {
-            'total': total_problems,
-            'solved': total_solved,
+        # new queries instead of summation in case a problem has multiple problem_types
+        context["problem_types_total"] = {
+            "total": contest_problems.count(),
+            "solved": participant_submissions.count(),
         }
         return context
 
