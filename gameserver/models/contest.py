@@ -93,15 +93,6 @@ class Contest(models.Model):
     def __meta_key(self):
         return f"contest_ranks_{self.pk}"
 
-    def cached_ranks(self, name: str, queryset=None):
-        key = f"contest_ranks_{self.pk}_{name}"
-        if (val := cache.get(key)) is not None:
-            return val
-        cache.set(self.__meta_key, cache.get(self.__meta_key, default=[]) + [key])
-        val = self._ranks(queryset)
-        cache.set(key, val, timeout=None)  # TODO: set saner timeout
-        return val
-
     def ranks(self, queryset=None):
         return ContestScore.ranks(self)
 
@@ -269,14 +260,15 @@ class ContestParticipation(models.Model):
         )
 
     def points(self):
-        points = self._get_unique_correct_submissions().aggregate(
-            points=Coalesce(Sum("problem__points"), 0)
-        )["points"]
-        return points
+        return ContestScore.objects.filter(participation=self).values_list("points", flat=True).get()
 
     def flags(self):
-        return self._get_unique_correct_submissions().count()
-
+        return ContestScore.objects.filter(participation=self).values_list("flag_count", flat=True).get()
+    
+    def get_rank(self):
+        print("GETTING RANK", flush=True)
+        print(ContestScore.ranks(self.contest, participation=self), "RANKS")
+        return ContestScore.ranks(self.contest, participation=self)
     @cached_property
     def last_solve(self):
         submissions = (

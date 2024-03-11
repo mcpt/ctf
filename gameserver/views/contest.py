@@ -294,7 +294,7 @@ class ContestParticipationDetail(DetailView, mixin.MetaMixin, mixin.CommentMixin
         # new queries instead of summation in case a problem has multiple problem_types
         context["problem_types_total"] = {
             "total": contest_problems.count(),
-            "solved": participant_submissions.count(),
+            "solved": self.object.flags,
         }
         return context
 

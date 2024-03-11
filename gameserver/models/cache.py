@@ -103,10 +103,11 @@ class ContestScore(models.Model):
         return self.participation.contest
     
     @classmethod
-    def ranks(cls, contest: "Contest", queryset: Optional[models.QuerySet] = None) -> models.QuerySet:
+    def ranks(cls, contest: "Contest", queryset: Optional[models.QuerySet] = None, participation: Optional["ContestParticipation"] = None) -> models.QuerySet:
+        assert queryset is None or participation is None, "Only one of queryset or participation can be set"
         query = cls.objects.filter(participation__contest=contest).prefetch_related("participation")
         data = query.annotate(is_solo=Case(
-            When(participation__team_id__isnull=True, then=Value(False)),
+            When(participation__team_id=None, then=Value(False)),
             default=Value(True),
             output_field=BooleanField()),
             rank=Window(
