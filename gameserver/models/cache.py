@@ -1,8 +1,10 @@
 from typing import TYPE_CHECKING, Self, Optional
 
 from django.apps import apps
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
 from django.db import models, transaction
-from django.db.models import Count, F, Sum, Window, Value, When, BooleanField, Case
+from django.db.models import Count, F, Sum, Window, Value, When, BooleanField, Case, Q
 from django.db.models.functions import Coalesce, Rank
 
 if TYPE_CHECKING:
@@ -105,7 +107,17 @@ class ContestScore(models.Model):
     @classmethod
     def ranks(cls, contest: "Contest", queryset: Optional[models.QuerySet] = None, participation: Optional["ContestParticipation"] = None) -> models.QuerySet:
         assert queryset is None or participation is None, "Only one of queryset or participation can be set"
-        query = cls.objects.filter(participation__contest=contest).prefetch_related("participation")
+        # contest_content_type = ContentType.objects.get_for_model(apps.get_model("gameserver", "Contest"))
+        # perm_edit_all_contests = Permission.objects.get(
+        #     codename="edit_all_contests", content_type=contest_content_type
+        # )
+        query = cls.objects.filter(participation__contest=contest).prefetch_related("participation")#.exclude(
+        #     Q(participants__is_superuser=True)
+        #     | Q(participants__groups__permissions=perm_edit_all_contests)
+        #     | Q(participants__user_permissions=perm_edit_all_contests)
+        #     | Q(participants__in=contest.organizers.all())
+        #     | Q(participants__in=contest.curators.all())
+        # )
         data = query.annotate(is_solo=Case(
             When(participation__team_id=None, then=Value(False)),
             default=Value(True),

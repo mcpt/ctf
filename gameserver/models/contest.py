@@ -300,23 +300,11 @@ class ContestParticipation(models.Model):
         return strfdelta(timedelta(seconds=round((solve_time - self.contest.start_time).total_seconds())))
 
     def rank(self):
-        return self.contest.ranks().filter(
-            participation=self)
-            
-        if isinstance(self.points, int):
-            points = self.points
-        else:
-            points = self.points()
-
         return (
-            self.contest.ranks()
-            .annotate(num_participants=Count("participants"))
-            .filter(
-                Q(points__gt=points)
-                | Q(points=points, most_recent_solve_time__lt=self.last_solve_time)
+            self.contest.ranks().filter(
+                Q(points__gte=self.points())
             )
             .count()
-            + 1
         )
 
     def has_attempted(self, problem):
