@@ -12,8 +12,6 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 
-from django.db import models
-from django.db.models import F
 from . import abstract
 from .cache import ContestScore
 
@@ -262,10 +260,13 @@ class ContestParticipation(models.Model):
 
     def _get_unique_correct_submissions(self):
         # Switch to ContestProblem -> Problem Later
-        return (self.submissions.filter(submission__is_correct=True)
-                .select_related('problem')
-                .values('problem','problem__points').distinct())
-    
+        return (
+            self.submissions.filter(submission__is_correct=True)
+            .select_related("problem")
+            .values("problem", "problem__points")
+            .distinct()
+        )
+
     def points(self):
         points = self._get_unique_correct_submissions().aggregate(
             points=Coalesce(Sum("problem__points"), 0)
@@ -310,13 +311,17 @@ class ContestParticipation(models.Model):
             points = self.points
         else:
             points = self.points()
-        
-        return self.contest.ranks() \
-            .annotate(num_participants=Count('participants')) \
-            .filter(Q(points__gt=points) |
-                    Q(points=points,
-                      most_recent_solve_time__lt=self.last_solve_time)) \
-            .count() + 1
+
+        return (
+            self.contest.ranks()
+            .annotate(num_participants=Count("participants"))
+            .filter(
+                Q(points__gt=points)
+                | Q(points=points, most_recent_solve_time__lt=self.last_solve_time)
+            )
+            .count()
+            + 1
+        )
 
     def has_attempted(self, problem):
         return problem.is_attempted_by(self)
@@ -330,7 +335,11 @@ class ContestParticipation(models.Model):
 
 class ContestProblem(models.Model):
     contest = models.ForeignKey(
-        Contest, on_delete=models.CASCADE, related_name="problems", related_query_name="problem", db_index=True
+        Contest,
+        on_delete=models.CASCADE,
+        related_name="problems",
+        related_query_name="problem",
+        db_index=True,
     )
     problem = models.ForeignKey(
         "Problem", on_delete=models.CASCADE, related_name="contests", related_query_name="contest"
@@ -392,7 +401,9 @@ class ContestSubmission(models.Model):
         related_query_name="submission",
     )
     submission = models.OneToOneField(
-        "Submission", on_delete=models.CASCADE, related_name="contest_submission",
+        "Submission",
+        on_delete=models.CASCADE,
+        related_name="contest_submission",
         db_index=True,
     )
 
@@ -414,7 +425,9 @@ class ContestSubmission(models.Model):
     def save(self, *args, **kwargs):
         for key in cache.get(f"contest_ranks_{self.participation.contest.pk}", default=[]):
             cache.delete(key)
-        cache.delete(f'contest_participant_{self.participation.id}_last_solve')       # todo convert to internal django delete key due to @cachedproperty
-        cache.delete(f'contest_participant_{self.participation.id}_time_taken')
+        cache.delete(
+            f"contest_participant_{self.participation.id}_last_solve"
+        )  # todo convert to internal django delete key due to @cachedproperty
+        cache.delete(f"contest_participant_{self.participation.id}_time_taken")
         ContestScore.invalidate(self.participation)
         super().save(*args, **kwargs)

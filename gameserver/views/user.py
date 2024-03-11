@@ -1,14 +1,11 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.contenttypes.models import ContentType
-from django.db.models import Sum
-from django.db.models.functions import Coalesce
-from django.shortcuts import get_object_or_404, redirect
+from django.core.cache import cache
+from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import RedirectView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import UpdateView
-from django.core.cache import cache
 
 from .. import forms, models
 from . import mixin
@@ -34,7 +31,7 @@ class UserList(ListView, mixin.MetaMixin):
     def get_queryset(self):
         cache_key = f"users_page_global_cache"
         queryset = cache.get(cache_key)
-        if not queryset or self.request.GET.get('cache_reset', '').casefold() == "yaaaa":
+        if not queryset or self.request.GET.get("cache_reset", "").casefold() == "yaaaa":
             queryset = models.User.ranks()
             cache.set(cache_key, queryset, 10 * 60)  # Cache for 10 minutes (600 seconds)
         return queryset

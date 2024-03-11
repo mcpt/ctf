@@ -18,9 +18,9 @@ if challenge_cluster["connection"]["host"] is not None:
         "authorization": "Bearer {}".format(challenge_cluster["connection"]["token"])
     }
     cluster_config.ssl_ca_cert = challenge_cluster["connection"]["caCert"]
-    logger.info(f'attempting to connect to challenge cluster at {cluster_config.host}')
+    logger.info(f"attempting to connect to challenge cluster at {cluster_config.host}")
     api_client = kubernetes.dynamic.DynamicClient(kubernetes.client.ApiClient(cluster_config))
-    logger.info('connected to challenge cluster')
+    logger.info("connected to challenge cluster")
 
 
 def create_challenge_instance(challenge_spec, problem_id, problem_flag, instance_owner, wait=False):

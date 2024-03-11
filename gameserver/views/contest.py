@@ -1,15 +1,14 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.contenttypes.models import ContentType
-from django.db.models import Count, Q, Sum
-from django.http import HttpResponseBadRequest, HttpResponseForbidden
-from django.shortcuts import get_object_or_404, redirect
+from django.core.cache import cache
+from django.db.models import Count, Q
+from django.http import HttpResponseForbidden
+from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import RedirectView
 from django.views.generic.detail import SingleObjectMixin
-from django.views.generic.edit import CreateView, FormMixin, FormView
-from django.core.cache import cache
+from django.views.generic.edit import FormMixin
 
 from .. import forms, models
 from . import mixin
@@ -115,33 +114,42 @@ class ContestDetail(
             if (data := cache.get(f"contest_{self.object.slug}_participant_count")) is None:
                 context["user_accessible"] = self.object.is_accessible_by(user)
                 context["user_participation"] = user.participation_for_contest(self.object)
-                team_participant_count = (
-                    user.teams.annotate(
-                        participant_count=Count(
-                            "contest_participations__participants",
-                            filter=Q(contest_participations__contest=self.object),
-                        )
-                    ).values_list("pk", "participant_count")
-                )
-                context["team_participant_count"] = {team_pk: participant_count for team_pk, participant_count in
-                                                         team_participant_count}
-                cache.set(f"contest_{self.object.slug}_participant_count", context["team_participant_count"], 60 * 3)  # Cache for 3 minutes (180 seconds) \
+                team_participant_count = user.teams.annotate(
+                    participant_count=Count(
+                        "contest_participations__participants",
+                        filter=Q(contest_participations__contest=self.object),
+                    )
+                ).values_list("pk", "participant_count")
+                context["team_participant_count"] = {
+                    team_pk: participant_count
+                    for team_pk, participant_count in team_participant_count
+                }
+                cache.set(
+                    f"contest_{self.object.slug}_participant_count",
+                    context["team_participant_count"],
+                    60 * 3,
+                )  # Cache for 3 minutes (180 seconds) \
             else:
                 context["team_participant_count"] = data
-        
-        top_participations = cache_this(self.object.ranks().prefetch_related("participants", "team"), f"contest_{self.object.slug}_ranks", 60 * 5)  # Cache for 5 minutes (300 seconds)
+
+        top_participations = cache_this(
+            self.object.ranks().prefetch_related("participants", "team"),
+            f"contest_{self.object.slug}_ranks",
+            60 * 5,
+        )  # Cache for 5 minutes (300 seconds)
         context["top_participations"] = top_participations[:10]
-        
+
         return context
 
 
 def cache_this(queryset, cache_key: str, timeout: int = 60 * 5):
-    from django.db import connection
     data = cache.get(cache_key)
     if not data:
         data = list(queryset)
         cache.set(cache_key, data, timeout)
     return data
+
+
 @method_decorator(require_POST, name="dispatch")
 class ContestLeave(LoginRequiredMixin, RedirectView):
     pattern_name = "contest_detail"
@@ -197,17 +205,17 @@ class ContestScoreboard(SingleObjectMixin, ListView, mixin.MetaMixin):
     def get_queryset(self):
         cache_key = f"contest_{self.kwargs['slug']}_scoreboard"
         queryset = cache.get(cache_key)
-        if not queryset or self.request.GET.get('cache_reset', '').casefold() == "yaaaa":
-            queryset = self.object.ranks().prefetch_related('team', 'submissions__problem')
+        if not queryset or self.request.GET.get("cache_reset", "").casefold() == "yaaaa":
+            queryset = self.object.ranks().prefetch_related("team", "submissions__problem")
             cache.set(cache_key, queryset, 60 * 5)  # Cache for 5 minutes (300 seconds)
         return queryset
-    
+
     def _get_contest(self, slug):
         # cache_key = f"contest_{slug}_scoreboard_contest"
         # contest = cache.get(cache_key)
         # if not contest or self.request.GET.get('cache_reset', '').casefold() == "yaaaa":
         contest = get_object_or_404(models.Contest, slug=slug)
-            # cache.set(cache_key, contest, 60 * 5)  # Cache for 5 minutes (300 seconds)
+        # cache.set(cache_key, contest, 60 * 5)  # Cache for 5 minutes (300 seconds)
 
     def get(self, request, *args, **kwargs):
         self.object = self._get_contest(self.kwargs["slug"])
@@ -254,15 +262,15 @@ class ContestParticipationDetail(DetailView, mixin.MetaMixin, mixin.CommentMixin
 
     def get_description(self):
         return self.object.__str__()
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
+
         context["recent_contest_submissions"] = self.object.submissions.order_by("-pk")[:10]
-        
+
         contest_problems = self.object.contest.problems
         participant_submissions = self.object._get_unique_correct_submissions()
-        
+
         context["problem_types"] = {
             ptype: {
                 "total": ptype.pc,
@@ -280,7 +288,7 @@ class ContestParticipationDetail(DetailView, mixin.MetaMixin, mixin.CommentMixin
                 ),
             )
         }
-        
+
         if pus := contest_problems.filter(problem__problem_type=None):
             context["problem_types"]["Other"] = {
                 "total": pus.count(),
@@ -288,7 +296,7 @@ class ContestParticipationDetail(DetailView, mixin.MetaMixin, mixin.CommentMixin
                     problem__problem__problem_type=None
                 ).count(),
             }
-        
+
         # new queries instead of summation in case a problem has multiple problem_types
         context["problem_types_total"] = {
             "total": contest_problems.count(),

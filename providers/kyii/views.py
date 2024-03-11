@@ -1,6 +1,6 @@
-import requests
 import urllib.parse
 
+import requests
 from allauth.socialaccount.providers.oauth2.views import (
     OAuth2Adapter,
     OAuth2CallbackView,

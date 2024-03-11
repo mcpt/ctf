@@ -4,7 +4,6 @@ import bleach.sanitizer as sanitizer
 import mistune
 from django import template
 from django.conf import settings
-from django.contrib.sites.models import Site
 from django.template.defaultfilters import stringfilter
 from django.utils.safestring import mark_safe
 

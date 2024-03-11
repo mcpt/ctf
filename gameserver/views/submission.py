@@ -1,8 +1,5 @@
-from django.contrib.auth.mixins import UserPassesTestMixin
-from django.contrib.contenttypes.models import ContentType
-from django.db.models import Q
 from django.shortcuts import redirect
-from django.views.generic import DetailView, ListView
+from django.views.generic import ListView
 
 from .. import models
 from . import mixin

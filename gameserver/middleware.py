@@ -41,14 +41,19 @@ class RedirectFallbackTemporaryMiddleware(RedirectFallbackMiddleware):
 
 l = logging.getLogger(__name__)
 
+
 class ErrorLogMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
+
     def __call__(self, request):
         response = self.get_response(request)
         return response
+
     def process_exception(self, request, exception):
         if exception:
-            l.error(f'URI: {request.build_absolute_uri()}\n'
-                    f'Exception: {repr(exception)}\n'
-                    f'{traceback.format_exc()}')
+            l.error(
+                f"URI: {request.build_absolute_uri()}\n"
+                f"Exception: {repr(exception)}\n"
+                f"{traceback.format_exc()}"
+            )

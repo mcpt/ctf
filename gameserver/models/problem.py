@@ -3,7 +3,7 @@ import re
 import secrets
 
 from django.db import models
-from django.db.models import F, Q
+from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -61,7 +61,7 @@ class Problem(models.Model):
             ("edit_all_problems", "Edit all problems"),
         )
 
-    #def save(self, *args, **kwargs):
+    # def save(self, *args, **kwargs):
     #    # TODO: reset cache for everyone all solvers
     #    return super().save(*args, **kwargs)
 

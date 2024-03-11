@@ -2,15 +2,14 @@ import logging
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
-from django.http import HttpResponseBadRequest, HttpResponseForbidden, JsonResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.http import HttpResponseForbidden, JsonResponse
+from django.shortcuts import redirect
 from django.urls import reverse
 from django.views import View
-from django.views.generic import DetailView, FormView, ListView
+from django.views.generic import DetailView, ListView
 from django.views.generic.detail import SingleObjectMixin
-from django.views.generic.edit import CreateView, FormMixin
+from django.views.generic.edit import FormMixin
 
 from .. import forms, models
 from . import mixin
@@ -43,7 +42,9 @@ class ProblemList(ListView, mixin.MetaMixin):
             .distinct()
         )
         if self.hide_solved and self.request.user.is_authenticated:
-            q = q.exclude(submission__in=self.request.user.submissions.filter(is_correct=True).all())
+            q = q.exclude(
+                submission__in=self.request.user.submissions.filter(is_correct=True).all()
+            )
         if self.nfts:
             q = q.filter(name__contains=self.nfts)
         return q
@@ -134,7 +135,9 @@ class ProblemDetail(
         if self.object.log_submission_content:
             kwargs["content"] = form.data["flag"]
         submission = models.Submission.objects.create(
-            user=self.request.user, problem=self.object, is_correct=is_correct,
+            user=self.request.user,
+            problem=self.object,
+            is_correct=is_correct,
             **kwargs,
         )
         if is_correct and self.object.firstblood is None:
@@ -146,7 +149,11 @@ class ProblemDetail(
                 participation=self.request.participation,
             )
             if is_correct:
-                models.ContestScore.update_or_create(participation=self.request.participation, change_in_points = self.object.points, update_flags=True)
+                models.ContestScore.update_or_create(
+                    participation=self.request.participation,
+                    change_in_points=self.object.points,
+                    update_flags=True,
+                )
         return submission
 
     def get_form_kwargs(self, *args, **kwargs):

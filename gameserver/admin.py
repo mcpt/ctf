@@ -1,4 +1,3 @@
-import django.db
 from adminsortable2.admin import SortableInlineAdminMixin
 from django.contrib import admin
 from django.contrib.auth import get_user_model
@@ -80,7 +79,9 @@ class ProblemAdmin(admin.ModelAdmin):
         fields = self.readonly_fields
         if request.user.is_superuser:
             return fields
-        if request.user.is_superuser or request.user.has_perm("gameserver.change_problem_visibility"):
+        if request.user.is_superuser or request.user.has_perm(
+            "gameserver.change_problem_visibility"
+        ):
             return fields
         fields += ("is_public",)
         return fields
@@ -96,7 +97,6 @@ class ProblemAdmin(admin.ModelAdmin):
 
 
 class SubmissionAdmin(admin.ModelAdmin):
-    
     list_display = [
         "problem",
         "date_created",
@@ -113,13 +113,14 @@ class SubmissionAdmin(admin.ModelAdmin):
         "user__username",
         "user__full_name",
     ]
-    
+
     def display_firstblooded(self, obj: models.Submission):
         return obj.is_firstblood
-    
+
     display_firstblooded.short_description = "Firstblooded"
     display_firstblooded.boolean = True
-        # return obj.firstblooded
+    # return obj.firstblooded
+
 
 class OrganizationAdmin(admin.ModelAdmin):
     list_display = ["__str__", "owner", "member_count", "is_open"]
@@ -246,7 +247,9 @@ class ContestAdmin(admin.ModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         fields = self.readonly_fields
-        if request.user.is_superuser or request.user.has_perm("gameserver.change_contest_visibility"):
+        if request.user.is_superuser or request.user.has_perm(
+            "gameserver.change_contest_visibility"
+        ):
             return fields
         fields += ("is_public",)
         return fields

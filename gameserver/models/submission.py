@@ -1,7 +1,9 @@
 from django.db import models
 from django.db.models import Q
 from django.utils.functional import cached_property
+
 from .cache import UserScore
+
 
 class Submission(models.Model):
     user = models.ForeignKey(
@@ -27,7 +29,9 @@ class Submission(models.Model):
 
     def save(self, *args, **kwargs):
         if self.is_correct and self.problem.is_public:
-            UserScore.update_or_create(user=self.user, change_in_score=self.problem.points, update_flags=True)
+            UserScore.update_or_create(
+                user=self.user, change_in_score=self.problem.points, update_flags=True
+            )
         return super().save(*args, **kwargs)
 
     @cached_property
@@ -54,10 +58,10 @@ class Submission(models.Model):
             return cls.objects.filter(
                 contest_submission__participation__contest=user.current_contest.contest
             )
-    
+
     class Meta:
         indexes = [
-            models.Index(fields=['user']),
-            models.Index(fields=['problem']),
-            models.Index(fields=['is_correct'])
+            models.Index(fields=["user"]),
+            models.Index(fields=["problem"]),
+            models.Index(fields=["is_correct"]),
         ]
