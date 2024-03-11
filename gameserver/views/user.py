@@ -8,6 +8,7 @@ from django.views.generic import DetailView, ListView
 from django.views.generic.base import RedirectView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import UpdateView
+from django.core.cache import cache
 
 from .. import forms, models
 from . import mixin
@@ -27,11 +28,16 @@ class UserList(ListView, mixin.MetaMixin):
     model = models.User
     template_name = "user/list.html"
     context_object_name = "users"
-    paginate_by = 40
+    paginate_by = 35
     title = "Users"
 
     def get_queryset(self):
-        return models.User.ranks()
+        cache_key = f"users_page_global_cache"
+        queryset = cache.get(cache_key)
+        if not queryset or self.request.GET.get('cache_reset', '').casefold() == "yaaaa":
+            queryset = models.User.ranks()
+            cache.set(cache_key, queryset, 10 * 60)  # Cache for 10 minutes (600 seconds)
+        return queryset
 
     def get(self, request, *args, **kwargs):
         if request.in_contest:

@@ -12,7 +12,7 @@ WORKDIR /app2/media
 WORKDIR /app2/static
 WORKDIR /app
 USER ctf
-RUN python -m pip install --no-cache-dir --no-warn-script-location poetry 
+RUN python -m pip install --no-cache-dir --no-warn-script-location poetry
 
 COPY poetry.lock pyproject.toml /app/
 RUN python -m poetry config virtualenvs.in-project true && \
@@ -27,7 +27,7 @@ USER ctf
 COPY . /app/
 COPY ./mCTF/docker_config.py /app/mCTF/config.py
 USER root
-RUN set -eux; cd /app/public/scss; mkdir out; for f in *.scss; \ 
+RUN set -eux; cd /app/public/scss; mkdir out; for f in *.scss; \
     do \
       sassc --style compressed -- "$f" "out/${f%.scss}.css"; \
     done; \
@@ -41,5 +41,6 @@ EXPOSE 28730
 CMD /app/.venv/bin/gunicorn \
       --bind :28730 \
       --error-logfile - \
+      --timeout 120 \
       --config /app/container/gunicorn.py \
       mCTF.wsgi:application

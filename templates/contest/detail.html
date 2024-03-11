@@ -73,9 +73,11 @@
             {% endif %}
         </p>
         {% endif %}
+        {% comment "Disabled for performance reasons" %}
         {% if user_participation %}
             {% include './snippet/participation/table.html' with participation=user_participation hide_contest_col=True %}
         {% endif %}
+        {% endcomment %}
 
         {% if contest.is_ongoing %}
         {% if request.user.current_contest.contest == contest %}
@@ -102,7 +104,7 @@
             {% if contest.teams_allowed and not user_participation %}
             {% bootstrap_field form.participant wrapper_class="mb-2" %}
             <p id="team-size-display" class="text-muted mb-2" style="font-size: 0.75rem;line-height:1.6"></p>
-            <p class="text-muted fst-italic" style="font-size: 0.75rem;line-height:1.6">Once you participate as part of
+Disabled for performance reasons            <p class="text-muted fst-italic" style="font-size: 0.75rem;line-height:1.6">Once you participate as part of
                 a team, you cannot change back to individual participation.</p>
             {% else %}
             {% bootstrap_field form.participant wrapper_class="d-none" %}

@@ -10,11 +10,11 @@ from django.db.models.expressions import Window
 from django.db.models.functions import Coalesce, Rank
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.functional import cached_property
 
 from django.db import models
 from django.db.models import F
 from . import abstract
-from functools import cached_property 
 from .cache import ContestScore
 
 # Create your models here.
@@ -262,12 +262,10 @@ class ContestParticipation(models.Model):
 
     def _get_unique_correct_submissions(self):
         # Switch to ContestProblem -> Problem Later
-        return (
-            self.submissions.filter(submission__is_correct=True)
-            .values("submission__problem", "problem__points")
-            .distinct()
-        )
-
+        return (self.submissions.filter(submission__is_correct=True)
+                .select_related('problem')
+                .values('problem','problem__points').distinct())
+    
     def points(self):
         points = self._get_unique_correct_submissions().aggregate(
             points=Coalesce(Sum("problem__points"), 0)
@@ -385,6 +383,7 @@ class ContestSubmission(models.Model):
         on_delete=models.CASCADE,
         related_name="submissions",
         related_query_name="submission",
+        db_index=True,
     )
     problem = models.ForeignKey(
         ContestProblem,
@@ -393,7 +392,8 @@ class ContestSubmission(models.Model):
         related_query_name="submission",
     )
     submission = models.OneToOneField(
-        "Submission", on_delete=models.CASCADE, related_name="contest_submission"
+        "Submission", on_delete=models.CASCADE, related_name="contest_submission",
+        db_index=True,
     )
 
     def __str__(self):
@@ -412,5 +412,9 @@ class ContestSubmission(models.Model):
         return prev_correct_submissions.count() == 1 and prev_correct_submissions.first() == self
 
     def save(self, *args, **kwargs):
+        for key in cache.get(f"contest_ranks_{self.participation.contest.pk}", default=[]):
+            cache.delete(key)
+        cache.delete(f'contest_participant_{self.participation.id}_last_solve')       # todo convert to internal django delete key due to @cachedproperty
+        cache.delete(f'contest_participant_{self.participation.id}_time_taken')
         ContestScore.invalidate(self.participation)
         super().save(*args, **kwargs)

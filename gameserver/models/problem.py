@@ -71,7 +71,7 @@ class Problem(models.Model):
     def get_absolute_url(self):
         return reverse("problem_detail", args=[self.slug])
 
-    @property
+    @cached_property
     def is_private(self):
         return not self.is_public
 

@@ -95,6 +95,32 @@ class ProblemAdmin(admin.ModelAdmin):
         return ", ".join([u.username for u in obj.author.all()])
 
 
+class SubmissionAdmin(admin.ModelAdmin):
+    
+    list_display = [
+        "problem",
+        "date_created",
+        "is_correct",
+        "display_firstblooded",
+    ]
+    list_filter = [
+        "problem__points",
+        "is_correct",
+        "problem",
+    ]
+    search_fields = [
+        "problem__name",
+        "user__username",
+        "user__full_name",
+    ]
+    
+    def display_firstblooded(self, obj: models.Submission):
+        return obj.is_firstblood
+    
+    display_firstblooded.short_description = "Firstblooded"
+    display_firstblooded.boolean = True
+        # return obj.firstblooded
+
 class OrganizationAdmin(admin.ModelAdmin):
     list_display = ["__str__", "owner", "member_count", "is_open"]
 
@@ -254,7 +280,7 @@ admin.site.register(User, UserAdmin)
 admin.site.register(models.ContestScore)
 admin.site.register(models.UserScore)
 admin.site.register(models.Problem, ProblemAdmin)
-admin.site.register(models.Submission)
+admin.site.register(models.Submission, SubmissionAdmin)
 admin.site.register(models.ProblemType)
 admin.site.register(models.ProblemGroup)
 admin.site.register(models.Organization, OrganizationAdmin)

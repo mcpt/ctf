@@ -1,6 +1,7 @@
 from django.db import models
-from .cache import UserScore
 from django.db.models import Q
+from django.utils.functional import cached_property
+from .cache import UserScore
 
 class Submission(models.Model):
     user = models.ForeignKey(
@@ -29,7 +30,7 @@ class Submission(models.Model):
             UserScore.update_or_create(user=self.user, change_in_score=self.problem.points, update_flags=True)
         return super().save(*args, **kwargs)
 
-    @property
+    @cached_property
     def is_firstblood(self):
         return self.problem.firstblood == self
 

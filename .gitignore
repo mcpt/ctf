@@ -6,3 +6,4 @@ static/**
 .build
 /.direnv
 /result
+/data.json

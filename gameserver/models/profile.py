@@ -79,7 +79,6 @@ class User(AbstractUser):
         )
 
     @classmethod
-    
     def ranks(cls, queryset=None):
         if queryset is None:
             queryset = cls.objects.all()

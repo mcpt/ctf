@@ -62,9 +62,6 @@ MIDDLEWARE = [
     "gameserver.middleware.ContestMiddleware",
     "django.contrib.flatpages.middleware.FlatpageFallbackMiddleware",
     "gameserver.middleware.RedirectFallbackTemporaryMiddleware",
-    'django.middleware.cache.UpdateCacheMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.cache.FetchFromCacheMiddleware',
     'gameserver.middleware.ErrorLogMiddleware',
     # ↑ keep last to log errors from middlewares
 ]
@@ -318,3 +315,11 @@ if DEFAULT_FILE_STORAGE == "":
     raise TypeError("DEFAULT_FILE_STORAGE must not be blank")
 if STATICFILES_STORAGE == "":
     raise TypeError("STATICFILES_STORAGE must not be blank")
+
+INSTALLED_APPS += ["debug_toolbar"]
+
+MIDDLEWARE += [
+    # ...
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    # ...
+]

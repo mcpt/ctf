@@ -39,10 +39,12 @@
 {% block aside %}
     <div class="card mb-3 order-neg1">
         <div class="card-body participation-summary">
+            {% comment "Disabled for Performance Reasons" %}
             <div>
                 <span>#{{ participation.rank }}</span>
                 <span>rank</span>
             </div>
+            {% endcomment %}
             <div>
                 <span>{{ participation.points }}</span>
                 <span>point{{ participation.points|pluralize }}</span>
