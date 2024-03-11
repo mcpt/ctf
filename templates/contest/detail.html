@@ -73,11 +73,9 @@
             {% endif %}
         </p>
         {% endif %}
-        {% comment "Disabled for performance reasons" %}
         {% if user_participation %}
             {% include './snippet/participation/table.html' with participation=user_participation hide_contest_col=True %}
         {% endif %}
-        {% endcomment %}
 
         {% if contest.is_ongoing %}
         {% if request.user.current_contest.contest == contest %}
