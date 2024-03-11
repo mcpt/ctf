@@ -14,7 +14,7 @@ class Post(models.Model):
     author = models.ManyToManyField(User, blank=True)
 
     title = models.CharField(max_length=128, blank=True)
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, db_index=True)
     text = models.TextField(blank=True)
     summary = models.CharField(max_length=150)
 

@@ -28,7 +28,7 @@ class Contest(models.Model):
     organizations = models.ManyToManyField("Organization", related_name="contests", blank=True)
 
     name = models.CharField(max_length=128)
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, db_index=True)
     description = models.TextField()
     summary = models.CharField(max_length=150)
 

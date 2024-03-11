@@ -183,7 +183,7 @@ class Organization(models.Model):
     admins = models.ManyToManyField("User", related_name="organizations_maintaining")
 
     name = models.CharField(max_length=64)
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, db_index=True)
     short_name = models.CharField(max_length=24)
     description = models.TextField(blank=True)
 
