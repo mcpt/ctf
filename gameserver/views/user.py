@@ -1,5 +1,4 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.cache import cache
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import DetailView, ListView
@@ -9,6 +8,7 @@ from django.views.generic.edit import UpdateView
 
 from .. import forms, models
 from . import mixin
+from ..models import UserScore
 
 
 class UserDetailRedirect(LoginRequiredMixin, RedirectView):
@@ -29,13 +29,10 @@ class UserList(ListView, mixin.MetaMixin):
     title = "Users"
 
     def get_queryset(self):
-        cache_key = f"users_page_global_cache"
-        queryset = cache.get(cache_key)
-        if not queryset or self.request.GET.get("cache_reset", "").casefold() == "yaaaa":
-            queryset = models.User.ranks()
-            cache.set(cache_key, queryset, 10 * 60)  # Cache for 10 minutes (600 seconds)
-        return queryset
-
+        if all([self.request.user.is_authenticated, self.request.user.is_staff, self.request.GET.get("reset", "") == "true"]):
+            UserScore.reset_data()
+        return UserScore.ranks()
+    
     def get(self, request, *args, **kwargs):
         if request.in_contest:
             return redirect("contest_scoreboard", slug=request.participation.contest.slug)

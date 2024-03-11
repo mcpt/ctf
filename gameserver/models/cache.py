@@ -1,8 +1,9 @@
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Self, Optional
 
+from django.apps import apps
 from django.db import models, transaction
-from django.db.models import Count, F, Sum
-from django.db.models.functions import Coalesce
+from django.db.models import Count, F, Sum, Window, Value, When, BooleanField, Case
+from django.db.models.functions import Coalesce, Rank
 
 if TYPE_CHECKING:
     from .contest import Contest, ContestParticipation
@@ -17,7 +18,20 @@ class UserScore(models.Model):
     )
 
     def __str__(self) -> str:
-        return f"{self.user_id}'s score"
+        return self.user.username
+    
+    def get_absolute_url(self):
+        return self.user.get_absolute_url()
+
+    @classmethod
+    def ranks(cls):
+        qs = cls.objects.annotate(
+            rank=Window(
+                expression=Rank(),
+                order_by=F("points").desc(),
+            )
+        ).order_by("rank", "flag_count")
+        return qs
 
     @classmethod
     def update_or_create(cls, change_in_score: int, user: "User", update_flags: bool = True):
@@ -50,7 +64,7 @@ class UserScore(models.Model):
         return obj.first()
 
     @classmethod
-    def initalize_data(cls):
+    def reset_data(cls):
         from django.contrib.auth import get_user_model
 
         cls.objects.all().delete()  # clear inital objs
@@ -78,10 +92,35 @@ class ContestScore(models.Model):
     flag_count = models.PositiveIntegerField(
         help_text="The amount of flags the user/team has.", default=0
     )
-
+    
+    def get_absolute_url(self):
+        return self.participation.get_absolute_url()
+    
+    def time_taken(self):
+        return self.participation.time_taken
+    
+    @classmethod
+    def ranks(cls, contest: "Contest", queryset: Optional[models.QuerySet] = None) -> models.QuerySet:
+        query = cls.objects.filter(participation__contest=contest).prefetch_related("participation")
+        data = query.annotate(is_solo=Case(
+            When(participation__team_id__isnull=True, then=Value(False)),
+            default=Value(True),
+            output_field=BooleanField()),
+            rank=Window(
+                expression=Rank(),
+                order_by=F("points").desc(),
+            )
+        ).order_by("rank", "flag_count")
+        if queryset is not None:
+            data = data.filter(participation__in=queryset)
+        return data
+    
     def __str__(self) -> str:
-        return f"Score for {self.participation} on {self.participation.contest.name}"
-
+        # todo optimize by using select_related
+        # self.objects.select_related("participation__team__name")
+        if self.participation.team is None:
+            return self.participation.participants.first().username
+        return self.participation.team.name
     @classmethod
     def update_or_create(
         cls, change_in_score: int, participant: "ContestParticipation", update_flags: bool = True
@@ -122,8 +161,16 @@ class ContestScore(models.Model):
         return obj.first()
 
     @classmethod
-    def initalize_data(cls, contest: "Contest"):
-        cls.objects.all().delete()  # clear inital objs
+    def reset_data(cls, contest: Optional["Contest"] = None, all: bool =False):
+        assert contest is not None or all, "Either contest or all must be set to True"
+        ContestModel = apps.get_model("gameserver", "Contest")
+        if all:
+            contests = ContestModel.objects.all()
+            for contest in contests:
+                cls.reset_data(contest=contest)
+            return
+        
+        cls.objects.filter(participation__contest=contest).delete()  # clear past objs
         participants = contest.participations.all()
         scores_to_create = []
         for participant in participants:
