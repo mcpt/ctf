@@ -1,17 +1,17 @@
 from django.db import models, transaction
 from django.db.models.functions import Coalesce
 from django.db.models import Count, F, Sum
-from .profile import User
-
 
 from typing import TYPE_CHECKING
 
+from typing import Self
 if TYPE_CHECKING:
+    from .profile import User
     from .contest import ContestParticipation, Contest
-        
+    
     
 class UserScore(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, db_index=True, unique=True)
+    user = models.ForeignKey("User", on_delete=models.CASCADE, db_index=True, unique=True)
     points = models.PositiveIntegerField(help_text="The amount of points.", default=0)
     flag_count = models.PositiveIntegerField(help_text="The amount of flags the user/team has.", default=0)
     
@@ -19,21 +19,21 @@ class UserScore(models.Model):
         return f"{self.user_id}'s score"
     
     @classmethod
-    def update_or_create(cls, change_in_score: int, user: User, update_flags: bool = True):
+    def update_or_create(cls, change_in_score: int, user: "User", update_flags: bool = True):
         assert change_in_score > 0
         queryset = cls.objects.filter(user=user)
         
         if not queryset.exists(): # no user found matching that
-            cls.objects.create(user=user, flag_count=int(update_flags), points=change_in_score) 
+            cls.objects.create(user=user, flag_count=int(update_flags), points=change_in_score)
             return cls.update_or_create(change_in_score=change_in_score, user=user, update_flags=update_flags)
         
         if update_flags:
-            queryset.update(points=F('points') + change_in_score)   
+            queryset.update(points=F('points') + change_in_score)
         else:
-            queryset.update(points=F('points') + change_in_score, flag_count=F('flag_count') + 1)   
+            queryset.update(points=F('points') + change_in_score, flag_count=F('flag_count') + 1)
     
     @classmethod
-    def invalidate(cls, user: User):
+    def invalidate(cls, user: "User"):
         try:
             cls.objects.get(user=user).delete()
         except cls.DoesNotExist:
@@ -41,7 +41,7 @@ class UserScore(models.Model):
             
     
     @classmethod
-    def get(cls, user: User) -> None | "UserScore":        
+    def get(cls, user: "User") -> "Self" | None:
         obj = cls.objects.filter(user=user)
         if obj is None:
             return None
@@ -49,8 +49,10 @@ class UserScore(models.Model):
     
     @classmethod
     def initalize_data(cls):
+        from django.contrib.auth import get_user_model
         cls.objects.all().delete() # clear inital objs
-        users = User.objects.all()
+        UserModel = get_user_model()
+        users = UserModel.objects.all()
         scores_to_create = []
         for user in users:
             queryset = user._get_unique_correct_submissions()
@@ -67,10 +69,6 @@ class UserScore(models.Model):
             )
         # Use bulk_create to create all objects in a single query
         cls.objects.bulk_create(scores_to_create)
-        
-        
-
-
     
 class ContestScore(models.Model):
     participation=models.ForeignKey("ContestParticipation", on_delete=models.CASCADE, db_index=True, unique=True)
@@ -87,16 +85,16 @@ class ContestScore(models.Model):
         queryset = cls.objects.filter(participation=participant)
         
         if not queryset.exists(): # no user/team found matching that
-            cls.objects.create(participation=participant, flag_count=int(update_flags), points=change_in_score) 
+            cls.objects.create(participation=participant, flag_count=int(update_flags), points=change_in_score)
             return cls.update_or_create(change_in_score=change_in_score, participant=participant, update_flags=update_flags)
         
         with transaction.atomic():
             queryset.select_for_update() # prevent race conditions with other team members
 
             if update_flags:
-                queryset.update(points=F('points') + change_in_score)   
+                queryset.update(points=F('points') + change_in_score)
             else:
-                queryset.update(points=F('points') + change_in_score, flag_count=F('flag_count') + 1)   
+                queryset.update(points=F('points') + change_in_score, flag_count=F('flag_count') + 1)
     
     @classmethod
     def invalidate(cls, participant: ContestParticipation):
@@ -107,7 +105,7 @@ class ContestScore(models.Model):
             
     
     @classmethod
-    def get(cls, participant: ContestParticipation) -> None | "ContestScore":        
+    def get(cls, participant: ContestParticipation) -> None | "ContestScore":
         obj = cls.objects.filter(participant=participant)
         if obj is None:
             return None
