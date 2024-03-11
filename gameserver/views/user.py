@@ -29,10 +29,16 @@ class UserList(ListView, mixin.MetaMixin):
     title = "Users"
 
     def get_queryset(self):
-        if all([self.request.user.is_authenticated, self.request.user.is_staff, self.request.GET.get("reset", "") == "true"]):
+        if all(
+            [
+                self.request.user.is_authenticated,
+                self.request.user.is_staff,
+                self.request.GET.get("reset", "") == "true",
+            ]
+        ):
             UserScore.reset_data()
         return UserScore.ranks()
-    
+
     def get(self, request, *args, **kwargs):
         if request.in_contest:
             return redirect("contest_scoreboard", slug=request.participation.contest.slug)

@@ -2,10 +2,23 @@ from typing import TYPE_CHECKING, Self, Optional
 
 from django.apps import apps
 from django.db import models, transaction
-from django.db.models import Count, F, Sum, Window, Value, When, BooleanField, Case, Q, OuterRef, Subquery
+from django.db.models import (
+    Count,
+    F,
+    Sum,
+    Window,
+    Value,
+    When,
+    BooleanField,
+    Case,
+    Q,
+    OuterRef,
+    Subquery,
+)
 from django.db.models.functions import Coalesce, Rank, DenseRank, RowNumber
 
 from .contest import Contest, ContestParticipation, ContestSubmission
+
 if TYPE_CHECKING:
     from .profile import User
 
@@ -19,7 +32,7 @@ class UserScore(models.Model):
 
     def __str__(self) -> str:
         return self.user.username
-    
+
     def get_absolute_url(self):
         return self.user.get_absolute_url()
 
@@ -92,36 +105,50 @@ class ContestScore(models.Model):
     flag_count = models.PositiveIntegerField(
         help_text="The amount of flags the user/team has.", default=0
     )
-    
+
     def get_absolute_url(self):
         return self.participation.get_absolute_url()
-    
+
     def time_taken(self):
         return self.participation.time_taken
-    
+
     def contest(self):
         return self.participation.contest
-    
+
     @classmethod
-    def ranks(cls, contest: "Contest", queryset: Optional[models.QuerySet] = None, participation: Optional["ContestParticipation"] = None) -> models.QuerySet:
-        assert queryset is None or participation is None, "Only one of queryset or participation can be set"
+    def ranks(
+        cls,
+        contest: "Contest",
+        queryset: Optional[models.QuerySet] = None,
+        participation: Optional["ContestParticipation"] = None,
+    ) -> models.QuerySet:
+        assert (
+            queryset is None or participation is None
+        ), "Only one of queryset or participation can be set"
         # contest_content_type = ContentType.objects.get_for_model(apps.get_model("gameserver", "Contest"))
         # perm_edit_all_contests = Permission.objects.get(
         #     codename="edit_all_contests", content_type=contest_content_type
         # )
-        max_submission_time_subquery = ContestSubmission.objects.filter(
-            participation=OuterRef('participation')).order_by('-submission__date_created').values('submission__date_created')[:1]
-        query = cls.objects.filter(participation__contest=contest).prefetch_related("participation")#.exclude(
+        max_submission_time_subquery = (
+            ContestSubmission.objects.filter(participation=OuterRef("participation"))
+            .order_by("-submission__date_created")
+            .values("submission__date_created")[:1]
+        )
+        query = cls.objects.filter(participation__contest=contest).prefetch_related(
+            "participation"
+        )  # .exclude(
         #     Q(participants__is_superuser=True)
         #     | Q(participants__groups__permissions=perm_edit_all_contests)
         #     | Q(participants__user_permissions=perm_edit_all_contests)
         #     | Q(participants__in=contest.organizers.all())
         #     | Q(participants__in=contest.curators.all())
         # )
-        data = query.annotate(is_solo=Case(
-            When(participation__team_id=None, then=Value(False)),
-            default=Value(True),
-            output_field=BooleanField()),
+        data = query.annotate(
+            is_solo=Case(
+                When(participation__team_id=None, then=Value(False)),
+                default=Value(True),
+                output_field=BooleanField(),
+            ),
             sub_rank=Window(
                 expression=Rank(),
                 order_by=F("points").desc(),
@@ -130,18 +157,19 @@ class ContestScore(models.Model):
                 expression=RowNumber(),
                 order_by=F("points").desc(),
             ),
-            max_submission_time=Subquery(max_submission_time_subquery)
+            max_submission_time=Subquery(max_submission_time_subquery),
         ).order_by("rank", "flag_count", "-max_submission_time")
         if queryset is not None:
             data = data.filter(participation__in=queryset)
         return data
-    
+
     def __str__(self) -> str:
         # todo optimize by using select_related
         # self.objects.select_related("participation__team__name")
         if self.participation.team is None:
             return self.participation.participants.first().username
         return self.participation.team.name
+
     @classmethod
     def update_or_create(
         cls, change_in_score: int, participant: "ContestParticipation", update_flags: bool = True
@@ -182,7 +210,7 @@ class ContestScore(models.Model):
         return obj.first()
 
     @classmethod
-    def reset_data(cls, contest: Optional["Contest"] = None, all: bool =False):
+    def reset_data(cls, contest: Optional["Contest"] = None, all: bool = False):
         assert contest is not None or all, "Either contest or all must be set to True"
         ContestModel = apps.get_model("gameserver", "Contest")
         if all:
@@ -190,7 +218,7 @@ class ContestScore(models.Model):
             for contest in contests:
                 cls.reset_data(contest=contest)
             return
-        
+
         cls.objects.filter(participation__contest=contest).delete()  # clear past objs
         participants = contest.participations.all()
         scores_to_create = []

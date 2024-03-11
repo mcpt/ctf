@@ -76,7 +76,10 @@ class ContestDetail(
     def form_valid(self, form):
         team = form.cleaned_data["participant"]
 
-        if self.request.user.in_contest and self.request.user.current_contest.contest == self.object:
+        if (
+            self.request.user.in_contest
+            and self.request.user.current_contest.contest == self.object
+        ):
             contest_participation = models.ContestParticipation.objects.get_or_create(
                 team=team, contest=self.object
             )[0]
@@ -133,7 +136,7 @@ class ContestDetail(
             else:
                 context["team_participant_count"] = data
 
-        top_participations = self.object.ranks()#.prefetch_related("team", "participants"),
+        top_participations = self.object.ranks()  # .prefetch_related("team", "participants"),
         print(top_participations.first().participation.contest)
         context["top_participations"] = top_participations[:10]
 
@@ -193,8 +196,13 @@ class ContestScoreboard(SingleObjectMixin, ListView, mixin.MetaMixin):
         return "Scoreboard for " + self.object.name
 
     def get_queryset(self):
-        if all([self.request.user.is_authenticated, self.request.user.is_staff,
-                self.request.GET.get("reset", "") == "true"]):
+        if all(
+            [
+                self.request.user.is_authenticated,
+                self.request.user.is_staff,
+                self.request.GET.get("reset", "") == "true",
+            ]
+        ):
             ContestScore.reset_data(contest=self.object)
         return ContestScore.ranks(contest=self.object)
 
@@ -204,11 +212,11 @@ class ContestScoreboard(SingleObjectMixin, ListView, mixin.MetaMixin):
     def get(self, request, *args, **kwargs):
         self.object = self._get_contest(self.kwargs["slug"])
         return super().get(request, *args, **kwargs)
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["contest"] = self.object
-        
+
         # Calculate time taken for each participation
         # for contest_score in context["object_list"]:
         #     contest_score.time_taken = contest_score.participation._time_taken
@@ -227,8 +235,7 @@ class ContestOrganizationScoreboard(ListView, mixin.MetaMixin):
 
     def get_queryset(self):
         return ContestScore.ranks(
-            self.contest,
-            self.contest.participations.filter(participants__organizations=self.org)
+            self.contest, self.contest.participations.filter(participants__organizations=self.org)
         ).select_related("participation__team")
         # return self.contest._ranks(
         #     self.contest.participations.filter(participants__organizations=self.org),

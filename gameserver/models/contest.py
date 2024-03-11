@@ -28,7 +28,7 @@ class Contest(models.Model):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.ContestScore = apps.get_model("gameserver", "ContestScore", require_ready=True)
-     
+
     organizers = models.ManyToManyField("User", related_name="contests_organized", blank=True)
     curators = models.ManyToManyField("User", related_name="contests_curated", blank=True)
     organizations = models.ManyToManyField("Organization", related_name="contests", blank=True)
@@ -230,7 +230,7 @@ class ContestParticipation(models.Model):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.ContestScore = apps.get_model("gameserver", "ContestScore", require_ready=True)
-    
+
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE, related_name="participations")
     is_disqualified = models.BooleanField(default=False)
 
@@ -267,14 +267,22 @@ class ContestParticipation(models.Model):
         )
 
     def points(self):
-        
-        return self.ContestScore.objects.filter(participation=self).values_list("points", flat=True).get()
+        return (
+            self.ContestScore.objects.filter(participation=self)
+            .values_list("points", flat=True)
+            .get()
+        )
 
     def flags(self):
-        return self.ContestScore.objects.filter(participation=self).values_list("flag_count", flat=True).get()
-    
+        return (
+            self.ContestScore.objects.filter(participation=self)
+            .values_list("flag_count", flat=True)
+            .get()
+        )
+
     def get_rank(self):
         return self.ContestScore.ranks(self.contest, participation=self)
+
     @cached_property
     def last_solve(self):
         submissions = (
@@ -303,15 +311,12 @@ class ContestParticipation(models.Model):
     def time_taken(self) -> str:
         """Returns the total amount of time the user has spent on the contest"""
         solve_time = self.last_solve_time
-        return strfdelta(timedelta(seconds=round((solve_time - self.contest.start_time).total_seconds())))
+        return strfdelta(
+            timedelta(seconds=round((solve_time - self.contest.start_time).total_seconds()))
+        )
 
     def rank(self):
-        return (
-            self.contest.ranks().filter(
-                Q(points__gte=self.points())
-            )
-            .count()
-        )
+        return self.contest.ranks().filter(Q(points__gte=self.points())).count()
 
     def has_attempted(self, problem):
         return problem.is_attempted_by(self)
@@ -415,7 +420,11 @@ class ContestSubmission(models.Model):
     def save(self, *args, **kwargs):
         for key in cache.get(f"contest_ranks_{self.participation.contest.pk}", default=[]):
             cache.delete(key)
-        cache.delete(make_template_fragment_key("participant_data", [self.participation]))   # see participation.html
-        cache.delete(make_template_fragment_key("user_participation", [self.participation])) # see scoreboard.html
+        cache.delete(
+            make_template_fragment_key("participant_data", [self.participation])
+        )  # see participation.html
+        cache.delete(
+            make_template_fragment_key("user_participation", [self.participation])
+        )  # see scoreboard.html
         ContestScore.invalidate(self.participation)
         super().save(*args, **kwargs)
