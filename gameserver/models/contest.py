@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from django.apps import apps
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
@@ -14,9 +15,7 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 
 from . import abstract
-from .cache import ContestScore
 from ..templatetags.common_tags import strfdelta
-
 
 # Create your models here.
 
@@ -26,6 +25,10 @@ class ContestTag(abstract.Category):
 
 
 class Contest(models.Model):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.ContestScore = apps.get_model("gameserver", "ContestScore", require_ready=True)
+     
     organizers = models.ManyToManyField("User", related_name="contests_organized", blank=True)
     curators = models.ManyToManyField("User", related_name="contests_curated", blank=True)
     organizations = models.ManyToManyField("Organization", related_name="contests", blank=True)
@@ -94,7 +97,7 @@ class Contest(models.Model):
         return f"contest_ranks_{self.pk}"
 
     def ranks(self, queryset=None):
-        return ContestScore.ranks(self)
+        return self.ContestScore.ranks(self)
 
     def _ranks(self, queryset=None):
         if queryset is None:
@@ -224,6 +227,10 @@ class Contest(models.Model):
 
 
 class ContestParticipation(models.Model):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.ContestScore = apps.get_model("gameserver", "ContestScore", require_ready=True)
+    
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE, related_name="participations")
     is_disqualified = models.BooleanField(default=False)
 
@@ -260,15 +267,14 @@ class ContestParticipation(models.Model):
         )
 
     def points(self):
-        return ContestScore.objects.filter(participation=self).values_list("points", flat=True).get()
+        
+        return self.ContestScore.objects.filter(participation=self).values_list("points", flat=True).get()
 
     def flags(self):
-        return ContestScore.objects.filter(participation=self).values_list("flag_count", flat=True).get()
+        return self.ContestScore.objects.filter(participation=self).values_list("flag_count", flat=True).get()
     
     def get_rank(self):
-        print("GETTING RANK", flush=True)
-        print(ContestScore.ranks(self.contest, participation=self), "RANKS")
-        return ContestScore.ranks(self.contest, participation=self)
+        return self.ContestScore.ranks(self.contest, participation=self)
     @cached_property
     def last_solve(self):
         submissions = (

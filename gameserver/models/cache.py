@@ -1,14 +1,12 @@
 from typing import TYPE_CHECKING, Self, Optional
 
 from django.apps import apps
-from django.contrib.auth.models import Permission
-from django.contrib.contenttypes.models import ContentType
 from django.db import models, transaction
-from django.db.models import Count, F, Sum, Window, Value, When, BooleanField, Case, Q
-from django.db.models.functions import Coalesce, Rank
+from django.db.models import Count, F, Sum, Window, Value, When, BooleanField, Case, Q, OuterRef, Subquery
+from django.db.models.functions import Coalesce, Rank, DenseRank, RowNumber
 
+from .contest import Contest, ContestParticipation, ContestSubmission
 if TYPE_CHECKING:
-    from .contest import Contest, ContestParticipation
     from .profile import User
 
 
@@ -111,6 +109,8 @@ class ContestScore(models.Model):
         # perm_edit_all_contests = Permission.objects.get(
         #     codename="edit_all_contests", content_type=contest_content_type
         # )
+        max_submission_time_subquery = ContestSubmission.objects.filter(
+            participation=OuterRef('participation')).order_by('-submission__date_created').values('submission__date_created')[:1]
         query = cls.objects.filter(participation__contest=contest).prefetch_related("participation")#.exclude(
         #     Q(participants__is_superuser=True)
         #     | Q(participants__groups__permissions=perm_edit_all_contests)
@@ -122,11 +122,16 @@ class ContestScore(models.Model):
             When(participation__team_id=None, then=Value(False)),
             default=Value(True),
             output_field=BooleanField()),
-            rank=Window(
+            sub_rank=Window(
                 expression=Rank(),
                 order_by=F("points").desc(),
-            )
-        ).order_by("rank", "flag_count")
+            ),
+            rank=Window(
+                expression=RowNumber(),
+                order_by=F("points").desc(),
+            ),
+            max_submission_time=Subquery(max_submission_time_subquery)
+        ).order_by("rank", "flag_count", "-max_submission_time")
         if queryset is not None:
             data = data.filter(participation__in=queryset)
         return data
