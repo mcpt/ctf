@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     
     
 class UserScore(models.Model):
-    user = models.ForeignKey("User", on_delete=models.CASCADE, db_index=True, unique=True)
+    user = models.OneToOneField("User", on_delete=models.CASCADE, db_index=True)
     points = models.PositiveIntegerField(help_text="The amount of points.", default=0)
     flag_count = models.PositiveIntegerField(help_text="The amount of flags the user/team has.", default=0)
     
@@ -41,7 +41,7 @@ class UserScore(models.Model):
             
     
     @classmethod
-    def get(cls, user: "User") -> "Self" | None:
+    def get(cls, user: "User") -> Self | None:
         obj = cls.objects.filter(user=user)
         if obj is None:
             return None
@@ -71,7 +71,7 @@ class UserScore(models.Model):
         cls.objects.bulk_create(scores_to_create)
     
 class ContestScore(models.Model):
-    participation=models.ForeignKey("ContestParticipation", on_delete=models.CASCADE, db_index=True, unique=True)
+    participation = models.OneToOneField("ContestParticipation", on_delete=models.CASCADE, db_index=True)
     points = models.PositiveIntegerField(help_text="The amount of points.", default=0)
     flag_count = models.PositiveIntegerField(help_text="The amount of flags the user/team has.", default=0)
     
@@ -97,7 +97,7 @@ class ContestScore(models.Model):
                 queryset.update(points=F('points') + change_in_score, flag_count=F('flag_count') + 1)
     
     @classmethod
-    def invalidate(cls, participant: ContestParticipation):
+    def invalidate(cls, participant: "ContestParticipation"):
         try:
             cls.objects.get(participant=participant).delete()
         except cls.DoesNotExist:
@@ -105,7 +105,7 @@ class ContestScore(models.Model):
             
     
     @classmethod
-    def get(cls, participant: ContestParticipation) -> None | "ContestScore":
+    def get(cls, participant: "ContestParticipation") -> Self | None:
         obj = cls.objects.filter(participant=participant)
         if obj is None:
             return None
