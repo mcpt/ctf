@@ -208,8 +208,7 @@ class ContestScoreboard(SingleObjectMixin, ListView, mixin.MetaMixin):
         # if not contest or self.request.GET.get('cache_reset', '').casefold() == "yaaaa":
         contest = get_object_or_404(models.Contest, slug=slug)
             # cache.set(cache_key, contest, 60 * 5)  # Cache for 5 minutes (300 seconds)
-        return contest
-    
+
     def get(self, request, *args, **kwargs):
         self.object = self._get_contest(self.kwargs["slug"])
         return super().get(request, *args, **kwargs)

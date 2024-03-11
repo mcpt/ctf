@@ -1,9 +1,7 @@
 from django.db import models
 from django.db.models import Q
 from django.utils.functional import cached_property
-
-from .cache import UserCache
-
+from .cache import UserScore
 
 class Submission(models.Model):
     user = models.ForeignKey(
@@ -28,9 +26,8 @@ class Submission(models.Model):
         return f"{self.user.username}'s submission for {self.problem.name}"
 
     def save(self, *args, **kwargs):
-        # TODO: incrementally update instead of resetting cache
-        user = self.user
-        UserCache.invalidate(user, user.current_contest)
+        if self.is_correct and self.problem.is_public:
+            UserScore.update_or_create(user=self.user, change_in_score=self.problem.points, update_flags=True)
         return super().save(*args, **kwargs)
 
     @cached_property

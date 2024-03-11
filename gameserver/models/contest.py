@@ -1,7 +1,5 @@
-import uuid
 from datetime import timedelta
 
-from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
@@ -13,7 +11,11 @@ from django.db.models.functions import Coalesce, Rank
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
+
+from django.db import models
+from django.db.models import F
 from . import abstract
+from .cache import ContestScore
 
 # Create your models here.
 
@@ -64,15 +66,15 @@ class Contest(models.Model):
     def teams_allowed(self):
         return self.max_team_size is None or self.max_team_size > 1
 
-    @property
+    @cached_property
     def is_started(self):
         return self.start_time <= timezone.now()
 
-    @property
+    @cached_property
     def is_finished(self):
         return self.end_time < timezone.now()
 
-    @property
+    @cached_property
     def is_ongoing(self):
         return self.is_started and not self.is_finished
 
@@ -86,7 +88,7 @@ class Contest(models.Model):
         else:
             return self.problems.filter(problem__pk=problem.pk).exists()
 
-    @property
+    @cached_property
     def __meta_key(self):
         return f"contest_ranks_{self.pk}"
 
@@ -289,7 +291,7 @@ class ContestParticipation(models.Model):
         else:
             return None
 
-    @property
+    @cached_property
     def last_solve_time(self):
         last_solve = self.last_solve
         if last_solve is not None:
@@ -298,9 +300,10 @@ class ContestParticipation(models.Model):
             return self.contest.start_time
 
     @cached_property
-    def time_taken(self):
+    def time_taken(self) -> str:
+        """Returns the total amount of time the user has spent on the contest"""
         solve_time = self.last_solve_time
-        return timedelta(seconds=round((solve_time - self.contest.start_time).total_seconds()))
+        return timedelta(seconds=round((solve_time - self.contest.start_time).strfdelta()))
 
     def rank(self):
         if isinstance(self.points, int):
@@ -327,7 +330,7 @@ class ContestParticipation(models.Model):
 
 class ContestProblem(models.Model):
     contest = models.ForeignKey(
-        Contest, on_delete=models.CASCADE, related_name="problems", related_query_name="problem"
+        Contest, on_delete=models.CASCADE, related_name="problems", related_query_name="problem", db_index=True
     )
     problem = models.ForeignKey(
         "Problem", on_delete=models.CASCADE, related_name="contests", related_query_name="contest"
@@ -396,11 +399,11 @@ class ContestSubmission(models.Model):
     def __str__(self):
         return f"{self.participation.participant}'s submission for {self.problem.problem.name} in {self.problem.contest.name}"
 
-    @property
+    @cached_property
     def is_correct(self):
         return self.submission.is_correct
 
-    @property
+    @cached_property
     def is_firstblood(self):
         prev_correct_submissions = ContestSubmission.objects.filter(
             problem=self.problem, submission__is_correct=True, pk__lte=self.pk
@@ -413,5 +416,5 @@ class ContestSubmission(models.Model):
             cache.delete(key)
         cache.delete(f'contest_participant_{self.participation.id}_last_solve')       # todo convert to internal django delete key due to @cachedproperty
         cache.delete(f'contest_participant_{self.participation.id}_time_taken')
-        
+        ContestScore.invalidate(self.participation)
         super().save(*args, **kwargs)
