@@ -99,6 +99,9 @@ class ContestScore(models.Model):
     def time_taken(self):
         return self.participation.time_taken
     
+    def contest(self):
+        return self.participation.contest
+    
     @classmethod
     def ranks(cls, contest: "Contest", queryset: Optional[models.QuerySet] = None) -> models.QuerySet:
         query = cls.objects.filter(participation__contest=contest).prefetch_related("participation")

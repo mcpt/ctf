@@ -3,6 +3,7 @@ from datetime import timedelta
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
+from django.core.cache.utils import make_template_fragment_key
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Count, F, Max, Min, OuterRef, Q, Subquery, Sum
@@ -14,6 +15,8 @@ from django.utils.functional import cached_property
 
 from . import abstract
 from .cache import ContestScore
+from ..templatetags.common_tags import strfdelta
+
 
 # Create your models here.
 
@@ -100,9 +103,7 @@ class Contest(models.Model):
         return val
 
     def ranks(self, queryset=None):
-        if queryset is None:
-            return self._ranks(queryset)
-        return self.cached_ranks("", queryset)
+        return ContestScore.ranks(self)
 
     def _ranks(self, queryset=None):
         if queryset is None:
@@ -300,13 +301,16 @@ class ContestParticipation(models.Model):
         else:
             return self.contest.start_time
 
-    @cached_property
+    @property
     def time_taken(self) -> str:
         """Returns the total amount of time the user has spent on the contest"""
         solve_time = self.last_solve_time
-        return timedelta(seconds=round((solve_time - self.contest.start_time).strfdelta()))
+        return strfdelta(timedelta(seconds=round((solve_time - self.contest.start_time).total_seconds())))
 
     def rank(self):
+        return self.contest.ranks().filter(
+            participation=self)
+            
         if isinstance(self.points, int):
             points = self.points
         else:
@@ -425,9 +429,7 @@ class ContestSubmission(models.Model):
     def save(self, *args, **kwargs):
         for key in cache.get(f"contest_ranks_{self.participation.contest.pk}", default=[]):
             cache.delete(key)
-        cache.delete(
-            f"contest_participant_{self.participation.id}_last_solve"
-        )  # todo convert to internal django delete key due to @cachedproperty
-        cache.delete(f"contest_participant_{self.participation.id}_time_taken")
+        cache.delete(make_template_fragment_key("participant_data", [self.participation]))   # see participation.html
+        cache.delete(make_template_fragment_key("user_participation", [self.participation])) # see scoreboard.html
         ContestScore.invalidate(self.participation)
         super().save(*args, **kwargs)

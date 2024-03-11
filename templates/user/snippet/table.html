@@ -15,7 +15,7 @@
             <th scope="row">{{ user.rank }}</th>
             <td><a href="{{ user.get_absolute_url }}">{{ user }}</a></td>
             <td>{{ user.points|floatformat }}</td>
-            <td>{{ user.flags }}</td>
+            <td>{{ user.flag_count }}</td>
         </tr>
         {% endfor %}
     </tbody>

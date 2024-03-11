@@ -12,6 +12,7 @@ from django.views.generic.edit import FormMixin
 
 from .. import forms, models
 from . import mixin
+from ..models import ContestScore
 
 
 class ContestList(ListView, mixin.MetaMixin):
@@ -75,7 +76,7 @@ class ContestDetail(
     def form_valid(self, form):
         team = form.cleaned_data["participant"]
 
-        if self.request.in_contest and self.request.user.current_contest.contest == self.object:
+        if self.request.user.in_contest and self.request.user.current_contest.contest == self.object:
             contest_participation = models.ContestParticipation.objects.get_or_create(
                 team=team, contest=self.object
             )[0]
@@ -132,22 +133,11 @@ class ContestDetail(
             else:
                 context["team_participant_count"] = data
 
-        top_participations = cache_this(
-            self.object.ranks().prefetch_related("participants", "team"),
-            f"contest_{self.object.slug}_ranks",
-            60 * 5,
-        )  # Cache for 5 minutes (300 seconds)
+        top_participations = self.object.ranks()#.prefetch_related("team", "participants"),
+        print(top_participations.first().participation.contest)
         context["top_participations"] = top_participations[:10]
 
         return context
-
-
-def cache_this(queryset, cache_key: str, timeout: int = 60 * 5):
-    data = cache.get(cache_key)
-    if not data:
-        data = list(queryset)
-        cache.set(cache_key, data, timeout)
-    return data
 
 
 @method_decorator(require_POST, name="dispatch")
@@ -203,27 +193,28 @@ class ContestScoreboard(SingleObjectMixin, ListView, mixin.MetaMixin):
         return "Scoreboard for " + self.object.name
 
     def get_queryset(self):
-        cache_key = f"contest_{self.kwargs['slug']}_scoreboard"
-        queryset = cache.get(cache_key)
-        if not queryset or self.request.GET.get("cache_reset", "").casefold() == "yaaaa":
-            queryset = self.object.ranks().prefetch_related("team", "submissions__problem")
-            cache.set(cache_key, queryset, 60 * 5)  # Cache for 5 minutes (300 seconds)
-        return queryset
+        if all([self.request.user.is_authenticated, self.request.user.is_staff,
+                self.request.GET.get("reset", "") == "true"]):
+            ContestScore.reset_data(contest=self.object)
+        return ContestScore.ranks(contest=self.object)
 
     def _get_contest(self, slug):
-        # cache_key = f"contest_{slug}_scoreboard_contest"
-        # contest = cache.get(cache_key)
-        # if not contest or self.request.GET.get('cache_reset', '').casefold() == "yaaaa":
-        contest = get_object_or_404(models.Contest, slug=slug)
-        # cache.set(cache_key, contest, 60 * 5)  # Cache for 5 minutes (300 seconds)
+        return get_object_or_404(models.Contest, slug=slug)
 
     def get(self, request, *args, **kwargs):
         self.object = self._get_contest(self.kwargs["slug"])
         return super().get(request, *args, **kwargs)
-
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["contest"] = self.object
+        
+        # Calculate time taken for each participation
+        # for contest_score in context["object_list"]:
+        #     contest_score.time_taken = contest_score.participation._time_taken
+        #     # delta = solve_time - self.object.start_time
+        #     # participation.time_taken_formatted = f"{delta.days * 24 + delta.seconds // 3600:02}:{(delta.seconds // 60) % 60:02}:{delta.seconds % 60:02}"
+        #
         return context
 
 
@@ -235,10 +226,13 @@ class ContestOrganizationScoreboard(ListView, mixin.MetaMixin):
         return self.org.short_name + " Scoreboard for " + self.contest.name
 
     def get_queryset(self):
-        return self.contest.cached_ranks(
-            "organization_scoreboard",
-            self.contest.participations.filter(participants__organizations=self.org),
-        ).select_related("team")
+        return ContestScore.ranks(
+            self.contest,
+            self.contest.participations.filter(participants__organizations=self.org)
+        ).select_related("participation__team")
+        # return self.contest._ranks(
+        #     self.contest.participations.filter(participants__organizations=self.org),
+        # ).select_related("team")
 
     def get(self, request, *args, **kwargs):
         self.contest = get_object_or_404(models.Contest, slug=self.kwargs["contest_slug"])
