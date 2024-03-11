@@ -12,7 +12,7 @@ from django.db.models.expressions import Window
 from django.db.models.functions import Coalesce, Rank
 from django.urls import reverse
 from django.utils import timezone
-
+from django.utils.functional import cached_property
 from . import abstract
 
 # Create your models here.
@@ -56,11 +56,11 @@ class Contest(models.Model):
     def get_absolute_url(self):
         return reverse("contest_detail", args=[self.slug])
 
-    @property
+    @cached_property
     def is_private(self):
         return not self.is_public
 
-    @property
+    @cached_property
     def teams_allowed(self):
         return self.max_team_size is None or self.max_team_size > 1
 
@@ -76,7 +76,7 @@ class Contest(models.Model):
     def is_ongoing(self):
         return self.is_started and not self.is_finished
 
-    @property
+    @cached_property
     def duration(self):
         return self.end_time - self.start_time
 
@@ -251,7 +251,7 @@ class ContestParticipation(models.Model):
     def get_absolute_url(self):
         return reverse("contest_participation_detail", args=[self.pk])
 
-    @property
+    @cached_property
     def participant(self):
         if self.team is None:
             return self.participants.first()
@@ -273,7 +273,7 @@ class ContestParticipation(models.Model):
     def flags(self):
         return self._get_unique_correct_submissions().count()
 
-    @property
+    @cached_property
     def last_solve(self):
         submissions = (
             self.submissions.filter(submission__is_correct=True)
@@ -297,7 +297,7 @@ class ContestParticipation(models.Model):
         else:
             return self.contest.start_time
 
-    @property
+    @cached_property
     def time_taken(self):
         solve_time = self.last_solve_time
         return timedelta(seconds=round((solve_time - self.contest.start_time).total_seconds()))
@@ -411,4 +411,7 @@ class ContestSubmission(models.Model):
     def save(self, *args, **kwargs):
         for key in cache.get(f"contest_ranks_{self.participation.contest.pk}", default=[]):
             cache.delete(key)
+        cache.delete(f'contest_participant_{self.participation.id}_last_solve')       # todo convert to internal django delete key due to @cachedproperty
+        cache.delete(f'contest_participant_{self.participation.id}_time_taken')
+        
         super().save(*args, **kwargs)

@@ -315,3 +315,11 @@ if DEFAULT_FILE_STORAGE == "":
     raise TypeError("DEFAULT_FILE_STORAGE must not be blank")
 if STATICFILES_STORAGE == "":
     raise TypeError("STATICFILES_STORAGE must not be blank")
+
+INSTALLED_APPS += ["debug_toolbar"]
+
+MIDDLEWARE += [
+    # ...
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    # ...
+]

@@ -1,8 +1,6 @@
-from django.core.cache import cache
 from django.db import models
-from django.db.models import F, Q
-from django.db.models.signals import post_save
-from django.urls import reverse
+from django.db.models import Q
+from django.utils.functional import cached_property
 
 from .cache import UserCache
 
@@ -35,7 +33,7 @@ class Submission(models.Model):
         UserCache.invalidate(user, user.current_contest)
         return super().save(*args, **kwargs)
 
-    @property
+    @cached_property
     def is_firstblood(self):
         return self.problem.firstblood == self
 
