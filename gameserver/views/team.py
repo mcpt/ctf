@@ -2,15 +2,14 @@ import uuid
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponseForbidden
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import RedirectView
-from django.views.generic.edit import CreateView, FormMixin, FormView, UpdateView
+from django.views.generic.edit import CreateView, FormMixin, UpdateView
 
 from .. import forms, models
 from . import mixin

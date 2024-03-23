@@ -1,4 +1,3 @@
-from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 from django.views.generic import DetailView, ListView
 
@@ -18,9 +17,11 @@ class Index(ListView, mixin.MetaMixin):
         context["problems"] = models.Problem.objects.filter(is_public=True).order_by("-pk")[:5]
         context["comments"] = models.Comment.objects.order_by("-pk")[:5]
         moment = timezone.localtime()
-        context["contests"] = models.Contest.get_visible_contests(self.request.user).filter(
-            start_time__lte=moment, end_time__gt=moment
-        ).order_by("-start_time")[:5]
+        context["contests"] = (
+            models.Contest.get_visible_contests(self.request.user)
+            .filter(start_time__lte=moment, end_time__gt=moment)
+            .order_by("-start_time")[:5]
+        )
         return context
 
 

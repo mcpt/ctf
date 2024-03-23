@@ -1,8 +1,7 @@
 from allauth.account.models import EmailAddress
 from allauth.socialaccount.app_settings import QUERY_EMAIL
-from allauth.socialaccount.providers.base import AuthAction, ProviderAccount
+from allauth.socialaccount.providers.base import ProviderAccount
 from allauth.socialaccount.providers.oauth2.provider import OAuth2Provider
-
 
 SCOPE_OPENID = "openid"
 SCOPE_EMAIL = "email"

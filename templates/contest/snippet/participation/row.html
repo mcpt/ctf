@@ -5,6 +5,6 @@
     {% if not hide_contest_col %}
         <td><a href="{{ participation.contest.get_absolute_url }}">{{ participation.contest }}</a></td>
     {% endif %}
-    <td><a href="{{ participation.get_absolute_url }}">{{ participation.participant }}</a></td>
+    <td><a href="{{ participation.get_absolute_url }}">{{ participation }}</a></td>
     <td>{{ participation.points }}</td>
 </tr>

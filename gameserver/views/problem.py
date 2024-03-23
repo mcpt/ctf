@@ -2,15 +2,14 @@ import logging
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
-from django.http import HttpResponseBadRequest, HttpResponseForbidden, JsonResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.http import HttpResponseForbidden, JsonResponse
+from django.shortcuts import redirect
 from django.urls import reverse
 from django.views import View
-from django.views.generic import DetailView, FormView, ListView
+from django.views.generic import DetailView, ListView
 from django.views.generic.detail import SingleObjectMixin
-from django.views.generic.edit import CreateView, FormMixin
+from django.views.generic.edit import FormMixin
 
 from .. import forms, models
 from . import mixin
@@ -31,9 +30,7 @@ class ProblemList(ListView, mixin.MetaMixin):
     def get_queryset(self):
         q = (
             models.Problem.get_visible_problems(self.request.user)
-            .prefetch_related("problem_type")
-            .prefetch_related("problem_group")
-            .order_by("points", "name")
+            .prefetch_related("problem_type", "problem_group")
             .filter(
                 Q(problem_type__in=self.selected_types) if len(self.selected_types) else Q(),
                 Q(problem_group__in=self.selected_groups)
@@ -41,9 +38,12 @@ class ProblemList(ListView, mixin.MetaMixin):
                 else Q(),
             )
             .distinct()
+            .order_by("points", "name")
         )
         if self.hide_solved and self.request.user.is_authenticated:
-            q = q.exclude(submission__in=self.request.user.submissions.filter(is_correct=True).all())
+            q = q.exclude(
+                submission__in=self.request.user.submissions.filter(is_correct=True).all()
+            )
         if self.nfts:
             q = q.filter(name__contains=self.nfts)
         return q
@@ -134,7 +134,9 @@ class ProblemDetail(
         if self.object.log_submission_content:
             kwargs["content"] = form.data["flag"]
         submission = models.Submission.objects.create(
-            user=self.request.user, problem=self.object, is_correct=is_correct,
+            user=self.request.user,
+            problem=self.object,
+            is_correct=is_correct,
             **kwargs,
         )
         if is_correct and self.object.firstblood is None:
@@ -145,6 +147,13 @@ class ProblemDetail(
                 submission=submission,
                 participation=self.request.participation,
             )
+            models.ContestScore.update_or_create(
+                participant=self.request.participation,
+                change_in_score=self.object.points,
+                update_flags=True,
+            )
+            if is_correct:
+                pass
         return submission
 
     def get_form_kwargs(self, *args, **kwargs):

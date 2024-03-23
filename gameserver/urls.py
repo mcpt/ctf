@@ -1,4 +1,5 @@
 from django.urls import path
+
 from . import views
 
 urlpatterns = [
@@ -84,7 +85,7 @@ urlpatterns = [
     ),
     path(
         "contest/<str:slug>/scoreboard",
-        views.ContestScoreboard.as_view(), # cache for 5m
+        views.ContestScoreboard.as_view(),  # cache for 5m
         name="contest_scoreboard",
     ),
     path(

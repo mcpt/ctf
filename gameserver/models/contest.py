@@ -1,10 +1,10 @@
-import uuid
 from datetime import timedelta
 
-from django.contrib.auth import get_user_model
+from django.apps import apps
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
+from django.core.cache.utils import make_template_fragment_key
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Count, F, Max, Min, OuterRef, Q, Subquery, Sum
@@ -13,7 +13,9 @@ from django.db.models.functions import Coalesce, Rank
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
+
 from . import abstract
+from ..templatetags.common_tags import strfdelta
 
 # Create your models here.
 
@@ -23,12 +25,16 @@ class ContestTag(abstract.Category):
 
 
 class Contest(models.Model):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.ContestScore = apps.get_model("gameserver", "ContestScore", require_ready=True)
+
     organizers = models.ManyToManyField("User", related_name="contests_organized", blank=True)
     curators = models.ManyToManyField("User", related_name="contests_curated", blank=True)
     organizations = models.ManyToManyField("Organization", related_name="contests", blank=True)
 
     name = models.CharField(max_length=128)
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, db_index=True)
     description = models.TextField()
     summary = models.CharField(max_length=150)
 
@@ -64,15 +70,15 @@ class Contest(models.Model):
     def teams_allowed(self):
         return self.max_team_size is None or self.max_team_size > 1
 
-    @property
+    @cached_property
     def is_started(self):
         return self.start_time <= timezone.now()
 
-    @property
+    @cached_property
     def is_finished(self):
         return self.end_time < timezone.now()
 
-    @property
+    @cached_property
     def is_ongoing(self):
         return self.is_started and not self.is_finished
 
@@ -86,23 +92,12 @@ class Contest(models.Model):
         else:
             return self.problems.filter(problem__pk=problem.pk).exists()
 
-    @property
+    @cached_property
     def __meta_key(self):
         return f"contest_ranks_{self.pk}"
 
-    def cached_ranks(self, name: str, queryset=None):
-        key = f"contest_ranks_{self.pk}_{name}"
-        if (val := cache.get(key)) is not None:
-            return val
-        cache.set(self.__meta_key, cache.get(self.__meta_key, default=[]) + [key])
-        val = self._ranks(queryset)
-        cache.set(key, val, timeout=None)  # TODO: set saner timeout
-        return val
-
     def ranks(self, queryset=None):
-        if queryset is None:
-            return self._ranks(queryset)
-        return self.cached_ranks("", queryset)
+        return self.ContestScore.ranks(self)
 
     def _ranks(self, queryset=None):
         if queryset is None:
@@ -232,6 +227,10 @@ class Contest(models.Model):
 
 
 class ContestParticipation(models.Model):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.ContestScore = apps.get_model("gameserver", "ContestScore", require_ready=True)
+
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE, related_name="participations")
     is_disqualified = models.BooleanField(default=False)
 
@@ -260,18 +259,29 @@ class ContestParticipation(models.Model):
 
     def _get_unique_correct_submissions(self):
         # Switch to ContestProblem -> Problem Later
-        return (self.submissions.filter(submission__is_correct=True)
-                .select_related('problem')
-                .values('problem','problem__points').distinct())
-    
+        return (
+            self.submissions.filter(submission__is_correct=True)
+            .select_related("problem")
+            .values("problem", "problem__points")
+            .distinct()
+        )
+
     def points(self):
-        points = self._get_unique_correct_submissions().aggregate(
-            points=Coalesce(Sum("problem__points"), 0)
-        )["points"]
-        return points
+        return (
+            self.ContestScore.objects.filter(participation=self)
+            .values_list("points", flat=True)
+            .get()
+        )
 
     def flags(self):
-        return self._get_unique_correct_submissions().count()
+        return (
+            self.ContestScore.objects.filter(participation=self)
+            .values_list("flag_count", flat=True)
+            .get()
+        )
+
+    def get_rank(self):
+        return self.ContestScore.ranks(self.contest, participation=self)
 
     @cached_property
     def last_solve(self):
@@ -289,7 +299,7 @@ class ContestParticipation(models.Model):
         else:
             return None
 
-    @property
+    @cached_property
     def last_solve_time(self):
         last_solve = self.last_solve
         if last_solve is not None:
@@ -297,23 +307,16 @@ class ContestParticipation(models.Model):
         else:
             return self.contest.start_time
 
-    @cached_property
-    def time_taken(self):
+    @property
+    def time_taken(self) -> str:
+        """Returns the total amount of time the user has spent on the contest"""
         solve_time = self.last_solve_time
-        return timedelta(seconds=round((solve_time - self.contest.start_time).total_seconds()))
+        return strfdelta(
+            timedelta(seconds=round((solve_time - self.contest.start_time).total_seconds()))
+        )
 
     def rank(self):
-        if isinstance(self.points, int):
-            points = self.points
-        else:
-            points = self.points()
-        
-        return self.contest.ranks() \
-            .annotate(num_participants=Count('participants')) \
-            .filter(Q(points__gt=points) |
-                    Q(points=points,
-                      most_recent_solve_time__lt=self.last_solve_time)) \
-            .count() + 1
+        return self.contest.ranks().filter(Q(points__gte=self.points())).count()
 
     def has_attempted(self, problem):
         return problem.is_attempted_by(self)
@@ -327,7 +330,11 @@ class ContestParticipation(models.Model):
 
 class ContestProblem(models.Model):
     contest = models.ForeignKey(
-        Contest, on_delete=models.CASCADE, related_name="problems", related_query_name="problem"
+        Contest,
+        on_delete=models.CASCADE,
+        related_name="problems",
+        related_query_name="problem",
+        db_index=True,
     )
     problem = models.ForeignKey(
         "Problem", on_delete=models.CASCADE, related_name="contests", related_query_name="contest"
@@ -389,18 +396,20 @@ class ContestSubmission(models.Model):
         related_query_name="submission",
     )
     submission = models.OneToOneField(
-        "Submission", on_delete=models.CASCADE, related_name="contest_submission",
+        "Submission",
+        on_delete=models.CASCADE,
+        related_name="contest_submission",
         db_index=True,
     )
 
     def __str__(self):
         return f"{self.participation.participant}'s submission for {self.problem.problem.name} in {self.problem.contest.name}"
 
-    @property
+    @cached_property
     def is_correct(self):
         return self.submission.is_correct
 
-    @property
+    @cached_property
     def is_firstblood(self):
         prev_correct_submissions = ContestSubmission.objects.filter(
             problem=self.problem, submission__is_correct=True, pk__lte=self.pk
@@ -411,7 +420,11 @@ class ContestSubmission(models.Model):
     def save(self, *args, **kwargs):
         for key in cache.get(f"contest_ranks_{self.participation.contest.pk}", default=[]):
             cache.delete(key)
-        cache.delete(f'contest_participant_{self.participation.id}_last_solve')       # todo convert to internal django delete key due to @cachedproperty
-        cache.delete(f'contest_participant_{self.participation.id}_time_taken')
-        
+        cache.delete(
+            make_template_fragment_key("participant_data", [self.participation])
+        )  # see participation.html
+        cache.delete(
+            make_template_fragment_key("user_participation", [self.participation])
+        )  # see scoreboard.html
+        ContestScore.invalidate(self.participation)
         super().save(*args, **kwargs)

@@ -1,5 +1,7 @@
 from django.db import migrations
+
 import gameserver.models.problem
+
 
 def regen_opaque_id(apps, schema_editor):
     Problem = apps.get_model('gameserver', 'Problem')

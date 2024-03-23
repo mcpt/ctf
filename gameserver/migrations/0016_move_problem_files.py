@@ -1,8 +1,11 @@
-from django.db import migrations, models
-import gameserver.models.problem
-from shutil import move
 import os
+from shutil import move
+
 from django.conf import settings
+from django.db import migrations
+
+import gameserver.models.problem
+
 
 def move_problem_files(apps, schema_editor):
     MEDIA_ROOT = settings.MEDIA_ROOT

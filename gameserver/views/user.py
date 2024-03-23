@@ -1,17 +1,14 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.contenttypes.models import ContentType
-from django.db.models import Sum
-from django.db.models.functions import Coalesce
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import RedirectView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import UpdateView
-from django.core.cache import cache
 
 from .. import forms, models
 from . import mixin
+from ..models import UserScore
 
 
 class UserDetailRedirect(LoginRequiredMixin, RedirectView):
@@ -28,16 +25,19 @@ class UserList(ListView, mixin.MetaMixin):
     model = models.User
     template_name = "user/list.html"
     context_object_name = "users"
-    paginate_by = 35
+    paginate_by = 50
     title = "Users"
 
     def get_queryset(self):
-        cache_key = f"users_page_global_cache"
-        queryset = cache.get(cache_key)
-        if not queryset or self.request.GET.get('cache_reset', '').casefold() == "yaaaa":
-            queryset = models.User.ranks()
-            cache.set(cache_key, queryset, 10 * 60)  # Cache for 10 minutes (600 seconds)
-        return queryset
+        if all(
+            [
+                self.request.user.is_authenticated,
+                self.request.user.is_staff,
+                self.request.GET.get("reset", "") == "true",
+            ]
+        ):
+            UserScore.reset_data()
+        return UserScore.ranks()
 
     def get(self, request, *args, **kwargs):
         if request.in_contest:

@@ -1,5 +1,6 @@
 {% extends 'dual-column.html' %}
 {% load common_tags %}
+{% load cache %}
 
 {% block content %}
     <div class="card mb-3">
@@ -39,12 +40,11 @@
 {% block aside %}
     <div class="card mb-3 order-neg1">
         <div class="card-body participation-summary">
-            {% comment "Disabled for Performance Reasons" %}
             <div>
                 <span>#{{ participation.rank }}</span>
                 <span>rank</span>
             </div>
-            {% endcomment %}
+            {% cache None "participant_data" participation %}
             <div>
                 <span>{{ participation.points }}</span>
                 <span>point{{ participation.points|pluralize }}</span>
@@ -54,9 +54,10 @@
                 <span>flag{{ participation.flags|pluralize }} captured</span>
             </div>
             <div>
-                <span>{{ participation.time_taken|strfdelta }}</span>
+                <span>{{ participation.time_taken }}</span>
                 <span>time taken</span>
             </div>
+            {% endcache %}
         </div>
     </div>
 {% endblock %}

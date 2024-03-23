@@ -1,5 +1,6 @@
 {% extends 'table-list.html' %}
 {% load common_tags %}
+{% load cache %}
 
 {% block heading %}{% if org %}{{ org.short_name }} {% endif %}Scoreboard for <a href="{{ contest.get_absolute_url }}">{{ contest }}</a>{% endblock %}
 
@@ -15,16 +16,18 @@
 {% block trows %}
     {% for participation in object_list %}
         <tr>
-            <th scope="row">{{ participation.rank }}</th>
-            <td><a href="{{ participation.get_absolute_url }}">{{ participation.participant }}</a></td>
-            {% if participation.team %}
+            <th scope="row">{{ participation.rank }}</th>     {#Don't cache rank as it is dynamic and can change from other user's changes#}
+            {% cache None user_participation participation %}
+            <td><a href="{{ participation.get_absolute_url }}">{{ participation }}</a></td>
+            {% if participation.is_solo %}
                 <td>Team</td>
             {% else %}
                 <td>Individual</td>
             {% endif %}
             <td>{{ participation.points }}</td>
-            <td>{{ participation.flags }}</td>
+            <td>{{ participation.flag_count }}</td>
             <td>{{ participation.time_taken }}</td>
+            {% endcache %}
         </tr>
     {% endfor %}
 {% endblock %}
