@@ -30,9 +30,7 @@ class ProblemList(ListView, mixin.MetaMixin):
     def get_queryset(self):
         q = (
             models.Problem.get_visible_problems(self.request.user)
-            .prefetch_related("problem_type")
-            .prefetch_related("problem_group")
-            .order_by("points", "name")
+            .prefetch_related("problem_type", "problem_group")
             .filter(
                 Q(problem_type__in=self.selected_types) if len(self.selected_types) else Q(),
                 Q(problem_group__in=self.selected_groups)
@@ -40,6 +38,7 @@ class ProblemList(ListView, mixin.MetaMixin):
                 else Q(),
             )
             .distinct()
+            .order_by("points", "name")
         )
         if self.hide_solved and self.request.user.is_authenticated:
             q = q.exclude(
@@ -148,12 +147,13 @@ class ProblemDetail(
                 submission=submission,
                 participation=self.request.participation,
             )
+            models.ContestScore.update_or_create(
+                participant=self.request.participation,
+                change_in_score=self.object.points,
+                update_flags=True,
+            )
             if is_correct:
-                models.ContestScore.update_or_create(
-                    participation=self.request.participation,
-                    change_in_points=self.object.points,
-                    update_flags=True,
-                )
+                pass
         return submission
 
     def get_form_kwargs(self, *args, **kwargs):

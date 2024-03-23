@@ -20,7 +20,7 @@ class Submission(models.Model):
         related_name="submissions",
         related_query_name="submission",
     )
-    is_correct = models.BooleanField(default=False)
+    is_correct = models.BooleanField(default=False, db_index=True)
     date_created = models.DateTimeField(auto_now_add=True)
     content = models.CharField(max_length=256, null=True, default=None)
 
