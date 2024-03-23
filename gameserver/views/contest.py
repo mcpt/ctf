@@ -191,7 +191,8 @@ class ContestSubmissionList(ContestDetailsMixin, ListView, mixin.MetaMixin):
 class ContestScoreboard(SingleObjectMixin, ListView, mixin.MetaMixin):
     model = models.ContestParticipation
     template_name = "contest/scoreboard.html"
-
+    paginate_by = 50
+    
     def get_title(self):
         return "Scoreboard for " + self.object.name
 
