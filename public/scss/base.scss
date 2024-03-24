@@ -27,6 +27,6 @@ a, a.page-link {
     }
 }
 
-.pag-item {
-    display: inline-block;
+a.page-link {
+    display: inline !important;
 }
