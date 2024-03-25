@@ -11,8 +11,8 @@ from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import FormMixin
 
 from .. import forms, models
-from . import mixin
 from ..models import ContestScore
+from . import mixin
 
 
 class ContestList(ListView, mixin.MetaMixin):

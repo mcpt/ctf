@@ -1,21 +1,21 @@
-from typing import TYPE_CHECKING, Self, Optional
+from typing import TYPE_CHECKING, Optional, Self
 
 from django.apps import apps
 from django.db import models, transaction
 from django.db.models import (
-    Count,
-    F,
-    Sum,
-    Window,
-    Value,
-    When,
     BooleanField,
     Case,
-    Q,
+    Count,
+    F,
     OuterRef,
+    Q,
     Subquery,
+    Sum,
+    Value,
+    When,
+    Window,
 )
-from django.db.models.functions import Coalesce, Rank, DenseRank, RowNumber
+from django.db.models.functions import Coalesce, DenseRank, Rank, RowNumber
 
 from .contest import Contest, ContestParticipation, ContestSubmission
 

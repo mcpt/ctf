@@ -7,8 +7,8 @@ from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import UpdateView
 
 from .. import forms, models
-from . import mixin
 from ..models import UserScore
+from . import mixin
 
 
 class UserDetailRedirect(LoginRequiredMixin, RedirectView):

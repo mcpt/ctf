@@ -14,8 +14,8 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 
-from . import abstract
 from ..templatetags.common_tags import strfdelta
+from . import abstract
 
 # Create your models here.
 
