@@ -22,8 +22,8 @@ class TeamList(ListView, mixin.MetaMixin):
     paginate_by = 50
     title = "Teams"
 
-    def get_ordering(self):
-        return "name"
+    def get_queryset(self):
+        return models.Team.objects.only("pk", "name").prefetch_related("members")
 
 
 class TeamDetail(

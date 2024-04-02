@@ -13,6 +13,7 @@ class SubmissionList(ListView, mixin.MetaMixin):
     def get_queryset(self):
         return (
             models.Submission.get_visible_submissions(self.request.user)
+                        .only("pk", "is_correct", "problem", "user", "date_created")
             .select_related("user", "problem")
             .order_by("-pk")
         )

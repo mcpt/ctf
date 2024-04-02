@@ -173,7 +173,9 @@ class ContestProblemList(ContestDetailsMixin, ListView, mixin.MetaMixin):
         return "Problems for " + self.object.name
 
     def get_queryset(self):
-        return self.object.problems.select_related("problem")
+        return self.object.problems.only(
+            "problem", "problem__problem_type", "points"
+        ).select_related("problem")
 
 
 class ContestSubmissionList(ContestDetailsMixin, ListView, mixin.MetaMixin):
@@ -183,8 +185,9 @@ class ContestSubmissionList(ContestDetailsMixin, ListView, mixin.MetaMixin):
     def get_queryset(self):
         return (
             models.ContestSubmission.objects.filter(participation__contest=self.object)
-            .select_related("problem", "participation")
             .order_by("-pk")
+            .only("pk", "problem", "participation")
+            .select_related("problem", "participation")
         )
 
 
@@ -205,7 +208,7 @@ class ContestScoreboard(SingleObjectMixin, ListView, mixin.MetaMixin):
             ]
         ):
             ContestScore.reset_data(contest=self.object)
-        return ContestScore.ranks(contest=self.object)
+        return ContestScore.ranks(contest=self.object).only("team").select_related("team")
 
     def _get_contest(self, slug):
         return get_object_or_404(models.Contest, slug=slug)
@@ -237,7 +240,7 @@ class ContestOrganizationScoreboard(ListView, mixin.MetaMixin):
     def get_queryset(self):
         return ContestScore.ranks(
             self.contest, self.contest.participations.filter(participants__organizations=self.org)
-        ).select_related("participation__team")
+        ).only("team").select_related("team")
         # return self.contest._ranks(
         #     self.contest.participations.filter(participants__organizations=self.org),
         # ).select_related("team")
