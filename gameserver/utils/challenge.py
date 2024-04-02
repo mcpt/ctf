@@ -69,12 +69,14 @@ def create_challenge_instance(challenge_spec, problem_id, problem_flag, instance
                                 "apparmorProfile"
                             ]["type"]
                             == "Unconfined"
-                            else f'localhost/{challenge_cluster["securityContexts"][container["securityContext"]]["apparmorProfile"]["localhostProfile"]}'
-                            if challenge_cluster["securityContexts"][container["securityContext"]][
-                                "apparmorProfile"
-                            ]["type"]
-                            == "Localhost"
-                            else "runtime/default"
+                            else (
+                                f'localhost/{challenge_cluster["securityContexts"][container["securityContext"]]["apparmorProfile"]["localhostProfile"]}'
+                                if challenge_cluster["securityContexts"][
+                                    container["securityContext"]
+                                ]["apparmorProfile"]["type"]
+                                == "Localhost"
+                                else "runtime/default"
+                            )
                         )
                         for container in challenge_spec["containers"]
                         if "securityContext" in container
@@ -146,9 +148,11 @@ def create_challenge_instance(challenge_spec, problem_id, problem_flag, instance
                     "enableServiceLinks": False,
                     "restartPolicy": "OnFailure",
                     "runtimeClassName": challenge_cluster["runtimeClassNames"][
-                        challenge_spec["runtimeClassName"]
-                        if "runtimeClassName" in challenge_spec
-                        else "default"
+                        (
+                            challenge_spec["runtimeClassName"]
+                            if "runtimeClassName" in challenge_spec
+                            else "default"
+                        )
                     ],
                 },
             },

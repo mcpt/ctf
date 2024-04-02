@@ -29,13 +29,7 @@ class UserList(ListView, mixin.MetaMixin):
     title = "Users"
 
     def get_queryset(self):
-        if all(
-            [
-                self.request.user.is_authenticated,
-                self.request.user.is_staff,
-                self.request.GET.get("reset", "") == "true",
-            ]
-        ):
+        if self.model.cache.can_reset(self.request):
             UserScore.reset_data()
         return UserScore.ranks()
 
@@ -76,7 +70,7 @@ class UserSubmissionList(SingleObjectMixin, ListView, mixin.MetaMixin):
             models.Submission.get_visible_submissions(self.request.user)
             .filter(user=self.object)
             .only("pk", "is_correct", "problem", "user", "date_created")
-            .select_related("user", "problem")            
+            .select_related("user", "problem")
             .order_by("-pk")
         )
 

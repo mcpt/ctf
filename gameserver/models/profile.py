@@ -19,6 +19,7 @@ def get_default_user_timezone():
 
 
 class User(AbstractUser):
+    cache = UserScore
     full_name = models.CharField(max_length=80, blank=True)
     description = models.TextField(blank=True)
 

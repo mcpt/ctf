@@ -1,5 +1,5 @@
-from typing import TYPE_CHECKING, Optional, Self
-
+from typing import TYPE_CHECKING, Optional, Self, Protocol
+from django.http import HttpRequest
 from django.apps import apps
 from django.db import models, transaction
 from django.db.models import (
@@ -8,27 +8,58 @@ from django.db.models import (
     Count,
     F,
     OuterRef,
-    Q,
     Subquery,
     Sum,
     Value,
     When,
     Window,
 )
-from django.db.models.functions import Coalesce, DenseRank, Rank, RowNumber
+from django.db.models.functions import Coalesce, Rank, RowNumber
 
-from .contest import Contest, ContestParticipation, ContestSubmission
 
 if TYPE_CHECKING:
     from .profile import User
+    from .contest import Contest, ContestParticipation, ContestSubmission
 
 
-class UserScore(models.Model):
+class ResetableCache(Protocol):
+    def can_reset(cls, request: HttpRequest) -> None: ...
+
+
+class CacheMeta(models.Model):
+
+    class Meta:
+        abstract = True
+        permissions = [
+            (
+                "can_reset_cache",
+                "Designates if the user has permission to reset the scoring caches or not.",
+            )
+        ]
+
+    @classmethod
+    def _can_reset(cls, request: HttpRequest):
+        return all(
+            [
+                request.user.is_authenticated,
+                request.user.is_staff,
+                request.GET.get("reset", "") == "true",
+            ]
+        )
+
+
+class UserScore(CacheMeta):
     user = models.OneToOneField("User", on_delete=models.CASCADE, db_index=True)
     points = models.PositiveIntegerField(help_text="The amount of points.", default=0)
     flag_count = models.PositiveIntegerField(
         help_text="The amount of flags the user/team has.", default=0
     )
+
+    @classmethod
+    def can_reset(cls, request: HttpRequest):
+        return cls._can_reset(request) and request.user.has_perm(
+            "gameserver.can_reset_cache_user_score"
+        )
 
     def __str__(self) -> str:
         return self.user.username
@@ -97,7 +128,7 @@ class UserScore(models.Model):
         cls.objects.bulk_create(scores_to_create)
 
 
-class ContestScore(models.Model):
+class ContestScore(CacheMeta):
     participation = models.OneToOneField(
         "ContestParticipation", on_delete=models.CASCADE, db_index=True
     )
@@ -105,6 +136,12 @@ class ContestScore(models.Model):
     flag_count = models.PositiveIntegerField(
         help_text="The amount of flags the user/team has.", default=0
     )
+
+    @classmethod
+    def can_reset(cls, request: HttpRequest):
+        return cls._can_reset(request) and request.user.has_perm(
+            "gameserver.can_reset_cache_user_score"
+        )
 
     def get_absolute_url(self):
         return self.participation.get_absolute_url()

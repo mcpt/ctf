@@ -13,6 +13,7 @@ from django.db.models.functions import Coalesce, Rank
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
+from gameserver.models.cache import ContestScore
 
 from ..templatetags.common_tags import strfdelta
 from . import abstract
@@ -227,6 +228,8 @@ class Contest(models.Model):
 
 
 class ContestParticipation(models.Model):
+    cache = ContestScore
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.ContestScore = apps.get_model("gameserver", "ContestScore", require_ready=True)

@@ -137,7 +137,7 @@ class ContestDetail(
                 context["team_participant_count"] = data
 
         top_participations = self.object.ranks()  # .prefetch_related("team", "participants"),
-        print(top_participations.first().participation.contest)
+        # print(top_participations.first().participation.contest)
         context["top_participations"] = top_participations[:10]
 
         return context
@@ -195,18 +195,12 @@ class ContestScoreboard(SingleObjectMixin, ListView, mixin.MetaMixin):
     model = models.ContestParticipation
     template_name = "contest/scoreboard.html"
     paginate_by = 50
-    
+
     def get_title(self):
         return "Scoreboard for " + self.object.name
 
     def get_queryset(self):
-        if all(
-            [
-                self.request.user.is_authenticated,
-                self.request.user.is_staff,
-                self.request.GET.get("reset", "") == "true",
-            ]
-        ):
+        if self.model.cache.can_reset(self.request):
             ContestScore.reset_data(contest=self.object)
         return ContestScore.ranks(contest=self.object).only("team").select_related("team")
 
@@ -238,9 +232,14 @@ class ContestOrganizationScoreboard(ListView, mixin.MetaMixin):
         return self.org.short_name + " Scoreboard for " + self.contest.name
 
     def get_queryset(self):
-        return ContestScore.ranks(
-            self.contest, self.contest.participations.filter(participants__organizations=self.org)
-        ).only("team").select_related("team")
+        return (
+            ContestScore.ranks(
+                self.contest,
+                self.contest.participations.filter(participants__organizations=self.org),
+            )
+            .only("team")
+            .select_related("team")
+        )
         # return self.contest._ranks(
         #     self.contest.participations.filter(participants__organizations=self.org),
         # ).select_related("team")

@@ -33,9 +33,11 @@ class ProblemList(ListView, mixin.MetaMixin):
             .prefetch_related("problem_type", "problem_group")
             .filter(
                 Q(problem_type__in=self.selected_types) if len(self.selected_types) else Q(),
-                Q(problem_group__in=self.selected_groups)
-                if len(self.selected_groups) and not self.request.in_contest
-                else Q(),
+                (
+                    Q(problem_group__in=self.selected_groups)
+                    if len(self.selected_groups) and not self.request.in_contest
+                    else Q()
+                ),
             )
             .distinct()
             .order_by("points", "name")
