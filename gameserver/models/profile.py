@@ -207,7 +207,7 @@ class Organization(models.Model):
         return User.objects.filter(organizations=self).count()
 
     def ranks(self):
-        return User.ranks(queryset=self.members)
+        return UserScore.ranks().filter(user__organizations=self)
 
     def is_editable_by(self, user):
         if user.is_superuser or user.has_perm("gameserver.edit_all_organizations"):

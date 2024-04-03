@@ -104,7 +104,8 @@ class OrganizationJoin(LoginRequiredMixin, SingleObjectMixin, FormView, mixin.Me
         return super().post(*args, **kwargs)
 
     def success(self):
-        self.request.user.organizations.add(self.object)
+        user: models.User = self.request.user
+        user.organizations.add(self.object)
         messages.success(self.request, "You are now a member of this organization!")
 
     def get_form_kwargs(self, *args, **kwargs):
@@ -129,8 +130,8 @@ class OrganizationLeave(LoginRequiredMixin, RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
         organization = get_object_or_404(models.Organization, slug=kwargs["slug"])
-
-        self.request.user.organizations.remove(organization)
+        user: models.User = self.request.user
+        user.organizations.remove(organization)
 
         messages.info(self.request, "You have left this organization.")
         return super().get_redirect_url(*args, **kwargs)

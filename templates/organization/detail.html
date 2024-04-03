@@ -4,9 +4,8 @@
 {% block content %}
 {% include "snippets/group_detail/summary.html" %}
 <div class="card order-96">
-    <h2 class="card-header fs-6">Members</h2>
+    <h2 class="card-header fs-6">{{ group.member_count }} Member{{ group.member_count|pluralize }}</h2>
     <div class="card-body">
-        <p>Total: {{ group.member_count }}</p>
         {% include "user/snippet/table.html" with users=group.ranks %}
     </div>
 </div>
