@@ -1,26 +1,26 @@
 <div class="table-responsive table-list">
     <table class="table">
         <thead>
-            <tr>
-                {% if not hide_problem %}
-                    <th scope="col">#</th>
-                {% endif %}
-                <th scope="col">Status</th>
-                {% if not hide_problem %}
-                    <th scope="col">Problem</th>
-                {% endif %}
-                {% if not hide_participant %}
-                    <th scope="col">User/Team</th>
-                {% endif %}
-                {% if not hide_timestamp %}
-                    <th scope="col">Submitted</th>
-                {% endif %}
-            </tr>
+        <tr>
+            {% if not hide_problem %}
+                <th scope="col">#</th>
+            {% endif %}
+            <th scope="col">Status</th>
+            {% if not hide_problem %}
+                <th scope="col">Problem</th>
+            {% endif %}
+            {% if not hide_participant %}
+                <th scope="col">User/Team</th>
+            {% endif %}
+            {% if not hide_timestamp %}
+                <th scope="col">Submitted</th>
+            {% endif %}
+        </tr>
         </thead>
         <tbody>
-            {% for contest_submission in contest_submissions %}
-                {% include './row.html' %}
-            {% endfor %}
+        {% for contest_submission in contest_submissions %}
+            {% include './row.html' %}
+        {% endfor %}
         </tbody>
     </table>
 </div>

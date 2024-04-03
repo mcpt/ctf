@@ -10,10 +10,12 @@
         {% block after_form %}{% endblock %}
 
         {% block submit_btn %}
-            <button type="submit" class="btn btn-primary ms-2 float-end">{% block submit_text %}Save{% endblock %}</button>
+            <button type="submit" class="btn btn-primary ms-2 float-end">{% block submit_text %}
+                Save{% endblock %}</button>
         {% endblock %}
         {% block alternate_btn %}
-            <a href="{% block cancel_redirect %}{% endblock %}" class="btn btn-light float-end" role="button" aria-pressed="true">Cancel</a>
+            <a href="{% block cancel_redirect %}{% endblock %}" class="btn btn-light float-end" role="button"
+               aria-pressed="true">Cancel</a>
         {% endblock %}
     </form>
 {% endblock %}

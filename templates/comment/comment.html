@@ -4,10 +4,14 @@
 
 <li class="card flex-row mt-2 p-3" style="margin-left: calc(({{ depth }}) * (2rem))">
     <div class="flex-shrink-0 col-1 mr-3">
-        <img src="{{ comment.author.email|gravatar_url:64 }}" class="w-100" alt="{{ comment.author.username }}'s gravatar">
+        <img src="{{ comment.author.email|gravatar_url:64 }}" class="w-100"
+             alt="{{ comment.author.username }}'s gravatar">
     </div>
     <div class="flex-grow-1 ms-3 py-1">
-        <h6 class="mt-0 text-muted"><a href="{{ comment.author.get_absolute_url }}">{{ comment.author }}</a> commented {{ comment.date_created|naturaltime }}<a class="float-end" href="{% url 'comment' comment.pk %}"><i class="bi bi-reply" title="Reply to this comment"></i></a></h6>
+        <h6 class="mt-0 text-muted"><a href="{{ comment.author.get_absolute_url }}">{{ comment.author }}</a>
+            commented {{ comment.date_created|naturaltime }}<a class="float-end"
+                                                               href="{% url 'comment' comment.pk %}"><i
+                    class="bi bi-reply" title="Reply to this comment"></i></a></h6>
         {{ comment.text|linebreaksbr }}
     </div>
 </li>
@@ -17,6 +21,7 @@
     {% endwith %}
 {% else %}
     {% if comments %}
-        <li class="text-end mt-1 me-1 fst-italic"><small><a href="{% url 'comment' comment.pk %}">Continue thread →</a></small></li>
+        <li class="text-end mt-1 me-1 fst-italic"><small><a href="{% url 'comment' comment.pk %}">Continue thread →</a></small>
+        </li>
     {% endif %}
 {% endif %}

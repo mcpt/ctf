@@ -5,7 +5,10 @@
 {% block content %}
     <div class="card mb-3">
         <div class="card-body">
-            <h1 class="mt-0"><a href="{{ participation.participant.get_absolute_url }}">{{ participation.participant }}</a>'s Participation in <a href="{{ participation.contest.get_absolute_url }}">{{ participation.contest }}</a></h1>
+            <h1 class="mt-0"><a
+                    href="{{ participation.participant.get_absolute_url }}">{{ participation.participant }}</a>'s
+                Participation in <a href="{{ participation.contest.get_absolute_url }}">{{ participation.contest }}</a>
+            </h1>
             <hr class="mb-0">
         </div>
     </div>
@@ -32,7 +35,8 @@
             <h2 class="card-header fs-6">Recent Submissions</h2>
             <div class="card-body">
                 {% include './snippet/submission/table.html' with contest_submissions=recent_contest_submissions hide_participant=True %}
-                <p class="text-end mb-0"><a href="{% url 'contest_participation_submission_list' participation.pk %}">View all submissions</a></p>
+                <p class="text-end mb-0"><a href="{% url 'contest_participation_submission_list' participation.pk %}">View
+                    all submissions</a></p>
             </div>
         </div>
     {% endif %}
@@ -45,18 +49,18 @@
                 <span>rank</span>
             </div>
             {% cache None "participant_data" participation %}
-            <div>
-                <span>{{ participation.points }}</span>
-                <span>point{{ participation.points|pluralize }}</span>
-            </div>
-            <div>
-                <span>{{ participation.flags }}</span>
-                <span>flag{{ participation.flags|pluralize }} captured</span>
-            </div>
-            <div>
-                <span>{{ participation.time_taken }}</span>
-                <span>time taken</span>
-            </div>
+                <div>
+                    <span>{{ participation.points }}</span>
+                    <span>point{{ participation.points|pluralize }}</span>
+                </div>
+                <div>
+                    <span>{{ participation.flags }}</span>
+                    <span>flag{{ participation.flags|pluralize }} captured</span>
+                </div>
+                <div>
+                    <span>{{ participation.time_taken }}</span>
+                    <span>time taken</span>
+                </div>
             {% endcache %}
         </div>
     </div>

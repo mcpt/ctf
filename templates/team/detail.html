@@ -19,10 +19,11 @@
         <div class="card mb-3">
             <div class="card-body">
                 {% if request.user in group.members.all %}
-                   {% include "snippets/group_detail/leave_form.html" with entity="team" %}
+                    {% include "snippets/group_detail/leave_form.html" with entity="team" %}
                 {% else %}
                     {% if request.user == group.owner %}
-                        <p class="mb-2">While you are currently not in this team, you are still the owner of this team.</p>
+                        <p class="mb-2">While you are currently not in this team, you are still the owner of this
+                            team.</p>
                     {% else %}
                         <p class="mb-2">You are currently not in this team.</p>
                     {% endif %}

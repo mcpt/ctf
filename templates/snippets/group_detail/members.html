@@ -1,10 +1,9 @@
-
 <div class="card mb-3 order-neg1">
     <h2 class="card-header fs-6">{{ card_title|default:"Members" }}</h2>
     <div class="card-body pt-2 pb-3">
         {% for member in member_list %}
             <p class="mb-1">
-                <a href="{{ member.get_absolute_url }}">{{ member }}</a> 
+                <a href="{{ member.get_absolute_url }}">{{ member }}</a>
                 {% if member == group.owner %}
                     <span title="owner"><i class="bi bi-mortarboard"></i></span>
                 {% elif member in group.admins.all and group.admins.all != member_list %}

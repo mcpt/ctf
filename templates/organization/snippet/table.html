@@ -1,13 +1,13 @@
 <table class="table table-sm">
     <thead>
-        <tr>
-            <th scope="col">Name</th>
-            <th scope="col">Members</th>
-        </tr>
+    <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Members</th>
+    </tr>
     </thead>
     <tbody>
-        {% for organization in organizations %}
+    {% for organization in organizations %}
         {% include './row.html' %}
-        {% endfor %}
+    {% endfor %}
     </tbody>
 </table>

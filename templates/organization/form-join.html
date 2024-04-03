@@ -1,4 +1,5 @@
 {% extends 'form.html' %}
 
-{% block heading %}{% if is_join_request %}Request to {% endif %} Join <a href="{{ organization.get_absolute_url }}">{{ organization }}</a>{% endblock %}
+{% block heading %}{% if is_join_request %}Request to {% endif %} Join
+    <a href="{{ organization.get_absolute_url }}">{{ organization }}</a>{% endblock %}
 {% block cancel_redirect %}{% url 'organization_detail' organization.slug %}{% endblock %}

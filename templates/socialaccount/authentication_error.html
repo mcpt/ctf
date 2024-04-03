@@ -5,10 +5,13 @@
 {% block head_title %}{% trans "Social Network Login Failure" %}{% endblock %}
 
 {% block content %}
-<h1>{% trans "Social Network Login Failure" %}</h1>
-<p>{% trans "An error occurred while attempting to login via your social network account." %}</p>
-{% debug as dbg %}
-{% if dbg %}
-<details><summary>{% trans "Debug Info" %}</summary><pre>{{ auth_error }}</pre></details>
-{% endif %}
+    <h1>{% trans "Social Network Login Failure" %}</h1>
+    <p>{% trans "An error occurred while attempting to login via your social network account." %}</p>
+    {% debug as dbg %}
+    {% if dbg %}
+        <details>
+            <summary>{% trans "Debug Info" %}</summary>
+            <pre>{{ auth_error }}</pre>
+        </details>
+    {% endif %}
 {% endblock %}

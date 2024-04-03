@@ -1,6 +1,7 @@
 <form name="filter" action="" method="GET">
     {% for filter, data in problem_filters.items %}
-        <label for="{{ filter }}" class="fw-bold mb-2">{{ filter|capfirst }}s <i class="bi bi-question-circle" title="Ctrl+click to select multiple options"></i></label>
+        <label for="{{ filter }}" class="fw-bold mb-2">{{ filter|capfirst }}s <i class="bi bi-question-circle"
+                                                                                 title="Ctrl+click to select multiple options"></i></label>
         <select class="form-select mb-3" id="{{ filter }}" name="{{ filter }}" multiple size="{{ data.size }}">
             {% for opt in data.options %}
                 <option value="{{ opt.id }}" {% if opt.id in data.selected %}selected{% endif %}>{{ opt }}</option>
@@ -8,19 +9,21 @@
         </select>
     {% endfor %}
     <label>
-      Search
-      <input type="text" name="nfts" />
+        Search
+        <input type="text" name="nfts"/>
     </label>
 
     <div class="form-check">
-        <input class="form-check-input" type="checkbox" name="show_groups" id="show_groups" value="1" {% if show_groups %}checked{% endif %}>
+        <input class="form-check-input" type="checkbox" name="show_groups" id="show_groups" value="1"
+               {% if show_groups %}checked{% endif %}>
         <label class="form-check-label" for="show_groups">Show groups</label>
     </div>
     {% if request.user.is_authenticated %}
-    <div class="form-check">
-        <input class="form-check-input" type="checkbox" name="hide_solved" id="hide_solved" value="1" {% if hide_solved %}checked{% endif %}>
-        <label class="form-check-label" for="hide_solved">Hide Solved</label>
-    </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="hide_solved" id="hide_solved" value="1"
+                   {% if hide_solved %}checked{% endif %}>
+            <label class="form-check-label" for="hide_solved">Hide Solved</label>
+        </div>
     {% endif %}
 
     <button type="submit" class="btn btn-sm btn-primary ms-2 mt-3 float-end">Filter</button>

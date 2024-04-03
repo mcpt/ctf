@@ -3,7 +3,7 @@
 {% load color_tags %}
 
 {% block deps %}
-<script type="module" src="{% static 'scripts/toggle_filter.js' %}"></script>
+    <script type="module" src="{% static 'scripts/toggle_filter.js' %}"></script>
 {% endblock %}
 
 {% block th %}
@@ -58,16 +58,16 @@
 
 {% if show_filter %}
     {% block aside %}
-    <aside class="mb-3" id="problem-filter">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between">
-                Filter 
-                <span id="filter-toggle">-</span>
+        <aside class="mb-3" id="problem-filter">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between">
+                    Filter
+                    <span id="filter-toggle">-</span>
+                </div>
+                <div class="card-body pt-3">
+                    {% include "./snippet/filter.html" %}
+                </div>
             </div>
-            <div class="card-body pt-3">
-                {% include "./snippet/filter.html" %}
-            </div>
-        </div>
-    </aside>
+        </aside>
     {% endblock %}
 {% endif %}

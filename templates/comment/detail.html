@@ -3,13 +3,15 @@
 {% load tz %}
 
 {% block main %}
-<div class="card mb-3">
-    <div class="card-body">
-        <h5 class="card-title">
-            <a href="{{ comment.author.get_absolute_url }}">{{ comment.author }}</a> commented {{ comment.date_created|naturaltime }} on <a href="{{ comment.parent.get_absolute_url }}">{{ comment.parent }}</a> 
-        </h5>
-        <p class="card-text">{{ comment.text }}</p>
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">
+                <a href="{{ comment.author.get_absolute_url }}">{{ comment.author }}</a>
+                commented {{ comment.date_created|naturaltime }} on <a
+                    href="{{ comment.parent.get_absolute_url }}">{{ comment.parent }}</a>
+            </h5>
+            <p class="card-text">{{ comment.text }}</p>
+        </div>
     </div>
-</div>
-{% include './snippet.html' %}
+    {% include './snippet.html' %}
 {% endblock %}

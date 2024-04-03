@@ -21,11 +21,11 @@
                 {% endwith %}
             {% endif %}
             <td><a href="{{ contest_problem.problem.get_absolute_url }}">{{ contest_problem.problem }}</a></td2>
-            {% if contest_problem.problem.problem_type.all %}
-                <td>{{ contest_problem.problem.problem_type.all|join:", " }}</td>
-            {% else %}
-                <td class="font-italic">-</td>
-            {% endif %}
+                {% if contest_problem.problem.problem_type.all %}
+                    <td>{{ contest_problem.problem.problem_type.all|join:", " }}</td>
+                {% else %}
+                    <td class="font-italic">-</td>
+                {% endif %}
             <td>{{ contest_problem.points }}</td>
         </tr>
     {% endfor %}

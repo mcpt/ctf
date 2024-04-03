@@ -1,8 +1,9 @@
 <tr>
-    <td>{{ ptype }}: </td>
+    <td>{{ ptype }}:</td>
     <td>
         <div class="progress">
-          <div class="progress-bar" role="progressbar" style="width: calc({{ solved }} / {{ total }} * 100%)" aria-valuenow="{{ solved }}" aria-valuemin="0" aria-valuemax="{{ total }}"></div>
+            <div class="progress-bar" role="progressbar" style="width: calc({{ solved }} / {{ total }} * 100%)"
+                 aria-valuenow="{{ solved }}" aria-valuemin="0" aria-valuemax="{{ total }}"></div>
         </div>
     </td>
     <td>{{ solved }} / {{ total }} flags</td>

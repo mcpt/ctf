@@ -1,23 +1,23 @@
 <div class="table-responsive table-list">
     <table class="table">
         <thead>
-            <tr>
-                <th scope="col">Rank</th>
-                {% if not hide_contest_col %}
-                    <th scope="col">Contest</th>
-                {% endif %}
-                <th scope="col">Joined as</th>
-                <th scope="col">Points</th>
-            </tr>
+        <tr>
+            <th scope="col">Rank</th>
+            {% if not hide_contest_col %}
+                <th scope="col">Contest</th>
+            {% endif %}
+            <th scope="col">Joined as</th>
+            <th scope="col">Points</th>
+        </tr>
         </thead>
         <tbody>
-            {% for participation in participations %}
+        {% for participation in participations %}
+            {% include './row.html' %}
+        {% empty %}
+            {% if participation %}
                 {% include './row.html' %}
-            {% empty %}
-                {% if participation %}
-                    {% include './row.html' %}
-                {% endif %}
-            {% endfor %}
+            {% endif %}
+        {% endfor %}
         </tbody>
     </table>
 </div>

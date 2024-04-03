@@ -4,173 +4,181 @@
 {% load static %}
 
 {% block before_cols %}
-{% if request.user.is_authenticated and not request.in_contest and problem.is_public and ongoing_contests %}
-<div class="alert alert-dark" role="alert">
-    <h4 class="alert-heading">
-        <i class="bi bi-info-circle-fill"></i>
-        This is a practice problem.
-    </h4>
-    <p>
-        If you wish to participate in one of our ongoing contests instead, make sure to join it to see its problems.
-    </p>
-    <hr>
-    <ul class="mb-1">
-        {% for ongoing_contest in ongoing_contests %}
-        <li>
-            <a href="{{ ongoing_contest.get_absolute_url }}">
-                {{ ongoing_contest }}
-            </a>
-        </li>
-        {% endfor %}
-    </ul>
-</div>
-{% endif %}
+    {% if request.user.is_authenticated and not request.in_contest and problem.is_public and ongoing_contests %}
+        <div class="alert alert-dark" role="alert">
+            <h4 class="alert-heading">
+                <i class="bi bi-info-circle-fill"></i>
+                This is a practice problem.
+            </h4>
+            <p>
+                If you wish to participate in one of our ongoing contests instead, make sure to join it to see its
+                problems.
+            </p>
+            <hr>
+            <ul class="mb-1">
+                {% for ongoing_contest in ongoing_contests %}
+                    <li>
+                        <a href="{{ ongoing_contest.get_absolute_url }}">
+                            {{ ongoing_contest }}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
 
-{% with ocsp=problem.ongoing_contests_problem %}
-{% if not request.in_contest %}
-{% if ocsp %}
-<div class="ocsp alert alert-warning" role="alert">
-    <h4 class="alert-heading">Problem Available in Ongoing Contest(s)</h4>
-    <p class="mb-0">
-        This problem is available in the following <strong>ongoing</strong> contests.
-        (You are not in any contest.)
-        Make sure to join the correct contest that you want to submit for.
-        <ul>
-            {% for ocp in ocsp %}
-            {% with oc=ocp.contest %}
-            <li>
-                <a href="{{ oc.get_absolute_url }}">
-                    {{ oc }}
-                </a>
-            </li>
-            {% endwith %}
-            {% endfor %}
-        </ul>
-    </p>
-</div>
-{% endif %}
-{% else %}
-{% if not ocsp %}
-<div id="n-ocsp" class="alert alert-warning" role="alert">
-    <h4 class="alert-heading">Problem Not Available in Ongoing Contest</h4>
-    <p class="mb-0">
-        This problem is not available in the contest you are currently in.
-    </p>
-</div>
-{% endif %}
-{% endif %}
-{% endwith %}
+    {% with ocsp=problem.ongoing_contests_problem %}
+        {% if not request.in_contest %}
+            {% if ocsp %}
+                <div class="ocsp alert alert-warning" role="alert">
+                    <h4 class="alert-heading">Problem Available in Ongoing Contest(s)</h4>
+                    <p class="mb-0">
+                        This problem is available in the following <strong>ongoing</strong> contests.
+                        (You are not in any contest.)
+                        Make sure to join the correct contest that you want to submit for.
+                    <ul>
+                        {% for ocp in ocsp %}
+                            {% with oc=ocp.contest %}
+                                <li>
+                                    <a href="{{ oc.get_absolute_url }}">
+                                        {{ oc }}
+                                    </a>
+                                </li>
+                            {% endwith %}
+                        {% endfor %}
+                    </ul>
+                    </p>
+                </div>
+            {% endif %}
+        {% else %}
+            {% if not ocsp %}
+                <div id="n-ocsp" class="alert alert-warning" role="alert">
+                    <h4 class="alert-heading">Problem Not Available in Ongoing Contest</h4>
+                    <p class="mb-0">
+                        This problem is not available in the contest you are currently in.
+                    </p>
+                </div>
+            {% endif %}
+        {% endif %}
+    {% endwith %}
 {% endblock %}
 
 {% block content %}
-<div class="card mb-3">
-    <div class="card-body px-4 py-3">
-        <h1 class="card-title">
-            {% if request.user.is_authenticated %}
-                {% with problem|problem_status:request.user as status %}
-                    {% include "problem/snippet/status.html" with hide_unsolved=True %}
-                {% endwith %}
-            {% endif %}
-            {{ problem.name }}
-        </h1>
-        <hr>
-        <p class="card-text">{{ problem.description|markdown }}</p>
+    <div class="card mb-3">
+        <div class="card-body px-4 py-3">
+            <h1 class="card-title">
+                {% if request.user.is_authenticated %}
+                    {% with problem|problem_status:request.user as status %}
+                        {% include "problem/snippet/status.html" with hide_unsolved=True %}
+                    {% endwith %}
+                {% endif %}
+                {{ problem.name }}
+            </h1>
+            <hr>
+            <p class="card-text">{{ problem.description|markdown }}</p>
+        </div>
     </div>
-</div>
-{% if problem.challenge_spec %}
-<div class="card mb-3">
-    <div class="card-header">Challenge Instance</div>
-    <div class="card-body">
-        {% if request.user.is_authenticated %}
-        {% include "problem/snippet/challenge.html" %}
-        {% else %}
-        <p class="mb-0">Sign in to solve this challenge!</p>
-        {% endif %}
-    </div>
-</div>
-{% endif %}
-{% if problem.files.all %}
-<div class="card mb-3">
-    <div class="card-header">Files</div>
-    <div class="card-body">
-        <ul class="list-unstyled mb-0">
-            {% for file in problem.files.all %}
-            <li>
-                <details>
-                    <summary>
-                        <a href="{{ file.artifact.url }}">{{ file.file_name }}</a>
-                    </summary>
-                    <ul>
-                        <li>SHA256 checksum: <code>{{ file.checksum }}</code></li>
-                    </ul>
-                </details>
-            </li>
-            {% endfor %}
-        </ul>
-    </div>
-</div>
-{% endif %}
-{% if not contest_problem %}
-{% include 'comment/snippet.html' with disable=problem.is_private entity="problem" %}
-{% endif %}
+    {% if problem.challenge_spec %}
+        <div class="card mb-3">
+            <div class="card-header">Challenge Instance</div>
+            <div class="card-body">
+                {% if request.user.is_authenticated %}
+                    {% include "problem/snippet/challenge.html" %}
+                {% else %}
+                    <p class="mb-0">Sign in to solve this challenge!</p>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+    {% if problem.files.all %}
+        <div class="card mb-3">
+            <div class="card-header">Files</div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    {% for file in problem.files.all %}
+                        <li>
+                            <details>
+                                <summary>
+                                    <a href="{{ file.artifact.url }}">{{ file.file_name }}</a>
+                                </summary>
+                                <ul>
+                                    <li>SHA256 checksum: <code>{{ file.checksum }}</code></li>
+                                </ul>
+                            </details>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% endif %}
+    {% if not contest_problem %}
+        {% include 'comment/snippet.html' with disable=problem.is_private entity="problem" %}
+    {% endif %}
 {% endblock %}
 
 {% block aside %}
-<div class="card mb-3">
-    <div class="card-body">
-        <ul class="list-unstyled">
-            <li>
-                <b>Points</b>:
-                {% if not contest_problem %}
-                {{ problem.points }}
-                {% else %}
-                {{ contest_problem.points }}
-                {% endif %}
-            </li>
-            <li><b>Author{{ problem.author.all|pluralize:"s" }}</b>: {% include "snippets/links.html" with objects=problem.author.all %}</li>
-            {% if problem.problem_group.all and not request.user.current_contest %}
-            <li><b>Group{{ problem.problem_group.all|pluralize:"s" }}:</b> {{ problem.problem_group.all|join:", " }}
-            </li>
-            {% endif %}
-            {% if problem.problem_type.all %}
-            <li><b>Type{{ problem.problem_type.all|pluralize:"s" }}:</b> {{ problem.problem_type.all|join:", " }}</li>
-            {% endif %}
-            {% if request.user.is_staff %}
-            <li><a href="{% url 'admin:gameserver_problem_change' object_id=problem.id %}">Admin</a>
-            {% endif %}
-        </ul>
-        <hr>
-        {% if request.user.is_authenticated %}
-        {% include "snippets/form-code.html" with field=form.flag %}
-        {% endif %}
-        <p class="mt-2 mb-0 mx-1"><a href="{% url 'problem_submission_list' problem.slug %}" class="card-link">All Submissions</a></p>
-    </div>
-</div>
-{% if not contest_problem and problem.writeups.all %}
-<div class="card mb-3">
-    <div class="card-header">Writeups</div>
-    <ul class="list-group list-group-flush">
-        {% for writeup in problem.writeups.all %}
-            <li class="list-group-item">
-                <a href="{{ writeup.get_absolute_url }}">
-                    {% if writeup.title %}
-                    {{ writeup.title }}
+    <div class="card mb-3">
+        <div class="card-body">
+            <ul class="list-unstyled">
+                <li>
+                    <b>Points</b>:
+                    {% if not contest_problem %}
+                        {{ problem.points }}
                     {% else %}
-                    Writeup
+                        {{ contest_problem.points }}
                     {% endif %}
-                    <i>by</i>
-                    <a target="_blank" rel="noreferrer noopener">{% include "snippets/links.html" with objects=writeup.author.all %}</a>
-                </a>
-            </li>
-        {% endfor %}
-    </ul>
-</div>
-{% endif %}
+                </li>
+                <li>
+                    <b>Author{{ problem.author.all|pluralize:"s" }}</b>: {% include "snippets/links.html" with objects=problem.author.all %}
+                </li>
+                {% if problem.problem_group.all and not request.user.current_contest %}
+                    <li>
+                        <b>Group{{ problem.problem_group.all|pluralize:"s" }}:</b> {{ problem.problem_group.all|join:", " }}
+                    </li>
+                {% endif %}
+                {% if problem.problem_type.all %}
+                    <li>
+                        <b>Type{{ problem.problem_type.all|pluralize:"s" }}:</b> {{ problem.problem_type.all|join:", " }}
+                    </li>
+                {% endif %}
+                {% if request.user.is_staff %}
+                    <li><a href="{% url 'admin:gameserver_problem_change' object_id=problem.id %}">Admin</a>
+                {% endif %}
+            </ul>
+            <hr>
+            {% if request.user.is_authenticated %}
+                {% include "snippets/form-code.html" with field=form.flag %}
+            {% endif %}
+            <p class="mt-2 mb-0 mx-1"><a href="{% url 'problem_submission_list' problem.slug %}" class="card-link">All
+                Submissions</a></p>
+        </div>
+    </div>
+    {% if not contest_problem and problem.writeups.all %}
+        <div class="card mb-3">
+            <div class="card-header">Writeups</div>
+            <ul class="list-group list-group-flush">
+                {% for writeup in problem.writeups.all %}
+                    <li class="list-group-item">
+                        <a href="{{ writeup.get_absolute_url }}">
+                            {% if writeup.title %}
+                                {{ writeup.title }}
+                            {% else %}
+                                Writeup
+                            {% endif %}
+                            <i>by</i>
+                            <a target="_blank"
+                               rel="noreferrer noopener">{% include "snippets/links.html" with objects=writeup.author.all %}</a>
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% if problem.challenge_spec %}
-{% block deps %}
-<script src="{% static 'scripts/countdown.js' %}" defer></script>
-<script src="{% static 'scripts/challenge.js' %}" defer></script>
-{% endblock %}
+    {% block deps %}
+        <script src="{% static 'scripts/countdown.js' %}" defer></script>
+        <script src="{% static 'scripts/challenge.js' %}" defer></script>
+    {% endblock %}
 {% endif %}

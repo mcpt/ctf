@@ -3,64 +3,70 @@
 {% load humanize %}
 
 {% block main %}
-<div class="card mb-3">
-    <div class="card-body position-relative">
-        {% if profile == request.user %}
-            <a class="btn btn-link btn-edit" href="{% url 'user_edit' %}">Edit <i class="bi bi-pencil align-baseline"></i></a>
-        {% endif %}
-        <div class="row mb-3">
-            <div class="col">
-                <img src="{{ profile.email|gravatar_url:200 }}" class="mb-2 img-thumbnail" alt="{{ profile.username }}'s profile picture">
-            </div>
-            <div class="col-sm-10">
-                <h1>{{ profile.username }}</h1>
-                <hr class="mt-0">
-                <div class="row">
-                    <div class="col">
-                        <ul class="list-unstyled profile-info mb-0">
-                            <li><b><i class="bi bi-calendar3"></i>Joined</b> {{ profile.date_joined|naturalday }}</li>
-                            <li><b><i class="bi bi-flag"></i>Captured</b> {{ profile.flags }} flag{{ profile.flags|pluralize }}</li>
-                            <li><b><i class="bi bi-bullseye"></i>Collected</b> {{ profile.points|floatformat }} point{{ profile.points|pluralize }}</li>
-                        </ul>
-                    </div>
-                    {% if profile.organizations.all or profile.teams.all %}
-                        <div class="col-lg-8 profile-info">
-                            <table>
-                                {% if profile.organizations.all %}
-                                    <tr>
-                                        <td><b><i class="bi bi-building"></i>From</b></td>
-                                        <td>
-                                            {% include "snippets/links.html" with objects=profile.organizations.all %}
-                                        </td>
-                                    </tr>
-                                {% endif %}
-                                {% if profile.teams.all %}
-                                    <tr>
-                                        <td><b><i class="bi bi-people"></i>Team{{ profile.teams.all|pluralize }}</b></td>
-                                        <td>
-                                            {% include "snippets/links.html" with objects=profile.teams.all %}
-                                        </td>
-                                    </tr>
-                                {% endif %}
-                            </table>
+    <div class="card mb-3">
+        <div class="card-body position-relative">
+            {% if profile == request.user %}
+                <a class="btn btn-link btn-edit" href="{% url 'user_edit' %}">Edit <i
+                        class="bi bi-pencil align-baseline"></i></a>
+            {% endif %}
+            <div class="row mb-3">
+                <div class="col">
+                    <img src="{{ profile.email|gravatar_url:200 }}" class="mb-2 img-thumbnail"
+                         alt="{{ profile.username }}'s profile picture">
+                </div>
+                <div class="col-sm-10">
+                    <h1>{{ profile.username }}</h1>
+                    <hr class="mt-0">
+                    <div class="row">
+                        <div class="col">
+                            <ul class="list-unstyled profile-info mb-0">
+                                <li><b><i class="bi bi-calendar3"></i>Joined</b> {{ profile.date_joined|naturalday }}
+                                </li>
+                                <li><b><i class="bi bi-flag"></i>Captured</b> {{ profile.flags }}
+                                    flag{{ profile.flags|pluralize }}</li>
+                                <li><b><i class="bi bi-bullseye"></i>Collected</b> {{ profile.points|floatformat }}
+                                    point{{ profile.points|pluralize }}</li>
+                            </ul>
                         </div>
-                    {% endif %}
+                        {% if profile.organizations.all or profile.teams.all %}
+                            <div class="col-lg-8 profile-info">
+                                <table>
+                                    {% if profile.organizations.all %}
+                                        <tr>
+                                            <td><b><i class="bi bi-building"></i>From</b></td>
+                                            <td>
+                                                {% include "snippets/links.html" with objects=profile.organizations.all %}
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                    {% if profile.teams.all %}
+                                        <tr>
+                                            <td><b><i class="bi bi-people"></i>Team{{ profile.teams.all|pluralize }}</b>
+                                            </td>
+                                            <td>
+                                                {% include "snippets/links.html" with objects=profile.teams.all %}
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                </table>
+                            </div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="row px-2">
-            <p>
-                {% if profile.description == "" %}
-                <i>This user has not shared any information.</i>
-                {% else %}
-                {{ profile.description }}
-                {% endif %}
-            </p>
+            <div class="row px-2">
+                <p>
+                    {% if profile.description == "" %}
+                        <i>This user has not shared any information.</i>
+                    {% else %}
+                        {{ profile.description }}
+                    {% endif %}
+                </p>
+            </div>
         </div>
     </div>
-</div>
 {% endblock %}
 
 {% block othermeta %}
-<meta property="og:profile:username" content="{{ profile.username }}" />
+    <meta property="og:profile:username" content="{{ profile.username }}"/>
 {% endblock %}

@@ -2,61 +2,67 @@
 {% load humanize %}
 
 {% block before_cols %}
-<!-- marker-for-health-check -->
-<div class="card mb-3">
-    <div class="card-body">
-        {% if request.user.is_authenticated %}
-        
-            <p class="fs-6 m-0">Welcome to mCTF! Please try out a <a href="{% url 'problem_list' %}">problem</a>, join a <a href="{% url 'team_list' %}">team</a> or, join a <a href="{% url 'contest_list' %}">contest</a>.</p>
-        {% else %}            
-        <p class="fs-6 m-0">Welcome to mCTF! Please <a href="{% url 'account_signup' %}">register</a> for an account,
-            create or join a <a href="{% url 'team_list' %}">team</a>, and try out a <a href="{% url 'problem_list' %}">problem</a>
-            or join a <a href="{% url 'contest_list' %}">contest</a>.</p>
-        {% endif %}
+    <!-- marker-for-health-check -->
+    <div class="card mb-3">
+        <div class="card-body">
+            {% if request.user.is_authenticated %}
+
+                <p class="fs-6 m-0">Welcome to mCTF! Please try out a <a href="{% url 'problem_list' %}">problem</a>,
+                    join a <a href="{% url 'team_list' %}">team</a> or, join a <a href="{% url 'contest_list' %}">contest</a>.
+                </p>
+            {% else %}
+                <p class="fs-6 m-0">Welcome to mCTF! Please <a href="{% url 'account_signup' %}">register</a> for an
+                    account,
+                    create or join a <a href="{% url 'team_list' %}">team</a>, and try out a <a
+                            href="{% url 'problem_list' %}">problem</a>
+                    or join a <a href="{% url 'contest_list' %}">contest</a>.</p>
+            {% endif %}
+        </div>
     </div>
-</div>
 {% endblock %}
 
 {% block content %}
-        <section class="card">
-            <h1 class="card-header fs-6">News</h1>
-            <div class="card-body text-wrap">
-                {% include 'blogpost/list.html' %}
-            </div>
-        </section>
+    <section class="card">
+        <h1 class="card-header fs-6">News</h1>
+        <div class="card-body text-wrap">
+            {% include 'blogpost/list.html' %}
+        </div>
+    </section>
 {% endblock %}
 
 {% block aside %}
-        {% if contests %}
-            <section class="card mb-3">
-                <h1 class="card-header fs-6">Ongoing Contests</h1>
-                <ul class="list-group list-group-flush">
-                    {% for contest in contests %}
-                        <li class="list-group-item"><a href="{{ contest.get_absolute_url }}">{{ contest }}</a> <i>— ends in {{ contest.end_time|naturaltime }}</i></li>
-                    {% endfor %}
-                </ul>
-            </section>
-        {% endif %}
+    {% if contests %}
         <section class="card mb-3">
-            <h1 class="card-header fs-6">New Problems</h1>
+            <h1 class="card-header fs-6">Ongoing Contests</h1>
+            <ul class="list-group list-group-flush">
+                {% for contest in contests %}
+                    <li class="list-group-item"><a href="{{ contest.get_absolute_url }}">{{ contest }}</a> <i>— ends
+                        in {{ contest.end_time|naturaltime }}</i></li>
+                {% endfor %}
+            </ul>
+        </section>
+    {% endif %}
+    <section class="card mb-3">
+        <h1 class="card-header fs-6">New Problems</h1>
+        <div class="card-body pt-2 pb-3">
+            <ul class="list-unstyled mb-0">
+                {% for problem in problems %}
+                    <li><a href="{{ problem.get_absolute_url }}">{{ problem }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </section>
+    {% if comments %}
+        <section class="card mb-3">
+            <h1 class="card-header fs-6">New Comments</h1>
             <div class="card-body pt-2 pb-3">
                 <ul class="list-unstyled mb-0">
-                    {% for problem in problems %}
-                        <li><a href="{{ problem.get_absolute_url }}">{{ problem }}</a></li>
+                    {% for comment in comments %}
+                        <li><a href="{{ comment.author.get_absolute_url }}">{{ comment.author }}</a> → <a
+                                href="{{ comment.parent.get_absolute_url }}">{{ comment.parent }}</a></li>
                     {% endfor %}
                 </ul>
             </div>
         </section>
-        {% if comments %}
-            <section class="card mb-3">
-                <h1 class="card-header fs-6">New Comments</h1>
-                <div class="card-body pt-2 pb-3">
-                    <ul class="list-unstyled mb-0">
-                        {% for comment in comments %}
-                            <li><a href="{{ comment.author.get_absolute_url }}">{{ comment.author }}</a> → <a href="{{ comment.parent.get_absolute_url }}">{{ comment.parent }}</a></li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </section>
-        {% endif %}
+    {% endif %}
 {% endblock %}
