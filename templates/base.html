@@ -108,12 +108,12 @@
 
 {% if request.in_contest %}
     <script src="{% static 'scripts/countdown.js' %}"></script>
-    <script>
+    <!-- <script> todo: add popup to reload: (all reloading at the same time literally DDOSs the site)
         countdownTo = new Date({{ request.participation.contest.end_time|date:"U" }} * 1000);
         setInterval(countdownTimer, 1000, countdownTo, "contestCountdown", () => {
             location.reload(true);
         });
-    </script>
+    </script> -->
 {% endif %}
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
