@@ -1,7 +1,9 @@
+from typing import Iterable
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
 
 from .profile import User
 
@@ -23,6 +25,21 @@ class Comment(models.Model):
     text = models.TextField()
 
     date_created = models.DateTimeField(auto_now_add=True)
+    date_edited = models.DateTimeField(auto_now_add=True)
+
+    def save(
+        self,
+        force_insert: bool = ...,
+        force_update: bool = ...,
+        using: str | None = ...,
+        update_fields: Iterable[str] | None = ...,
+    ) -> None:
+        self.date_edited = timezone.now()
+        return super().save(force_insert, force_update, using, update_fields)
+
+    @property
+    def edited(self):
+        return self.date_created != self.date_edited
 
     def __str__(self):
         return f"Re: {self.parent}"
