@@ -5,7 +5,14 @@
 <!-- marker-for-health-check -->
 <div class="card mb-3">
     <div class="card-body">
-        <p class="fs-6 m-0">Welcome to mCTF! Please <a href="{% url 'account_signup' %}">register</a> for an account, create or join a <a href="{% url 'team_list' %}">team</a>, and try out a <a href="{% url 'problem_list' %}">problem</a> or join a <a href="{% url 'contest_list' %}">contest</a>.</p>
+        {% if request.user.is_authenticated %}
+        
+            <p class="fs-6 m-0">Welcome to mCTF! Please try out a <a href="{% url 'problem_list' %}">problem</a>, join a <a href="{% url 'team_list' %}">team</a> or, join a <a href="{% url 'contest_list' %}">contest</a>.</p>
+        {% else %}            
+        <p class="fs-6 m-0">Welcome to mCTF! Please <a href="{% url 'account_signup' %}">register</a> for an account,
+            create or join a <a href="{% url 'team_list' %}">team</a>, and try out a <a href="{% url 'problem_list' %}">problem</a>
+            or join a <a href="{% url 'contest_list' %}">contest</a>.</p>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
