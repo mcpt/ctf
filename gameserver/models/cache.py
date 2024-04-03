@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional, Self, Protocol
+from typing import TYPE_CHECKING, Optional, Self, Protocol, Callable
 from django.http import HttpRequest
 from django.apps import apps
 from django.db import models, transaction
@@ -16,18 +16,17 @@ from django.db.models import (
 )
 from django.db.models.functions import Coalesce, Rank, RowNumber
 
-
 if TYPE_CHECKING:
     from .profile import User
     from .contest import Contest, ContestParticipation, ContestSubmission
 
 
 class ResetableCache(Protocol):
-    def can_reset(cls, request: HttpRequest) -> None: ...
+    def can_reset(cls, request: HttpRequest) -> None:
+        ...
 
 
 class CacheMeta(models.Model):
-
     class Meta:
         abstract = True
         permissions = [
@@ -128,6 +127,18 @@ class UserScore(CacheMeta):
         cls.objects.bulk_create(scores_to_create)
 
 
+def get_contest_submission() -> Callable[[], "ContestSubmission"]:
+    model: "ContestSubmission" = None
+
+    def inner():
+        nonlocal model
+        if model is None:
+            model = apps.get_model("gameserver", "ContestSubmission", require_ready=True)
+        return model
+
+    return inner
+
+
 class ContestScore(CacheMeta):
     participation = models.OneToOneField(
         "ContestParticipation", on_delete=models.CASCADE, db_index=True
@@ -167,7 +178,8 @@ class ContestScore(CacheMeta):
         #     codename="edit_all_contests", content_type=contest_content_type
         # )
         max_submission_time_subquery = (
-            ContestSubmission.objects.filter(participation=OuterRef("participation"))
+            get_contest_submission()()
+            .objects.filter(participation=OuterRef("participation"))
             .order_by("-submission__date_created")
             .values("submission__date_created")[:1]
         )

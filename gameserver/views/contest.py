@@ -202,7 +202,7 @@ class ContestScoreboard(SingleObjectMixin, ListView, mixin.MetaMixin):
     def get_queryset(self):
         if self.model.cache.can_reset(self.request):
             ContestScore.reset_data(contest=self.object)
-        return ContestScore.ranks(contest=self.object).only("team").select_related("team")
+        return ContestScore.ranks(contest=self.object).select_related("participation__team") # select related reduces queries from around 54 to 17ish so 8ms to 5ms
 
     def _get_contest(self, slug):
         return get_object_or_404(models.Contest, slug=slug)
@@ -237,8 +237,7 @@ class ContestOrganizationScoreboard(ListView, mixin.MetaMixin):
                 self.contest,
                 self.contest.participations.filter(participants__organizations=self.org),
             )
-            .only("team")
-            .select_related("team")
+            .select_related("participation__team")
         )
         # return self.contest._ranks(
         #     self.contest.participations.filter(participants__organizations=self.org),
