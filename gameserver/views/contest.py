@@ -235,8 +235,7 @@ class ContestOrganizationScoreboard(ListView, mixin.MetaMixin):
 
     def get_queryset(self):
         return ContestScore.ranks(
-            self.contest,
-            self.contest.participations.filter(participants__organizations=self.org),
+            participation=self.contest.participations.filter(participants__organizations=self.org),
         ).select_related("participation__team")
         # return self.contest._ranks(
         #     self.contest.participations.filter(participants__organizations=self.org),
