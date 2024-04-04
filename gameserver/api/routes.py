@@ -26,6 +26,6 @@ def add(request, contest_id: int):
             ).values("submission__date_created")
     standings = ContestScore.ranks(contest=contest_id).annotate(pos=F("rank"), score=F("points"), team=F("participation__team__name"), lastAccept=Subquery(last_sub_time))
         # .only("pos", "team", "score")
-    task_names = ContestProblem.objects.filter(contest_id=contest_id).prefetch_related("problem__name").values_list("problem__name")
+    task_names = ContestProblem.objects.filter(contest_id=contest_id).prefetch_related("problem__name").values_list("problem__name", flat=True)
     
     return {"standings": standings, "tasks": task_names}
