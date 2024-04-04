@@ -62,6 +62,7 @@ MIDDLEWARE = [
     "gameserver.middleware.ContestMiddleware",
     "django.contrib.flatpages.middleware.FlatpageFallbackMiddleware",
     "gameserver.middleware.RedirectFallbackTemporaryMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
     'gameserver.middleware.ErrorLogMiddleware',
     # ↑ keep last to log errors from middlewares
 ]
@@ -196,16 +197,13 @@ EMAIL_BACKEND = "<your email backend>"
 
 # S3 STORAGE CONFIGURATION
 # FOLLOW https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html
-DEFAULT_FILE_STORAGE = ""
+STORAGES = {}
 AWS_S3_REGION_NAME = ""
 AWS_S3_ENDPOINT_URL = ""
 AWS_ACCESS_KEY_ID = ""
 AWS_SECRET_ACCESS_KEY = ""
 AWS_STORAGE_BUCKET_NAME = ""
 AWS_S3_FILE_OVERWRITE = False
-
-STATICFILES_STORAGE = ""
-
 
 # NavBar settings
 
@@ -311,10 +309,11 @@ try:
 except ImportError:
     raise TypeError("Please create a config file to override values in config.py")
 
-if DEFAULT_FILE_STORAGE == "":
-    raise TypeError("DEFAULT_FILE_STORAGE must not be blank")
-if STATICFILES_STORAGE == "":
-    raise TypeError("STATICFILES_STORAGE must not be blank")
+
+if STORAGES.get("default") == None:
+    raise TypeError("STORAGES[default] must not be blank")
+if STORAGES.get("staticfiles") == None:
+    raise TypeError("STORAGES[staticfiles] must not be blank")
 
 INSTALLED_APPS += ["debug_toolbar"]
 
