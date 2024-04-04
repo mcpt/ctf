@@ -3,7 +3,6 @@ from django.urls import path, include
 from . import views
 
 urlpatterns = [
-    path("api", include("gameserver.api.urls")),
     path("", views.Index.as_view(), name="index"),
     path("post/<slug:slug>", views.BlogPost.as_view(), name="blog_post"),
     path("writeup/<slug:slug>", views.Writeup.as_view(), name="writeup"),
