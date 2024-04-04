@@ -63,12 +63,16 @@ class User(AbstractUser):
 
     def points(self, queryset=None):
         cache = UserScore.get(user=self)
+        
+        if cache is None:
+            return 0 
         return cache.points
 
     def flags(self, queryset=None):
         cache = UserScore.get(user=self)
-        return cache.flag_count
-
+        if cache is None:
+            return 0
+        return cache.flag_count 
     def rank(self, queryset=None):
         return (
             self.cached_ranks(f"user_{self.pk}", queryset)
