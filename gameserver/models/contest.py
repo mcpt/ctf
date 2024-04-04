@@ -97,7 +97,7 @@ class Contest(models.Model):
     def __meta_key(self):
         return f"contest_ranks_{self.pk}"
 
-    def ranks(self, queryset=None):
+    def ranks(self):
         return self.ContestScore.ranks(self)
 
     def _ranks(self, queryset=None):
@@ -319,7 +319,7 @@ class ContestParticipation(models.Model):
         )
 
     def rank(self):
-        return self.contest.ranks(participation=self).filter(Q(points__gte=self.points())).count()
+        return self.contest.ranks().filter(Q(points__gte=self.points())).count()
 
     def has_attempted(self, problem):
         return problem.is_attempted_by(self)
