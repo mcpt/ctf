@@ -14,10 +14,12 @@ class CTFSchema(Schema):
     team: str
     score: int
     
-@api.get("/ctftime", response=List[CTFSchema])
+class CTFTimeSchema(Schema):
+    standings: List[CTFSchema]
+    
+@api.get("/ctftime", response=CTFTimeSchema)
 def add(request, contest_id: int):
-    return  (
-        ContestScore.ranks(contest=contest_id)
-        .annotate(pos=F("rank"), score=F("points"), team=F("participation__team__name"))
+    standings = ContestScore.ranks(contest=contest_id).annotate(pos=F("rank"), score=F("points"), team=F("participation__team__name"))
         # .only("pos", "team", "score")
-    )
+    
+    return {"standings": standings}
