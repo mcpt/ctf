@@ -284,7 +284,7 @@ class ContestParticipation(models.Model):
         )
 
     def get_rank(self):
-        return self.ContestScore.ranks(self.contest, participation=self)
+        return self.ContestScore.ranks(participation=self)
 
     @cached_property
     def last_solve(self):
@@ -319,7 +319,7 @@ class ContestParticipation(models.Model):
         )
 
     def rank(self):
-        return self.contest.ranks().filter(Q(points__gte=self.points())).count()
+        return self.contest.ranks(participation=self).filter(Q(points__gte=self.points())).count()
 
     def has_attempted(self, problem):
         return problem.is_attempted_by(self)

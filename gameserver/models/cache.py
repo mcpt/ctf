@@ -12,6 +12,7 @@ from django.db.models import (
     Sum,
     Value,
     When,
+    QuerySet,
     Window,
 )
 from django.db.models.functions import Coalesce, Rank, RowNumber
@@ -174,13 +175,14 @@ class ContestScore(CacheMeta):
     @classmethod
     def ranks(
         cls,
-        contest: "Contest",
-        queryset: Optional[models.QuerySet] = None,
-        participation: Optional["ContestParticipation"] = None,
+        contest: Optional["Contest"] = None,
+        participation: (
+            Optional["ContestParticipation"] | Optional[QuerySet["ContestParticipation"]]
+        ) = None,
     ) -> models.QuerySet:
         assert (
-            queryset is None or participation is None
-        ), "Only one of queryset or participation can be set"
+            contest is None or participation is None
+        ), "You must set either contest or participation"
         # contest_content_type = ContentType.objects.get_for_model(apps.get_model("gameserver", "Contest"))
         # perm_edit_all_contests = Permission.objects.get(
         #     codename="edit_all_contests", content_type=contest_content_type
@@ -191,9 +193,14 @@ class ContestScore(CacheMeta):
             .order_by("-submission__date_created")
             .values("submission__date_created")[:1]
         )
-        query = cls.objects.filter(participation__contest=contest).prefetch_related(
-            "participation"
-        )  # .exclude(
+        if participation:
+            if isinstance(participation, QuerySet):
+                query = cls.objects.filter(participation__in=participation)
+            else:
+                query = cls.objects.filter(participation=participation)
+        else:
+            query = cls.objects.filter(participation__contest=contest)
+        query = query.prefetch_related("participation")  # .exclude(
         #     Q(participants__is_superuser=True)
         #     | Q(participants__groups__permissions=perm_edit_all_contests)
         #     | Q(participants__user_permissions=perm_edit_all_contests)
@@ -216,8 +223,6 @@ class ContestScore(CacheMeta):
             ),
             max_submission_time=Subquery(max_submission_time_subquery),
         ).order_by("rank", "flag_count", "-max_submission_time")
-        if queryset is not None:
-            data = data.filter(participation__in=queryset)
         return data
 
     def __str__(self) -> str:
