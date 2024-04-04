@@ -294,6 +294,7 @@ admin.site.register(models.Writeup)
 admin.site.register(models.Team)
 admin.site.register(models.Contest, ContestAdmin)
 admin.site.register(models.ContestTag)
+admin.site.register(models.ContestParticipation)
 admin.site.site_header = "mCTF administration"
 admin.site.site_title = "mCTF admin"
 
