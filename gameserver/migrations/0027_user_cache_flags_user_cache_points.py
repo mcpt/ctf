@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('gameserver', '0026_problem_firstblood_2'),
+        ("gameserver", "0026_problem_firstblood_2"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='user',
-            name='cache_flags',
-            field=models.IntegerField(default=None, null=True, verbose_name='Total Flags Cache'),
+            model_name="user",
+            name="cache_flags",
+            field=models.IntegerField(default=None, null=True, verbose_name="Total Flags Cache"),
         ),
         migrations.AddField(
-            model_name='user',
-            name='cache_points',
-            field=models.IntegerField(default=None, null=True, verbose_name='Total Points Cache'),
+            model_name="user",
+            name="cache_points",
+            field=models.IntegerField(default=None, null=True, verbose_name="Total Points Cache"),
         ),
     ]

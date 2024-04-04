@@ -6,17 +6,17 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('gameserver', '0023_alter_contestproblem_unique_together'),
+        ("gameserver", "0023_alter_contestproblem_unique_together"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='writeup',
-            old_name='target',
-            new_name='problem',
+            model_name="writeup",
+            old_name="target",
+            new_name="problem",
         ),
         migrations.RemoveField(
-            model_name='writeup',
-            name='pointee',
+            model_name="writeup",
+            name="pointee",
         ),
     ]

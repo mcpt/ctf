@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('gameserver', '0030_remove_user_cache_flags_remove_user_cache_points'),
+        ("gameserver", "0030_remove_user_cache_flags_remove_user_cache_points"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='problem',
-            name='log_submission_content',
+            model_name="problem",
+            name="log_submission_content",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='submission',
-            name='content',
+            model_name="submission",
+            name="content",
             field=models.CharField(default=None, max_length=256, null=True),
         ),
     ]

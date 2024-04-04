@@ -5,23 +5,25 @@ from django.db.models import Q, F
 
 
 def compute_firstblood(apps, schema_editor):
-    Problem = apps.get_model('gameserver', 'Problem')
+    Problem = apps.get_model("gameserver", "Problem")
     for p in Problem.objects.all().iterator():
-        p.firstblood = p.submissions \
-                .filter(is_correct=True) \
-                .exclude(
-                    Q(problem__author=F("user"))
-                    | Q(problem__testers=F("user"))
-                    | Q(problem__organizations__member=F("user"))
-                ) \
-                .order_by("pk").first()
+        p.firstblood = (
+            p.submissions.filter(is_correct=True)
+            .exclude(
+                Q(problem__author=F("user"))
+                | Q(problem__testers=F("user"))
+                | Q(problem__organizations__member=F("user"))
+            )
+            .order_by("pk")
+            .first()
+        )
         p.save()
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('gameserver', '0025_problem_firstblood'),
+        ("gameserver", "0025_problem_firstblood"),
     ]
 
     operations = [

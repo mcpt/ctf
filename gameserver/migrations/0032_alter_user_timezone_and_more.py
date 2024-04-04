@@ -6,20 +6,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('gameserver', '0031_problem_log_submission_content_submission_content_and_more'),
+        ("gameserver", "0031_problem_log_submission_content_submission_content_and_more"),
     ]
 
     operations = [
         migrations.AddIndex(
-            model_name='submission',
-            index=models.Index(fields=['user'], name='gameserver__user_id_87074d_idx'),
+            model_name="submission",
+            index=models.Index(fields=["user"], name="gameserver__user_id_87074d_idx"),
         ),
         migrations.AddIndex(
-            model_name='submission',
-            index=models.Index(fields=['problem'], name='gameserver__problem_4c16db_idx'),
+            model_name="submission",
+            index=models.Index(fields=["problem"], name="gameserver__problem_4c16db_idx"),
         ),
         migrations.AddIndex(
-            model_name='submission',
-            index=models.Index(fields=['is_correct'], name='gameserver__is_corr_678c6b_idx'),
+            model_name="submission",
+            index=models.Index(fields=["is_correct"], name="gameserver__is_corr_678c6b_idx"),
         ),
     ]

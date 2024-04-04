@@ -6,18 +6,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('gameserver', '0016_move_problem_files'),
+        ("gameserver", "0016_move_problem_files"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='problem',
-            name='problem_group',
-            field=models.ManyToManyField(blank=True, related_name='problems', to='gameserver.ProblemGroup'),
+            model_name="problem",
+            name="problem_group",
+            field=models.ManyToManyField(
+                blank=True, related_name="problems", to="gameserver.ProblemGroup"
+            ),
         ),
         migrations.AlterField(
-            model_name='problem',
-            name='problem_type',
-            field=models.ManyToManyField(blank=True, related_name='problems', to='gameserver.ProblemType'),
+            model_name="problem",
+            name="problem_type",
+            field=models.ManyToManyField(
+                blank=True, related_name="problems", to="gameserver.ProblemType"
+            ),
         ),
     ]

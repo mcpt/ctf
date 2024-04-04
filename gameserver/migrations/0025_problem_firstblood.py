@@ -5,7 +5,7 @@ from django.db import migrations, models
 
 
 def compute_firstblood(apps, schema_editor):
-    Problem = apps.get_model('gameserver', 'Problem')
+    Problem = apps.get_model("gameserver", "Problem")
     for p in Problem.objects.all().iterator():
         p.firstblood = p.submissions.filter(is_correct=True).order_by("pk").first()
         p.save()
@@ -14,14 +14,21 @@ def compute_firstblood(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('gameserver', '0024_rename_target_writeup_problem_remove_writeup_pointee'),
+        ("gameserver", "0024_rename_target_writeup_problem_remove_writeup_pointee"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='problem',
-            name='firstblood',
-            field=models.ForeignKey(null=True, blank=True, default=None, on_delete=django.db.models.deletion.PROTECT, related_name='firstblooded', to='gameserver.submission'),
+            model_name="problem",
+            name="firstblood",
+            field=models.ForeignKey(
+                null=True,
+                blank=True,
+                default=None,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="firstblooded",
+                to="gameserver.submission",
+            ),
             preserve_default=False,
         ),
         migrations.RunPython(

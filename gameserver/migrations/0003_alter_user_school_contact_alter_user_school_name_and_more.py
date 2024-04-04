@@ -6,18 +6,25 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('gameserver', '0002_problem_testers'),
+        ("gameserver", "0002_problem_testers"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='user',
-            name='school_contact',
-            field=models.EmailField(blank=True, help_text='Email address of a school teacher for verification purposes', max_length=254, verbose_name='teacher contact email'),
+            model_name="user",
+            name="school_contact",
+            field=models.EmailField(
+                blank=True,
+                help_text="Email address of a school teacher for verification purposes",
+                max_length=254,
+                verbose_name="teacher contact email",
+            ),
         ),
         migrations.AlterField(
-            model_name='user',
-            name='school_name',
-            field=models.CharField(blank=True, help_text='The full name of your school', max_length=80),
+            model_name="user",
+            name="school_name",
+            field=models.CharField(
+                blank=True, help_text="The full name of your school", max_length=80
+            ),
         ),
     ]

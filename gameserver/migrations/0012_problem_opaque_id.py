@@ -8,18 +8,25 @@ import gameserver.models.problem
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('gameserver', '0011_problem_organizations'),
+        ("gameserver", "0011_problem_organizations"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='problem',
-            name='opaque_id',
-            field=models.CharField(default=gameserver.models.problem.gen_opaque_id, editable=False, max_length=172, unique=True),
+            model_name="problem",
+            name="opaque_id",
+            field=models.CharField(
+                default=gameserver.models.problem.gen_opaque_id,
+                editable=False,
+                max_length=172,
+                unique=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='problemfile',
-            name='artifact',
-            field=models.FileField(max_length=272, unique=True, upload_to=gameserver.models.problem.problem_file_path),
+            model_name="problemfile",
+            name="artifact",
+            field=models.FileField(
+                max_length=272, unique=True, upload_to=gameserver.models.problem.problem_file_path
+            ),
         ),
     ]

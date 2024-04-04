@@ -6,16 +6,16 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('gameserver', '0029_alter_usercache_user_alter_usercache_unique_together'),
+        ("gameserver", "0029_alter_usercache_user_alter_usercache_unique_together"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='user',
-            name='cache_flags',
+            model_name="user",
+            name="cache_flags",
         ),
         migrations.RemoveField(
-            model_name='user',
-            name='cache_points',
+            model_name="user",
+            name="cache_points",
         ),
     ]

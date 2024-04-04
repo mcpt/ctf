@@ -8,13 +8,18 @@ import gameserver.models.problem
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('gameserver', '0014_regen_opaque_id'),
+        ("gameserver", "0014_regen_opaque_id"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='problem',
-            name='opaque_id',
-            field=models.CharField(default=gameserver.models.problem.gen_opaque_id, editable=False, max_length=172, unique=True),
+            model_name="problem",
+            name="opaque_id",
+            field=models.CharField(
+                default=gameserver.models.problem.gen_opaque_id,
+                editable=False,
+                max_length=172,
+                unique=True,
+            ),
         ),
     ]

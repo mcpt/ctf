@@ -6,14 +6,14 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('gameserver', '0004_problem_challenge_spec'),
+        ("gameserver", "0004_problem_challenge_spec"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='problemfile',
-            name='checksum',
-            field=models.CharField(default='Unavailable', max_length=64),
+            model_name="problemfile",
+            name="checksum",
+            field=models.CharField(default="Unavailable", max_length=64),
             preserve_default=False,
         ),
     ]

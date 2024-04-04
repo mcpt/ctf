@@ -4,15 +4,16 @@ import gameserver.models.problem
 
 
 def regen_opaque_id(apps, schema_editor):
-    Problem = apps.get_model('gameserver', 'Problem')
+    Problem = apps.get_model("gameserver", "Problem")
     for row in Problem.objects.all():
         row.opaque_id = gameserver.models.problem.gen_opaque_id()
-        row.save(update_fields=['opaque_id'])
+        row.save(update_fields=["opaque_id"])
+
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('gameserver', '0013_alter_problem_opaque_id'),
+        ("gameserver", "0013_alter_problem_opaque_id"),
     ]
 
     operations = [
