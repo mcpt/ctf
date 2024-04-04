@@ -48,7 +48,7 @@ class CTFTimeOauth2AProvider(OAuth2Provider):
         return settings.get("FIELDS", default_fields)
 
     def get_default_scope(self):
-        return ["users.read", "tweet.read"]
+        return ["profile:read"]
 
 
 provider_classes = [CTFTimeOauth2AProvider]
