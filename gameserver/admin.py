@@ -1,4 +1,4 @@
-from adminsortable2.admin import SortableInlineAdminMixin
+from adminsortable2.admin import SortableInlineAdminMixin, SortableAdminBase
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.flatpages.admin import FlatPageAdmin
@@ -201,7 +201,7 @@ class ContestProblemInline(SortableInlineAdminMixin, admin.TabularInline):
     extra = 0
 
 
-class ContestAdmin(admin.ModelAdmin):
+class ContestAdmin(SortableAdminBase, admin.ModelAdmin):
     fields = [
         "name",
         "slug",
