@@ -25,17 +25,9 @@ class Comment(models.Model):
     text = models.TextField()
 
     date_created = models.DateTimeField(auto_now_add=True)
-    date_edited = models.DateTimeField(auto_now_add=True)
-
-    def save(
-        self,
-        force_insert: bool = ...,
-        force_update: bool = ...,
-        using: str | None = ...,
-        update_fields: Iterable[str] | None = ...,
-    ) -> None:
-        self.date_edited = timezone.now()
-        return super().save(force_insert, force_update, using, update_fields)
+    date_edited = models.DateTimeField(
+        auto_now=True,
+    )
 
     @property
     def edited(self):
