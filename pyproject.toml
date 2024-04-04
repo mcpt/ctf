@@ -2,7 +2,7 @@
 name = "mCTF"
 version = "1.0.5"
 description = "A reusable CTF platform."
-authors = ["Jason <ctfx@jasoncameron.dev"]
+authors = ["Jason Cameron <ctfx@jasoncameron.dev"]
 readme = "README.md"
 
 keywords = ["ctf", "jeopardy", "ctf-platform", "django"]
