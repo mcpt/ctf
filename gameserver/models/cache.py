@@ -146,6 +146,15 @@ class ContestScore(CacheMeta):
     flag_count = models.PositiveIntegerField(
         help_text="The amount of flags the user/team has.", default=0
     )
+    contest_id = models.IntegerField(
+        help_text="The id for which contest this applies to. Do not change this value manually.",
+        blank=True,
+        null=False,
+    )
+
+    def save(self, *args, **kwargs):
+        self.contest_id = self.participation.contest_id
+        super().save(*args, **kwargs)
 
     @classmethod
     def can_reset(cls, request: HttpRequest):
