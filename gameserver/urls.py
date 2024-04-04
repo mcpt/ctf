@@ -1,6 +1,7 @@
 from django.urls import path, include
 
 from . import views
+from .api.routes import api
 
 urlpatterns = [
     path("", views.Index.as_view(), name="index"),
@@ -111,4 +112,5 @@ urlpatterns = [
         views.add_comment,
         name="add_comment",
     ),
+    path("api/", api.urls)
 ]

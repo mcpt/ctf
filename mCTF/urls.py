@@ -22,6 +22,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("gameserver.urls")),
     path("accounts/", include("allauth.urls")),
-    path("api/", include("gameserver.api.urls"), name="api"),
     path("/<path:url>", flatpage_views.flatpage),
 ]
