@@ -23,8 +23,7 @@ if TYPE_CHECKING:
 
 
 class ResetableCache(Protocol):
-    def can_reset(cls, request: HttpRequest) -> None:
-        ...
+    def can_reset(cls, request: HttpRequest) -> None: ...
 
 
 class CacheMeta(models.Model):
