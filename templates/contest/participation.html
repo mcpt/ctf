@@ -6,13 +6,13 @@
     <div class="card mb-3">
         <div class="card-body">
             <h1 class="mt-0"><a
-                    href="{{ participation.participant.get_absolute_url }}">{{ participation.participant }}</a>'s
+                    href="{{ participation.team.get_absolute_url }}">{{ participation.team }}</a>'s
                 Participation in <a href="{{ participation.contest.get_absolute_url }}">{{ participation.contest }}</a>
             </h1>
             <hr class="mb-0">
         </div>
     </div>
-    {% include "snippets/group_detail/members.html" with member_list=participation.participants.all entity="participation" %}
+    {% include "snippets/group_detail/members.html" with member_list=participation.team.members.all entity="participation" %}
     <div class="card mb-3 participation-problems">
         <h2 class="card-header fs-6">Captured</h2>
         <div class="card-body pt-3">

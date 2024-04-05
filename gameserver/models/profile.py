@@ -163,7 +163,7 @@ class User(AbstractUser):
             raise TypeError("problem must be a Problem or ContestProblem")
 
     def participation_for_contest(self, contest):
-        return ContestParticipation.objects.filter(participants=self, contest=contest).first()
+        return ContestParticipation.objects.filter(team__members=self.id, contest=contest).first()
 
     def remove_contest(self):
         self.current_contest = None
@@ -179,6 +179,7 @@ class User(AbstractUser):
             self.remove_contest()
 
     update_contest.alters_data = True
+
 
 
 class Organization(models.Model):

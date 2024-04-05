@@ -77,7 +77,7 @@ class ContestDetail(
         team = form.cleaned_data["participant"]
 
         if (
-            self.request.user.in_contest
+            self.request.in_contest
             and self.request.user.current_contest.contest == self.object
         ):
             contest_participation = models.ContestParticipation.objects.get_or_create(
@@ -94,17 +94,13 @@ class ContestDetail(
                     team=team, contest=self.object
                 )[0]
             else:
-                try:
-                    contest_participation = models.ContestParticipation.objects.get(
-                        team=None,
-                        participants=self.request.user,
-                        contest=self.object,
-                    )
-                except models.ContestParticipation.DoesNotExist:
-                    contest_participation = models.ContestParticipation(contest=self.object)
-                    contest_participation.save()
-
-        contest_participation.participants.add(self.request.user)
+                new_team = models.Team.objects.create(
+                    name=self.request.user.username,
+                    owner=self.request.user,
+                )
+                contest_participation = models.ContestParticipation.objects.get_or_create(
+                    team=new_team, contest=self.object
+                )[0]
 
         self.request.user.current_contest = contest_participation
         self.request.user.save()
@@ -113,14 +109,14 @@ class ContestDetail(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user = self.request.user
+        user: models.User = self.request.user
         if user.is_authenticated:
             if (data := cache.get(f"contest_{self.object.slug}_participant_count")) is None:
                 context["user_accessible"] = self.object.is_accessible_by(user)
                 context["user_participation"] = user.participation_for_contest(self.object)
                 team_participant_count = user.teams.annotate(
                     participant_count=Count(
-                        "contest_participations__participants",
+                        "contest_participations__team",
                         filter=Q(contest_participations__contest=self.object),
                     )
                 ).values_list("pk", "participant_count")
