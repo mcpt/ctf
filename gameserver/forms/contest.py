@@ -15,8 +15,8 @@ class ContestJoinForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop("user", None)
-        self.contest = kwargs.pop("contest", None)
+        self.user: models.User = kwargs.pop("user", None)
+        self.contest: models.Contest = kwargs.pop("contest", None)
         super(ContestJoinForm, self).__init__(*args, **kwargs)
 
         if (

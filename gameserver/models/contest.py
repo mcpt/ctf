@@ -32,7 +32,7 @@ class Contest(models.Model):
 
     organizers = models.ManyToManyField("User", related_name="contests_organized", blank=True)
     curators = models.ManyToManyField("User", related_name="contests_curated", blank=True)
-    organizations = models.ManyToManyField("Organization", related_name="contests", blank=True)
+    organizations = models.ManyToManyField("Organization", related_name="contests", blank=True, help_text="Only users of these organizations can access the contest")
 
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True, db_index=True)
@@ -97,7 +97,7 @@ class Contest(models.Model):
     def __meta_key(self):
         return f"contest_ranks_{self.pk}"
 
-    def ranks(self, queryset=None):
+    def ranks(self):
         return self.ContestScore.ranks(self)
 
     def _ranks(self, queryset=None):
@@ -182,7 +182,7 @@ class Contest(models.Model):
         if self.is_editable_by(user):
             return True
 
-        return self.is_public and not self.organizations.exists()
+        return self.is_public
 
     def is_editable_by(self, user):
         if not user.is_authenticated:
@@ -319,7 +319,7 @@ class ContestParticipation(models.Model):
         )
 
     def rank(self):
-        return self.contest.ranks(participation=self).filter(Q(points__gte=self.points())).count()
+        return self.contest.ranks().filter(Q(points__gte=self.points())).count()
 
     def has_attempted(self, problem):
         return problem.is_attempted_by(self)

@@ -1,6 +1,8 @@
 from allauth.socialaccount.providers.base import ProviderAccount
 from allauth.socialaccount.providers.oauth2.provider import OAuth2Provider
 from .views import CTFTimeOauth2Adapter
+
+
 class CTFTimeOauth2Account(ProviderAccount):
     def get_username(self):
         return self.account.extra_data.get("username")

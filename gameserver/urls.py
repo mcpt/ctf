@@ -112,5 +112,5 @@ urlpatterns = [
         views.add_comment,
         name="add_comment",
     ),
-    path("api/", api.urls)
+    path("api/", api.urls),
 ]

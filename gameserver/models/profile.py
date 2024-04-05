@@ -63,16 +63,17 @@ class User(AbstractUser):
 
     def points(self, queryset=None):
         cache = UserScore.get(user=self)
-        
+
         if cache is None:
-            return 0 
+            return 0
         return cache.points
 
     def flags(self, queryset=None):
         cache = UserScore.get(user=self)
         if cache is None:
             return 0
-        return cache.flag_count 
+        return cache.flag_count
+
     def rank(self, queryset=None):
         return (
             self.cached_ranks(f"user_{self.pk}", queryset)
@@ -162,10 +163,7 @@ class User(AbstractUser):
             raise TypeError("problem must be a Problem or ContestProblem")
 
     def participation_for_contest(self, contest):
-        try:
-            return ContestParticipation.objects.get(participants=self, contest=contest)
-        except ContestParticipation.DoesNotExist:
-            return None
+        return ContestParticipation.objects.filter(participants=self, contest=contest).first()
 
     def remove_contest(self):
         self.current_contest = None
@@ -284,7 +282,4 @@ class Team(models.Model):
         return self.members.all().count()
 
     def participation_for_contest(self, contest):
-        try:
-            return ContestParticipation.objects.get(team=self, contest=contest)
-        except ContestParticipation.DoesNotExist:
-            return None
+        return ContestParticipation.objects.filter(team=self, contest=contest).first()
