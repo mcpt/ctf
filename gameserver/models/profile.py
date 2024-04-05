@@ -164,6 +164,7 @@ class User(AbstractUser):
 
     def participation_for_contest(self, contest):
         return ContestParticipation.objects.filter(participants=self, contest=contest).first()
+
     def remove_contest(self):
         self.current_contest = None
         self.save()

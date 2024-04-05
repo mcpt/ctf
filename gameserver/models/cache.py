@@ -23,7 +23,8 @@ if TYPE_CHECKING:
 
 
 class ResetableCache(Protocol):
-    def can_reset(cls, request: HttpRequest) -> None: ...
+    def can_reset(cls, request: HttpRequest) -> None:
+        ...
 
 
 class CacheMeta(models.Model):
@@ -199,7 +200,10 @@ class ContestScore(CacheMeta):
             else:
                 query = cls.objects.filter(participation=participation)
         else:
-            query = cls.objects.filter(participation__contest=contest)
+            if isinstance(contest, int):
+                query = cls.objects.filter(participation__contest_id=contest)
+            else:
+                query = cls.objects.filter(participation__contest=contest)
         query = query.prefetch_related("participation")  # .exclude(
         #     Q(participants__is_superuser=True)
         #     | Q(participants__groups__permissions=perm_edit_all_contests)
@@ -229,7 +233,7 @@ class ContestScore(CacheMeta):
         # todo optimize by using select_related
         # self.objects.select_related("participation__team__name")
         if self.participation.team is None:
-            return self.participation.participants.first().username
+            return self.participation.user.username
         return self.participation.team.name
 
     @classmethod
