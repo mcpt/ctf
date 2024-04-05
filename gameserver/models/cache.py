@@ -42,7 +42,7 @@ class CacheMeta(models.Model):
             [
                 request.user.is_authenticated,
                 request.user.is_staff,
-                request.GET.get("reset", "") == "true",
+                request.GET.get("reset", "").casefold() == "true",
             ]
         )
 
