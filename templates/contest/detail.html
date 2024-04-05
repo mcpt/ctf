@@ -62,7 +62,7 @@
                 {% if request.user.current_contest.contest == contest %}
                     <p>
                         You are currently in this contest as <a
-                            href="{{ request.participation.team.get_absolute_url }}">{{ request.participation.team }}</a>.
+                            href="{{ request.participation.participant.get_absolute_url }}">{{ request.participation.participant }}</a>.
                     </p>
                 {% else %}
                     <p>
@@ -108,6 +108,7 @@
                                 {% bootstrap_field form.participant wrapper_class="mb-2" %}
                                 <p id="team-size-display" class="text-muted mb-2"
                                    style="font-size: 0.75rem;line-height:1.6"></p>
+                                Disabled for performance reasons
                                 <p class="text-muted fst-italic" style="font-size: 0.75rem;line-height:1.6">Once you
                                     participate as part of
                                     a team, you cannot change back to individual participation.</p>

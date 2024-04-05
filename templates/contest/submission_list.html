@@ -3,7 +3,7 @@
 {% block heading %}
     {% if contest_participation %}
         Submissions by
-        <a href="{{ contest_participation.get_absolute_url }}">{{ contest_participation.name }}</a> in
+        <a href="{{ contest_participation.get_absolute_url }}">{{ contest_participation.participant }}</a> in
         <a href="{{ contest.get_absolute_url }}">{{ contest }}</a>
     {% else %}
         Submissions for <a href="{{ contest.get_absolute_url }}">{{ contest }}</a>

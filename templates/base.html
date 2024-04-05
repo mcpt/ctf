@@ -91,7 +91,7 @@
             <h4 class="alert-heading" id="contestCountdown">Loading countdown...</h4>
             <p class="mb-0">Currently participating in <a
                     href="{{ request.participation.contest.get_absolute_url }}">{{ request.participation.contest }}</a>
-                as <a href="{{ request.participation.get_absolute_url }}">{{ request.participation.name }}</a>.
+                as <a href="{{ request.participation.get_absolute_url }}">{{ request.participation.participant }}</a>.
             </p>
         </div>
     {% endif %}

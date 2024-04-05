@@ -12,7 +12,7 @@
     {% endif %}
     {% if not hide_participant %}
         <td>
-            <a href="{{ contest_submission.participation.get_absolute_url }}">{{ contest_submission.participation.name }}</a>
+            <a href="{{ contest_submission.participation.get_absolute_url }}">{{ contest_submission.participation.participant }}</a>
         </td>
     {% endif %}
     {% if not hide_timestamp %}

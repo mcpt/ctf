@@ -164,7 +164,7 @@ class Contest(models.Model):
         if not user.is_authenticated:
             return False
 
-        if self.organizations.exists() and self.organizations.filter(pk__in=user.organizations.all()).exists():
+        if self.organizations.filter(pk__in=user.organizations.all()).exists():
             return True
 
         return self.is_editable_by(user)
@@ -176,7 +176,7 @@ class Contest(models.Model):
         if not self.is_ongoing:
             return False
 
-        if self.organizations.exists() and self.organizations.filter(pk__in=user.organizations.all()).exists():
+        if self.organizations.filter(pk__in=user.organizations.all()).exists():
             return True
 
         if self.is_editable_by(user):
@@ -241,18 +241,24 @@ class ContestParticipation(models.Model):
         "Team",
         on_delete=models.CASCADE,
         related_name="contest_participations",
+        null=True,
         blank=True,
     )
 
-    @property
-    def name(self):
-        return self.team.name
+    participants = models.ManyToManyField("User", related_name="contest_participations", blank=True)
 
     def __str__(self):
-        return f"{self.name}'s Participation in {self.contest.name}"
+        return f"{self.participant}'s Participation in {self.contest.name}"
 
     def get_absolute_url(self):
         return reverse("contest_participation_detail", args=[self.pk])
+
+    @cached_property
+    def participant(self):
+        if self.team is None:
+            return self.participants.first()
+        else:
+            return self.team
 
     def _get_unique_correct_submissions(self):
         # Switch to ContestProblem -> Problem Later
@@ -400,7 +406,7 @@ class ContestSubmission(models.Model):
     )
 
     def __str__(self):
-        return f"{self.participation.name}'s submission for {self.problem.problem.name} in {self.problem.contest.name}"
+        return f"{self.participation.participant}'s submission for {self.problem.problem.name} in {self.problem.contest.name}"
 
     @cached_property
     def is_correct(self):
