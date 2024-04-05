@@ -182,7 +182,7 @@ class Contest(models.Model):
         if self.is_editable_by(user):
             return True
 
-        return self.is_public and not self.organizations.exists()
+        return self.is_public
 
     def is_editable_by(self, user):
         if not user.is_authenticated:
