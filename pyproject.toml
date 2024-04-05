@@ -36,6 +36,7 @@ django-debug-toolbar = "^4.3.0"
 
 gunicorn = "*"
 django-ninja = "^1.1.0"
+redis = "^5.0.3"
 
 [build-system]
 requires = ["poetry-core"]
