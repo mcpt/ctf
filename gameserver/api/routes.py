@@ -6,12 +6,23 @@ from gameserver.models.contest import ContestProblem, ContestSubmission, Contest
 from ninja import NinjaAPI, Schema
 from typing import List, Any
 
+import datetime
 
 def unicode_safe(string):
     return string.encode("unicode_escape").decode()
 
 
 api = NinjaAPI()
+
+
+class ContestOutSchema(Schema):
+    name: str
+    slug: str
+    start_time: datetime.datetime
+    end_time: datetime.datetime
+    max_team_size: int | None
+    description: str
+    summary: str
 
 
 class CTFSchema(Schema):
@@ -73,3 +84,10 @@ def ctftime_standings(request, contest_name: str):
     )
 
     return {"standings": standings, "tasks": task_names}
+
+@api.get("/contests", response=List[ContestOutSchema])
+def contests(request):
+    return (
+        Contest.objects.filter(is_public=True)
+        .values("name", "slug", "start_time", "end_time", "max_team_size", "description", "summary")
+    )
