@@ -49,20 +49,23 @@ def ctftime_standings(request, contest_name: str):
         .order_by("-submission__date_created")
         .values("submission__date_created")
     )
-    standings = ContestScore.ranks(contest=contest_id).annotate(
-        pos=F("rank"),
-        score=F("points"),
-        team=F("participation__team__name"),
-        # team=Coalesce(F("participation__team__name"), F("participation__participants__username")),
-        # Using Coalesce and indexing
-        # team=Case(
-        #     When(F("participation__team__isnull")==True, then=Q(("participation__participants")[0]["username"])),
-        #     default=F("team_name"),
-        #     output_field=TextField(),
-        # ),
-        lastAccept=Subquery(last_sub_time),
-    ).values("pos", "score", "team", "lastAccept")
-    # .only("pos", "team", "score")
+    standings = (
+        ContestScore.ranks(contest=contest_id)
+        .annotate(
+            pos=F("rank"),
+            score=F("points"),
+            team=F("participation__team__name"),
+            # team=Coalesce(F("participation__team__name"), F("participation__participants__username")),
+            # Using Coalesce and indexing
+            # team=Case(
+            #     When(F("participation__team__isnull")==True, then=Q(("participation__participants")[0]["username"])),
+            #     default=F("team_name"),
+            #     output_field=TextField(),
+            # ),
+            lastAccept=Subquery(last_sub_time),
+        )
+        .values("pos", "score", "team", "lastAccept")
+    )
     task_names = (
         ContestProblem.objects.filter(contest_id=contest_id)
         .prefetch_related("problem__name")
