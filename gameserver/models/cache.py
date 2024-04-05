@@ -233,7 +233,7 @@ class ContestScore(CacheMeta):
         # todo optimize by using select_related
         # self.objects.select_related("participation__team__name")
         if self.participation.team is None:
-            return self.participation.user.username
+            return self.participation.participants.first().username
         return self.participation.team.name
 
     @classmethod
