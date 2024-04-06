@@ -77,7 +77,7 @@ class ContestDetail(
         team = form.cleaned_data["participant"]
 
         if (
-            self.request.user.in_contest
+            self.request.in_contest
             and self.request.user.current_contest.contest == self.object
         ):
             contest_participation = models.ContestParticipation.objects.get_or_create(
