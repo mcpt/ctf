@@ -3,9 +3,12 @@ from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.flatpages.admin import FlatPageAdmin
 from django.contrib.flatpages.models import FlatPage
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from . import models
+from .models import Submission, ContestSubmission
+from .utils.actions import *
 
 User = get_user_model()
 
@@ -226,6 +229,7 @@ class ContestAdmin(SortableAdminBase, admin.ModelAdmin):
         "start_time",
         "end_time",
     ]
+    actions = [recalculate_score]
 
     def has_view_permission(self, request, obj=None):
         if request.user.has_perm("gameserver.view_contest"):
@@ -278,11 +282,93 @@ class UserAdmin(admin.ModelAdmin):
         "username",
         "full_name",
     ]
+    actions = [recalculate_user_scores, recalculate_all_user_scores]
+
+
+class UserScoreAdmin(admin.ModelAdmin):
+    fields = (
+        "user",
+        "points",
+        "flag_count",
+        "last_correct_submission",
+        "last_correct_submission_obj",
+    )
+    list_display = [
+        "user",
+        "points",
+        "last_correct_submission",
+    ]
+    ordering = ["-points"]
+    search_fields = [
+        "user__username",
+        "user__full_name",
+    ]
+    readonly_fields = [
+        "user",
+        "points",
+        "flag_count",
+        "last_correct_submission",
+        "last_correct_submission_obj",
+    ]
+
+    def last_correct_submission_obj(self, obj):
+        try:
+            obj = Submission.objects.filter(
+                user=obj.user, is_correct=True, problem__is_public=True
+            ).latest("date_created")
+        except Submission.DoesNotExist:
+            return "No correct submissions"
+        print(format_html("<a href='{url}'>{url}</a>", url=obj.get_absolute_admin_url()))
+        return format_html("<a href='{url}'>{url}</a>", url=obj.get_absolute_admin_url())
+
+    last_correct_submission_obj.allow_tags = True
+
+    last_correct_submission_obj.short_description = "Last correct submission URL"
+
+
+class ContestScoreAdmin(admin.ModelAdmin):
+    fields = (
+        "participation",
+        "points",
+        "flag_count",
+        "last_correct_submission",
+        "last_correct_submission_obj",
+    )
+    list_display = [
+        "participation",
+        "points",
+        "last_correct_submission",
+    ]
+    list_filter = ["participation__contest"]
+    ordering = ["-points"]
+    search_fields = [
+        "participation__team__name",
+        "participation__team__members__username",
+    ]
+    readonly_fields = [
+        "participation",
+        "points",
+        "flag_count",
+        "last_correct_submission",
+        "last_correct_submission_obj",
+    ]
+
+    def last_correct_submission_obj(self, obj):
+        try:
+            obj = ContestSubmission.objects.filter(
+                participation=obj.participation, submission__is_correct=True
+            ).latest("submission__date_created")
+        except ContestSubmission.DoesNotExist:
+            return "No correct submissions"
+        return format_html("<a href='{url}'>{url}</a>", url=obj.get_absolute_admin_url())
+
+    last_correct_submission_obj.allow_tags = True
+    last_correct_submission_obj.short_description = "Last correct submission URL"
 
 
 admin.site.register(User, UserAdmin)
-admin.site.register(models.ContestScore)
-admin.site.register(models.UserScore)
+admin.site.register(models.ContestScore, ContestScoreAdmin)
+admin.site.register(models.UserScore, UserScoreAdmin)
 admin.site.register(models.Problem, ProblemAdmin)
 admin.site.register(models.Submission, SubmissionAdmin)
 admin.site.register(models.ProblemType)
@@ -296,6 +382,7 @@ admin.site.register(models.Team)
 admin.site.register(models.Contest, ContestAdmin)
 admin.site.register(models.ContestTag)
 admin.site.register(models.ContestParticipation)
+admin.site.register(models.ContestSubmission)
 admin.site.site_header = "mCTF administration"
 admin.site.site_title = "mCTF admin"
 

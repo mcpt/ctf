@@ -13,11 +13,13 @@ from django.db.models.functions import Coalesce, Rank
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
+from django.utils.html import format_html
 
 from gameserver.models.cache import ContestScore
 
 from ..templatetags.common_tags import strfdelta
 from . import abstract
+
 
 class ContestTag(abstract.Category):
     pass
@@ -414,6 +416,12 @@ class ContestSubmission(models.Model):
 
     def __str__(self):
         return f"{self.participation.participant}'s submission for {self.problem.problem.name} in {self.problem.contest.name}"
+
+    def get_absolute_admin_url(self):
+        url = reverse(
+            "admin:%s_%s_change" % (self._meta.app_label, self._meta.model_name), args=[self.id]
+        )
+        return format_html('<a href="{url}">{url}</a>', url=url)
 
     @cached_property
     def is_correct(self):

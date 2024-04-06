@@ -63,14 +63,14 @@ MIDDLEWARE = [
     "django.contrib.flatpages.middleware.FlatpageFallbackMiddleware",
     "gameserver.middleware.RedirectFallbackTemporaryMiddleware",
     "allauth.account.middleware.AccountMiddleware",
-    'gameserver.middleware.ErrorLogMiddleware',
+    "gameserver.middleware.ErrorLogMiddleware",
     # ↑ keep last to log errors from middlewares
 ]
 
 CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'CTFx',
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "CTFx",
     }
 }
 
@@ -300,9 +300,7 @@ SILENCED_SYSTEM_CHECKS = ["urls.W002"]
 
 DEFAULT_TIMEZONE = "UTC"
 
-MISTUNE_PLUGINS = (
-    "strikethrough",
-)
+MISTUNE_PLUGINS = ("strikethrough",)
 
 try:
     from mCTF.config import *
@@ -315,10 +313,11 @@ if STORAGES.get("default") == None:
 if STORAGES.get("staticfiles") == None:
     raise TypeError("STORAGES[staticfiles] must not be blank")
 
-INSTALLED_APPS += ["debug_toolbar"]
+if DEBUG:
+    INSTALLED_APPS += ["debug_toolbar"]
 
-MIDDLEWARE += [
-    # ...
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
-    # ...
-]
+    MIDDLEWARE += [
+        # ...
+        "debug_toolbar.middleware.DebugToolbarMiddleware",
+        # ...
+    ]
