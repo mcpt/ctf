@@ -19,9 +19,6 @@ from gameserver.models.cache import ContestScore
 from ..templatetags.common_tags import strfdelta
 from . import abstract
 
-# Create your models here.
-
-
 class ContestTag(abstract.Category):
     pass
 
