@@ -27,6 +27,7 @@ if api_client is None:
     logger.error("failed to connect to challenge cluster")
     raise Exception("failed to connect to challenge cluster")
 
+
 def create_challenge_instance(challenge_spec, problem_id, problem_flag, instance_owner, wait=False):
     def generate_identifier():
         return uuid.uuid4().hex[-7:]

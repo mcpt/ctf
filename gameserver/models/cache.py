@@ -248,7 +248,7 @@ class ContestScore(CacheMeta):
             cls.objects.create(
                 participation=participant, flag_count=int(update_flags), points=change_in_score
             )
-        
+
         with transaction.atomic():
             queryset.select_for_update()  # prevent race conditions with other team members
 

@@ -1,11 +1,8 @@
-import logging
 from datetime import timedelta
 
-import aiohttp
 from django.apps import apps
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.sites.models import Site
 from django.core.cache import cache
 from django.core.cache.utils import make_template_fragment_key
 from django.core.validators import MinValueValidator
@@ -13,8 +10,6 @@ from django.db import models
 from django.db.models import Count, F, Max, Min, OuterRef, Q, Subquery, Sum
 from django.db.models.expressions import Window
 from django.db.models.functions import Coalesce, Rank
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -24,7 +19,6 @@ from gameserver.models.cache import ContestScore
 from ..templatetags.common_tags import strfdelta
 from . import abstract
 
-logger = logging.getLogger(__name__)
 # Create your models here.
 
 
@@ -435,6 +429,17 @@ class ContestSubmission(models.Model):
         )
 
         return prev_correct_submissions.count() == 1 and prev_correct_submissions.first() == self
+
+    @property
+    async def ais_firstblooded(self):
+        prev_correct_submissions = ContestSubmission.objects.filter(
+            problem=self.problem, submission__is_correct=True, pk__lte=self.pk
+        )
+
+        return (
+            await prev_correct_submissions.acount() == 1
+            and await prev_correct_submissions.afirst() == self
+        )
 
     def save(self, *args, **kwargs):
         for key in cache.get(f"contest_ranks_{self.participation.contest.pk}", default=[]):

@@ -1,7 +1,7 @@
 import datetime
 from typing import Any, List
 
-from django.db.models import Case, F, OuterRef, Q, Subquery, When
+from django.db.models import F, OuterRef, Subquery
 from django.shortcuts import get_object_or_404
 from ninja import NinjaAPI, Schema
 
