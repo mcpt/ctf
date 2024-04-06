@@ -1,6 +1,7 @@
 import re
 
 from django import template
+from django.http import QueryDict
 from django.shortcuts import resolve_url
 
 register = template.Library()
@@ -17,3 +18,12 @@ def get_search_page(request):
     elif match := re.fullmatch(r"^/contest/([^/]+)/scoreboard$", request.path):
         return resolve_url("contest_scoreboard", slug=match.group(1))
     return
+
+
+@register.filter
+def format_GET(GET: QueryDict):
+    GET = GET.copy()
+    GET.pop("page", None)
+    if GET.get("nfts", None) == "":
+        del GET["nfts"]
+    return GET.urlencode()
