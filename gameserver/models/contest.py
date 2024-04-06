@@ -102,69 +102,8 @@ class Contest(models.Model):
         else:
             return self.problems.filter(problem__pk=problem.pk).exists()
 
-    @cached_property
-    def __meta_key(self):
-        return f"contest_ranks_{self.pk}"
-
     def ranks(self):
         return self.ContestScore.ranks(self)
-
-    def _ranks(self, queryset=None):
-        if queryset is None:
-            contest_content_type = ContentType.objects.get_for_model(Contest)
-            perm_edit_all_contests = Permission.objects.get(
-                codename="edit_all_contests", content_type=contest_content_type
-            )
-
-            queryset = self.participations.exclude(
-                Q(participants__is_superuser=True)
-                | Q(participants__groups__permissions=perm_edit_all_contests)
-                | Q(participants__user_permissions=perm_edit_all_contests)
-                | Q(participants__in=self.organizers.all())
-                | Q(participants__in=self.curators.all())
-            )
-
-        submissions_with_points = (
-            ContestSubmission.objects.filter(
-                participation=OuterRef("pk"), submission__is_correct=True
-            )
-            .order_by()
-            .values("submission__problem")
-            .distinct()
-            .annotate(sub_pk=Min("pk"))
-            .values("sub_pk")
-        )
-        return (
-            queryset.annotate(
-                points=Coalesce(
-                    Sum(
-                        "submission__problem__points",
-                        filter=Q(submission__in=Subquery(submissions_with_points)),
-                    ),
-                    0,
-                ),
-                flags=Coalesce(
-                    Count(
-                        "submission__pk", filter=Q(submission__in=Subquery(submissions_with_points))
-                    ),
-                    0,
-                ),
-                most_recent_solve_time=Coalesce(
-                    Max(
-                        "submission__submission__date_created",
-                        filter=Q(submission__in=Subquery(submissions_with_points)),
-                    ),
-                    self.start_time,
-                ),
-            )
-            .annotate(
-                rank=Window(
-                    expression=Rank(),
-                    order_by=[F("points").desc(), F("most_recent_solve_time").asc()],
-                )
-            )
-            .order_by("rank", "flags")
-        )
 
     def is_visible_by(self, user):
         if self.is_public:
@@ -447,13 +386,10 @@ class ContestSubmission(models.Model):
         )
 
     def save(self, *args, **kwargs):
-        for key in cache.get(f"contest_ranks_{self.participation.contest.pk}", default=[]):
-            cache.delete(key)
         cache.delete(
             make_template_fragment_key("participant_data", [self.participation])
         )  # see participation.html
         cache.delete(
             make_template_fragment_key("user_participation", [self.participation])
         )  # see scoreboard.html
-        ContestScore.invalidate(self.participation)
         super().save(*args, **kwargs)

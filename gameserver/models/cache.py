@@ -117,13 +117,6 @@ class UserScore(CacheMeta):
             )
 
     @classmethod
-    def invalidate(cls, user: "User"):
-        try:
-            cls.objects.get(user=user).delete()
-        except cls.DoesNotExist:
-            pass  # user was not found.
-
-    @classmethod
     def get_rank(cls, user: "User") -> int:
         """
         Get the rank of a user
@@ -297,14 +290,6 @@ class ContestScore(CacheMeta):
                 queryset.update(
                     points=F("points") + change_in_score, last_correct_submission=timezone.now()
                 )
-
-    @classmethod
-    def invalidate(cls, participant: "ContestParticipation"):
-        try:
-            cls.objects.get(participation=participant).delete()
-        except cls.DoesNotExist:
-            pass  # participant was not found.
-
     @classmethod
     def reset_data(cls, contest: Optional["Contest"] = None, all: bool = False):
         assert contest is not None or all, "Either contest or all must be set to True"

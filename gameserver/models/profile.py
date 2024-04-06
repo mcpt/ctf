@@ -62,27 +62,16 @@ class User(AbstractUser):
         return queryset.values("problem", "problem__points").distinct()
 
     def points(self, queryset=None):
-        cache = UserScore.get(user=self)
-
+        cache = UserScore.objects.filter(user=self).first()
         if cache is None:
             return 0
         return cache.points
 
     def flags(self, queryset=None):
-        cache = UserScore.get(user=self)
+        cache = UserScore.objects.filter(user=self).first()
         if cache is None:
             return 0
         return cache.flag_count
-
-    def rank(self, queryset=None):
-        return (
-            self.cached_ranks(f"user_{self.pk}", queryset)
-            .filter(
-                points__gt=self.points,
-            )
-            .count()
-            + 1
-        )
 
     @classmethod
     def ranks(cls, queryset=None):
