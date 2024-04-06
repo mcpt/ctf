@@ -197,7 +197,7 @@ class ContestScoreboard(SingleObjectMixin, ListView, mixin.MetaMixin):
         return "Scoreboard for " + self.object.name
 
     def get_queryset(self):
-        if self.model.cache.can_reset(self.request):
+        if self.model.cache.should_reset(self.request):
             ContestScore.reset_data(contest=self.object)
         return ContestScore.ranks(contest=self.object).select_related(
             "participation__team"
