@@ -318,7 +318,6 @@ class UserScoreAdmin(admin.ModelAdmin):
             ).latest("date_created")
         except Submission.DoesNotExist:
             return "No correct submissions"
-        print(format_html("<a href='{url}'>{url}</a>", url=obj.get_absolute_admin_url()))
         return format_html("<a href='{url}'>{url}</a>", url=obj.get_absolute_admin_url())
 
     last_correct_submission_obj.allow_tags = True
