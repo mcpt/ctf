@@ -34,6 +34,8 @@ RUN set -eux; cd /app/public/scss; mkdir out; for f in *.scss; \
     mv out/* .; \
     chmod a+r /app/public/scss/*.css
 
+STOPSIGNAL SIGINT
+# Django listens to SIGINT but not SIGTERM
 RUN apt-get purge -y sassc && \
     rm -rf /var/lib/apt/lists/* && \
     rm -rf /var/cache/*
