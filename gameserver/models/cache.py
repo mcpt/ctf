@@ -241,17 +241,14 @@ class ContestScore(CacheMeta):
     def update_or_create(
         cls, change_in_score: int, participant: "ContestParticipation", update_flags: bool = True
     ):
-        assert change_in_score > 0
+        assert change_in_score > 0, "change_in_score must be greater than 0"
         queryset = cls.objects.filter(participation=participant)
 
         if not queryset.exists():  # no user/team found matching that
             cls.objects.create(
                 participation=participant, flag_count=int(update_flags), points=change_in_score
             )
-            return cls.update_or_create(
-                change_in_score=change_in_score, participant=participant, update_flags=update_flags
-            )
-
+        
         with transaction.atomic():
             queryset.select_for_update()  # prevent race conditions with other team members
 
@@ -265,13 +262,13 @@ class ContestScore(CacheMeta):
     @classmethod
     def invalidate(cls, participant: "ContestParticipation"):
         try:
-            cls.objects.get(participant=participant).delete()
+            cls.objects.get(participation=participant).delete()
         except cls.DoesNotExist:
             pass  # participant was not found.
 
     @classmethod
     def get(cls, participant: "ContestParticipation") -> Self | None:
-        obj = cls.objects.filter(participant=participant)
+        obj = cls.objects.filter(participation=participant)
         if obj is None:
             return None
         return obj.first()
