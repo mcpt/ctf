@@ -47,7 +47,7 @@ class Problem(models.Model):
     challenge_spec = models.JSONField(null=True, blank=True)
     log_submission_content = models.BooleanField(default=False)
 
-    is_public = models.BooleanField(default=False)
+    is_public = models.BooleanField(default=False, db_index=True)
 
     date_created = models.DateTimeField(auto_now_add=True)
 

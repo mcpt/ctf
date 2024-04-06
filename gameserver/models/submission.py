@@ -15,11 +15,13 @@ class Submission(models.Model):
         blank=True,
         related_name="submissions",
         related_query_name="submission",
+        db_index=True,
     )
     problem = models.ForeignKey(
         "Problem",
         on_delete=models.CASCADE,
         related_name="submissions",
+        db_index=True,
         related_query_name="submission",
     )
     is_correct = models.BooleanField(default=False, db_index=True)
