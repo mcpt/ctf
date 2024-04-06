@@ -308,9 +308,9 @@ except ImportError:
     raise TypeError("Please create a config file to override values in config.py")
 
 
-if STORAGES.get("default") == None:
+if STORAGES.get("default") is None:
     raise TypeError("STORAGES[default] must not be blank")
-if STORAGES.get("staticfiles") == None:
+if STORAGES.get("staticfiles") is None:
     raise TypeError("STORAGES[staticfiles] must not be blank")
 
 if DEBUG:
