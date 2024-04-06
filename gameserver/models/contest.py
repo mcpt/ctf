@@ -447,37 +447,3 @@ class ContestSubmission(models.Model):
         )  # see scoreboard.html
         ContestScore.invalidate(self.participation)
         super().save(*args, **kwargs)
-
-
-def is_discord(webhook: str):
-    return webhook.startswith("https://discord.com/api")
-
-
-async def construct_discord_payload(submission: ContestSubmission) -> dict:
-    return {
-        'username': f'{submission.participation.contest.name} First Blood Notifier',
-        'avatar_url': Site.objects.get_current().domain + '/static/logo.svg',
-        'content': f'First blood on [{submission.problem.problem.name}]({submission.problem.get_absolute_url()} by {submission.participation.participant}!',
-    }
-    
-
-@receiver(post_save, sender=ContestSubmission, dispatch_uid="notify_contest_firstblood")
-async def my_handler(sender, instance, created, raw, using, update_fields, **kwargs):
-    if not created:  # only for new submissions
-        return
-    if not instance.is_firstblood:
-        return
-
-    if webhook := instance.participation.contest.first_blood_webhook:
-        payload: dict = await construct_discord_payload(instance)
-        if not is_discord(webhook):
-            payload = payload['content']
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                webhook,
-                json=payload,
-            ) as resp:
-                if resp.status != 200:
-                    text = await resp.text()
-                    logger.error(f"Failed to send webhook: {text} - {resp.status} - {webhook} - {payload}")
-                    
