@@ -199,9 +199,20 @@ class ContestScoreboard(SingleObjectMixin, ListView, mixin.MetaMixin):
     def get_queryset(self):
         if self.model.cache.should_reset(self.request):
             ContestScore.reset_data(contest=self.object)
-        return ContestScore.ranks(contest=self.object).select_related(
+
+        ranks = ContestScore.ranks(contest=self.object).select_related(
             "participation__team"
         )  # select related reduces queries from around 54 to 17ish so 8ms to 5ms
+
+        query = self.request.GET.get("q")
+
+        if query:
+            ranks = ranks.filter(
+                Q(participation__team__name__icontains=query)
+                | Q(participation__team__members__username__icontains=query)
+                | Q(participation__team__members__full_name__icontains=query)
+            ).distinct()
+        return ranks
 
     def _get_contest(self, slug):
         return get_object_or_404(models.Contest, slug=slug)

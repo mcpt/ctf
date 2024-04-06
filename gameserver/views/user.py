@@ -31,14 +31,14 @@ class UserList(ListView, mixin.MetaMixin):
     def get_queryset(self) -> models.QuerySet:
         if self.model.cache.should_reset(self.request):
             UserScore.reset_data()
-        return UserScore.ranks()
-            
-        
-        ranks = UserScore.ranks()
-        
-        return ranks
 
-        
+        query = self.request.GET.get("q")
+
+        ranks = UserScore.ranks()
+        if query:
+            ranks = ranks.filter(user__username__icontains=query)
+
+        return ranks
 
     def get(self, request, *args, **kwargs):
         if request.in_contest:
