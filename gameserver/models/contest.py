@@ -1,8 +1,11 @@
+import logging
 from datetime import timedelta
 
+import aiohttp
 from django.apps import apps
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.sites.models import Site
 from django.core.cache import cache
 from django.core.cache.utils import make_template_fragment_key
 from django.core.validators import MinValueValidator
@@ -10,14 +13,18 @@ from django.db import models
 from django.db.models import Count, F, Max, Min, OuterRef, Q, Subquery, Sum
 from django.db.models.expressions import Window
 from django.db.models.functions import Coalesce, Rank
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
+
 from gameserver.models.cache import ContestScore
 
 from ..templatetags.common_tags import strfdelta
 from . import abstract
 
+logger = logging.getLogger(__name__)
 # Create your models here.
 
 
@@ -55,6 +62,10 @@ class Contest(models.Model):
     )
 
     date_created = models.DateTimeField(auto_now_add=True)
+    first_blood_webhook = models.URLField(
+        blank=True,
+        help_text="URL to send a POST request to when a user gets the first blood on a problem",
+    )
 
     class Meta:
         permissions = (
@@ -436,3 +447,37 @@ class ContestSubmission(models.Model):
         )  # see scoreboard.html
         ContestScore.invalidate(self.participation)
         super().save(*args, **kwargs)
+
+
+def is_discord(webhook: str):
+    return webhook.startswith("https://discord.com/api")
+
+
+async def construct_discord_payload(submission: ContestSubmission) -> dict:
+    return {
+        'username': f'{submission.participation.contest.name} First Blood Notifier',
+        'avatar_url': Site.objects.get_current().domain + '/static/logo.svg',
+        'content': f'First blood on [{submission.problem.problem.name}]({submission.problem.get_absolute_url()} by {submission.participation.participant}!',
+    }
+    
+
+@receiver(post_save, sender=ContestSubmission, dispatch_uid="notify_contest_firstblood")
+async def my_handler(sender, instance, created, raw, using, update_fields, **kwargs):
+    if not created:  # only for new submissions
+        return
+    if not instance.is_firstblood:
+        return
+
+    if webhook := instance.participation.contest.first_blood_webhook:
+        payload: dict = await construct_discord_payload(instance)
+        if not is_discord(webhook):
+            payload = payload['content']
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                webhook,
+                json=payload,
+            ) as resp:
+                if resp.status != 200:
+                    text = await resp.text()
+                    logger.error(f"Failed to send webhook: {text} - {resp.status} - {webhook} - {payload}")
+                    
