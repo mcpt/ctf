@@ -169,11 +169,11 @@ class ProblemDetail(
             and not self.request.participation.has_solved(self.contest_object)
         ):
             messages.success(self.request, "Your flag is correct!")
+            self._create_submission_object(form, is_correct=True)
         else:
             messages.info(
                 self.request, "Your flag is correct, but you have already solved this problem."
             )
-        self._create_submission_object(form, is_correct=True)
         return super().form_valid(form)
 
     def form_invalid(self, form):
