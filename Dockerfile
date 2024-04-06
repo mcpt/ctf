@@ -43,6 +43,6 @@ EXPOSE 28730
 CMD /app/.venv/bin/gunicorn \
       --bind :28730 \
       --error-logfile - \
-      --timeout 15 \
+      --timeout 20 \
       --config /app/container/gunicorn.py \
       mCTF.wsgi:application
