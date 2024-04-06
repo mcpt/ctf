@@ -1,12 +1,13 @@
-from django.db.models import F, OuterRef, Subquery, Case, When, Q
+import datetime
+from typing import Any, List
+
+from django.db.models import Case, F, OuterRef, Q, Subquery, When
 from django.shortcuts import get_object_or_404
+from ninja import NinjaAPI, Schema
 
 from gameserver.models.cache import ContestScore
-from gameserver.models.contest import ContestProblem, ContestSubmission, Contest
-from ninja import NinjaAPI, Schema
-from typing import List, Any
+from gameserver.models.contest import Contest, ContestProblem, ContestSubmission
 
-import datetime
 
 def unicode_safe(string):
     return string.encode("unicode_escape").decode()
@@ -85,9 +86,9 @@ def ctftime_standings(request, contest_name: str):
 
     return {"standings": standings, "tasks": task_names}
 
+
 @api.get("/contests", response=List[ContestOutSchema])
 def contests(request):
-    return (
-        Contest.objects.filter(is_public=True)
-        .values("name", "slug", "start_time", "end_time", "max_team_size", "description", "summary")
+    return Contest.objects.filter(is_public=True).values(
+        "name", "slug", "start_time", "end_time", "max_team_size", "description", "summary"
     )

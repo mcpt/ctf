@@ -1,5 +1,5 @@
-from typing import TYPE_CHECKING, Optional, Self, Protocol, Callable
-from django.http import HttpRequest
+from typing import TYPE_CHECKING, Callable, Optional, Protocol, Self
+
 from django.apps import apps
 from django.db import models, transaction
 from django.db.models import (
@@ -8,22 +8,24 @@ from django.db.models import (
     Count,
     F,
     OuterRef,
+    QuerySet,
     Subquery,
     Sum,
     Value,
     When,
-    QuerySet,
     Window,
 )
 from django.db.models.functions import Coalesce, Rank, RowNumber
+from django.http import HttpRequest
 
 if TYPE_CHECKING:
-    from .profile import User
     from .contest import Contest, ContestParticipation, ContestSubmission
+    from .profile import User
 
 
 class ResetableCache(Protocol):
-    def can_reset(cls, request: HttpRequest) -> None: ...
+    def can_reset(cls, request: HttpRequest) -> None:
+        ...
 
 
 class CacheMeta(models.Model):
