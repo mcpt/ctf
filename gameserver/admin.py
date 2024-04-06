@@ -212,6 +212,7 @@ class ContestAdmin(SortableAdminBase, admin.ModelAdmin):
         "summary",
         "start_time",
         "end_time",
+        "first_blood_webhook",
         "tags",
         "max_team_size",
         "is_public",
