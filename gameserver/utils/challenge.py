@@ -23,7 +23,7 @@ if challenge_cluster["connection"]["host"] is not None:
     api_client = kubernetes.dynamic.DynamicClient(kubernetes.client.ApiClient(cluster_config))
     logger.info("connected to challenge cluster")
 
-if api_client is None:
+if api_client is None and not settings.DEBUG:
     logger.error("failed to connect to challenge cluster")
     raise Exception("failed to connect to challenge cluster")
 
