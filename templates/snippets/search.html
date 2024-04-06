@@ -2,7 +2,7 @@
 
 <form method="GET" action="{{ request|get_search_page }}">
     <div class="input-group mb-3">
-        <input type="text" class="form-control" placeholder="Search" name="q" value="{{ request.GET.search }}">
+        <input type="text" class="form-control" placeholder="Search - Note: ranks are of the searched subset" name="q" value="{{ request.GET.search }}">
         <div class="input-group-append">
             <button class="btn btn-outline-secondary"
                     style="border-bottom-left-radius: 0; border-top-left-radius: 0" type="submit">Search
