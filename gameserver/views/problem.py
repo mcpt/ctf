@@ -48,7 +48,7 @@ class ProblemList(ListView, mixin.MetaMixin):
                 submission__in=self.request.user.submissions.filter(is_correct=True).all()
             )
         if self.nfts:
-            q = q.filter(name__contains=self.nfts)
+            q = q.filter(name__icontains=self.nfts)
         return q
 
     def get(self, request, *args, **kwargs):
