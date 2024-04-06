@@ -23,8 +23,7 @@ if TYPE_CHECKING:
 
 
 class ResetableCache(Protocol):
-    def can_reset(cls, request: HttpRequest) -> None:
-        ...
+    def can_reset(cls, request: HttpRequest) -> None: ...
 
 
 class CacheMeta(models.Model):
@@ -43,7 +42,7 @@ class CacheMeta(models.Model):
             [
                 request.user.is_authenticated,
                 request.user.is_staff,
-                request.GET.get("reset", "") == "true",
+                request.GET.get("reset", "").casefold() == "true",
             ]
         )
 

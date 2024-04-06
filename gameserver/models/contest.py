@@ -32,7 +32,12 @@ class Contest(models.Model):
 
     organizers = models.ManyToManyField("User", related_name="contests_organized", blank=True)
     curators = models.ManyToManyField("User", related_name="contests_curated", blank=True)
-    organizations = models.ManyToManyField("Organization", related_name="contests", blank=True, help_text="Only users of these organizations can access the contest")
+    organizations = models.ManyToManyField(
+        "Organization",
+        related_name="contests",
+        blank=True,
+        help_text="Only users of these organizations can access the contest",
+    )
 
     name = models.CharField(max_length=128)
     slug = models.SlugField(unique=True, db_index=True)
