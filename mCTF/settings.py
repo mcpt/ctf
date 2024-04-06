@@ -180,11 +180,6 @@ ACCOUNT_AUTHENTICATION_METHOD = "username_email"
 ACCOUNT_EMAIL_VERIFICATION = "optional"
 ACCOUNT_SIGNUP_REDIRECT_URL = "/"
 
-AUTHENTICATION_BACKENDS = (
-    "django.contrib.auth.backends.ModelBackend",
-    "allauth.account.auth_backends.AuthenticationBackend",
-)
-
 ACCOUNT_FORMS = {"signup": "gameserver.forms.MCTFSignupForm"}
 
 TOS_URL = "/tos"
