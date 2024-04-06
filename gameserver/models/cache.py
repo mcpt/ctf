@@ -124,12 +124,17 @@ class UserScore(CacheMeta):
             pass  # user was not found.
 
     @classmethod
-    def get(cls, user: "User") -> Self | None:
-        obj = cls.objects.filter(user=user)
-        if obj is None:
-            return None
-        return obj.first()
-
+    def get_rank(cls, user: "User") -> int:
+        """
+        Get the rank of a user
+        
+        There are a couple issues with implementing this function as
+        cls.ranks().get(user=user).rank
+        - The biggest is django is lazy and the user's rank will always be 1
+        The only way I see to implement this would be to use raw SQL (see cls.ranks().query)
+        """
+        raise NotImplementedError
+        
     @classmethod
     def reset_data(cls, users: Optional[QuerySet["User"]] = None):
         from django.contrib.auth import get_user_model
