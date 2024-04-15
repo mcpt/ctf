@@ -1,12 +1,13 @@
 import datetime
 from typing import Any, List
 
-from django.db.models import F, OuterRef, Max
+from django.db.models import F, OuterRef, Max, Subquery, Case, When, Value, BooleanField, TextField
 from django.shortcuts import get_object_or_404
 from ninja import NinjaAPI, Schema
 
 from gameserver.models.cache import ContestScore
-from gameserver.models.contest import Contest, ContestProblem, ContestSubmission
+from gameserver.models.profile import User
+from gameserver.models.contest import Contest, ContestProblem, ContestSubmission, ContestParticipation
 
 
 def unicode_safe(string):
@@ -33,11 +34,12 @@ class CTFSchema(Schema):
     lastAccept: Any = None
 
     @staticmethod
-    def resolve_lastAccept(obj) -> int:
+    def resolve_lastAccept(obj: dict) -> int:
         """Turns a datetime object into a timestamp."""
-        if obj["lastAccept"] is None:
+        print(obj, ' - DEBUG PRINT')
+        if obj['lastAccept'] is None:
             return 0
-        return int(obj["lastAccept"].timestamp())
+        return int(obj['lastAccept'].timestamp())
 
     @staticmethod
     def resolve_team(obj):
@@ -61,20 +63,26 @@ def ctftime_standings(request, contest_name: str):
         .order_by("-submission__date_created")
         .values("submission__date_created")
     )
+
     standings = (
         ContestScore.ranks(contest=contest_id)
         .annotate(
             pos=F("rank"),
             score=F("points"),
-            team=F("participation__team__name"),
+            is_solo=Case(
+                When(participation__team_id=None, then=Value(False)),
+                default=Value(True),
+                output_field=BooleanField(),
+            ),
+            team=Case(
+                When(participation__team_id=None, then=Subquery(     # If the team is None, use the username of the participant ( solo player )
+                    User.objects.filter(contest_participations=OuterRef("participation_id")).values(
+                        "username")[:1]
+                ),),
+                default=F("participation__team__name"),
+                output_field=TextField(),
+            ),
             lastAccept=Max("participation__submission__submission__date_created"),
-            # team=Coalesce(F("participation__team__name"), F("participation__participants__username")),
-            # Using Coalesce and indexing
-            # team=Case(
-            #     When(F("participation__team__isnull")==True, then=Q(("participation__participants")[0]["username"])),
-            #     default=F("team_name"),
-            #     output_field=TextField(),
-            # ),
         )
         .values("pos", "score", "team", "lastAccept")
     )
