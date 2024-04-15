@@ -1,7 +1,7 @@
 import datetime
 from typing import Any, List
 
-from django.db.models import F, OuterRef, Subquery
+from django.db.models import F, OuterRef, Max
 from django.shortcuts import get_object_or_404
 from ninja import NinjaAPI, Schema
 
@@ -67,6 +67,7 @@ def ctftime_standings(request, contest_name: str):
             pos=F("rank"),
             score=F("points"),
             team=F("participation__team__name"),
+            lastAccept=Max("participation__submission__submission__date_created"),
             # team=Coalesce(F("participation__team__name"), F("participation__participants__username")),
             # Using Coalesce and indexing
             # team=Case(
@@ -74,7 +75,6 @@ def ctftime_standings(request, contest_name: str):
             #     default=F("team_name"),
             #     output_field=TextField(),
             # ),
-            lastAccept=Subquery(last_sub_time),
         )
         .values("pos", "score", "team", "lastAccept")
     )
