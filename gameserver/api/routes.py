@@ -84,6 +84,7 @@ def ctftime_standings(request, contest_name: str):
             ),
             lastAccept=Max("participation__submission__submission__date_created"),
         )
+        .filter(score__gt=0)
         .values("pos", "score", "team", "lastAccept")
     )
     task_names = (
