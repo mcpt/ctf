@@ -76,10 +76,7 @@ class ContestDetail(
     def form_valid(self, form):
         team = form.cleaned_data["participant"]
 
-        if (
-            self.request.user.in_contest
-            and self.request.user.current_contest.contest == self.object
-        ):
+        if self.request.in_contest and self.request.user.current_contest.contest == self.object:
             contest_participation = models.ContestParticipation.objects.get_or_create(
                 team=team, contest=self.object
             )[0]
@@ -200,11 +197,22 @@ class ContestScoreboard(SingleObjectMixin, ListView, mixin.MetaMixin):
         return "Scoreboard for " + self.object.name
 
     def get_queryset(self):
-        if self.model.cache.can_reset(self.request):
+        if self.model.cache.should_reset(self.request):
             ContestScore.reset_data(contest=self.object)
-        return ContestScore.ranks(contest=self.object).select_related(
+
+        ranks = ContestScore.ranks(contest=self.object).select_related(
             "participation__team"
         )  # select related reduces queries from around 54 to 17ish so 8ms to 5ms
+
+        query = self.request.GET.get("q")
+
+        if query:
+            ranks = ranks.filter(
+                Q(participation__team__name__icontains=query)
+                | Q(participation__team__members__username__icontains=query)
+                | Q(participation__team__members__full_name__icontains=query)
+            ).distinct()
+        return ranks
 
     def _get_contest(self, slug):
         return get_object_or_404(models.Contest, slug=slug)

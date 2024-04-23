@@ -1,4 +1,4 @@
-# GitHub recommends pinning actions to a commit SHA.
+# Github recommends pinning actions to a commit SHA.
 # To get a newer version, you will need to update the SHA.
 # You can also reference a tag or branch, but the action may change without warning.
 
@@ -6,6 +6,11 @@ name: Create and publish a Docker image
 
 on:
   push:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.GITHUB_REF }}
+  cancel-in-progress: true
+
 
 env:
   REGISTRY: ghcr.io

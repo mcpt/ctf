@@ -5,6 +5,9 @@
 {% block heading %}{% if org %}{{ org.short_name }} {% endif %}Scoreboard for
     <a href="{{ contest.get_absolute_url }}">{{ contest }}</a>{% endblock %}
 
+{% block top %}
+    {% include 'snippets/search.html' %}
+{% endblock top %}
 {% block th %}
     <th scope="col">Rank</th>
     <th scope="col">Name</th>

@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 
 challenge_cluster = settings.CHALLENGE_CLUSTER
 
+api_client = None
 if challenge_cluster["connection"]["host"] is not None:
     cluster_config = kubernetes.client.Configuration()
     cluster_config.host = challenge_cluster["connection"]["host"]
@@ -21,6 +22,10 @@ if challenge_cluster["connection"]["host"] is not None:
     logger.info(f"attempting to connect to challenge cluster at {cluster_config.host}")
     api_client = kubernetes.dynamic.DynamicClient(kubernetes.client.ApiClient(cluster_config))
     logger.info("connected to challenge cluster")
+
+if api_client is None and not settings.DEBUG:
+    logger.error("failed to connect to challenge cluster")
+    raise Exception("failed to connect to challenge cluster")
 
 
 def create_challenge_instance(challenge_spec, problem_id, problem_flag, instance_owner, wait=False):

@@ -9,9 +9,14 @@ def debug():
     return settings.DEBUG
 
 
-@register.filter
+@register.simple_tag
 def startswith(string, substring):
     return string.startswith(substring)
+
+
+@register.simple_tag
+def endswith(string, substring):
+    return string.endswith(substring)
 
 
 @register.filter

@@ -34,6 +34,8 @@ RUN set -eux; cd /app/public/scss; mkdir out; for f in *.scss; \
     mv out/* .; \
     chmod a+r /app/public/scss/*.css
 
+STOPSIGNAL SIGTERM
+# Gunicorn listens to SIGTERM
 RUN apt-get purge -y sassc && \
     rm -rf /var/lib/apt/lists/* && \
     rm -rf /var/cache/*
@@ -41,6 +43,6 @@ EXPOSE 28730
 CMD /app/.venv/bin/gunicorn \
       --bind :28730 \
       --error-logfile - \
-      --timeout 120 \
+      --timeout 20 \
       --config /app/container/gunicorn.py \
       mCTF.wsgi:application

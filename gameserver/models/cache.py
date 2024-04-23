@@ -1,5 +1,6 @@
-from typing import TYPE_CHECKING, Optional, Self, Protocol, Callable
-from django.http import HttpRequest
+from datetime import datetime
+from typing import TYPE_CHECKING, Callable, Optional, Protocol, Self
+
 from django.apps import apps
 from django.db import models, transaction
 from django.db.models import (
@@ -7,23 +8,26 @@ from django.db.models import (
     Case,
     Count,
     F,
-    OuterRef,
-    Subquery,
+    QuerySet,
     Sum,
     Value,
     When,
-    QuerySet,
     Window,
 )
-from django.db.models.functions import Coalesce, Rank, RowNumber
+from django.db.models.functions import Coalesce, Rank
+from django.http import HttpRequest
+from django.utils import timezone
 
 if TYPE_CHECKING:
-    from .profile import User
     from .contest import Contest, ContestParticipation, ContestSubmission
+    from .profile import User
+
+EPOCH_TIME = datetime(1971, 1, 1, 0, 0, 0)
 
 
 class ResetableCache(Protocol):
-    def can_reset(cls, request: HttpRequest) -> None: ...
+    def can_reset(cls, request: HttpRequest) -> None:
+        ...
 
 
 class CacheMeta(models.Model):
@@ -48,14 +52,23 @@ class CacheMeta(models.Model):
 
 
 class UserScore(CacheMeta):
-    user = models.OneToOneField("User", on_delete=models.CASCADE, db_index=True)
+    user = models.OneToOneField(
+        "User", related_name="score_cache", on_delete=models.CASCADE, db_index=True
+    )
     points = models.PositiveIntegerField(help_text="The amount of points.", default=0)
     flag_count = models.PositiveIntegerField(
         help_text="The amount of flags the user/team has.", default=0
     )
+    last_correct_submission = models.DateTimeField(
+        help_text="The date of the last correct submission.",
+        # auto_now=True, auto now is not used as it does not allow you to override the value
+        editable=False,
+        blank=True,
+        default=EPOCH_TIME,  # only used for migration (overwritten by reset_score)
+    )
 
     @classmethod
-    def can_reset(cls, request: HttpRequest):
+    def should_reset(cls, request: HttpRequest):
         return cls._can_reset(request) and request.user.has_perm(
             "gameserver.can_reset_cache_user_score"
         )
@@ -71,9 +84,9 @@ class UserScore(CacheMeta):
         qs = cls.objects.annotate(
             rank=Window(
                 expression=Rank(),
-                order_by=F("points").desc(),
+                order_by=("-points", "-last_correct_submission"),
             )
-        ).order_by("rank", "flag_count")
+        ).order_by("rank")
         return qs
 
     @classmethod
@@ -82,71 +95,96 @@ class UserScore(CacheMeta):
         queryset = cls.objects.filter(user=user)
 
         if not queryset.exists():  # no user found matching that
-            cls.objects.create(user=user, flag_count=int(update_flags), points=change_in_score)
+            cls.objects.create(
+                user=user,
+                flag_count=int(update_flags),
+                points=change_in_score,
+                last_correct_submission=timezone.now(),
+            )
             return cls.update_or_create(
                 change_in_score=change_in_score, user=user, update_flags=update_flags
             )
 
         if update_flags:
-            queryset.update(points=F("points") + change_in_score)
+            queryset.update(
+                points=F("points") + change_in_score,
+                flag_count=F("flag_count") + 1,
+                last_correct_submission=timezone.now(),
+            )
         else:
-            queryset.update(points=F("points") + change_in_score, flag_count=F("flag_count") + 1)
+            queryset.update(
+                points=F("points") + change_in_score, last_correct_submission=timezone.now()
+            )
 
     @classmethod
-    def invalidate(cls, user: "User"):
-        try:
-            cls.objects.get(user=user).delete()
-        except cls.DoesNotExist:
-            pass  # user was not found.
+    def get_rank(cls, user: "User") -> int:
+        """
+        Get the rank of a user
+
+        There are a couple issues with implementing this function as
+        cls.ranks().get(user=user).rank
+        - The biggest is django is lazy and the user's rank will always be 1
+        The only way I see to implement this would be to use raw SQL (see cls.ranks().query)
+        """
+        raise NotImplementedError
 
     @classmethod
-    def get(cls, user: "User") -> Self | None:
-        obj = cls.objects.filter(user=user)
-        if obj is None:
-            return None
-        return obj.first()
-
-    @classmethod
-    def reset_data(cls):
+    def reset_data(cls, users: Optional[QuerySet["User"]] = None):
         from django.contrib.auth import get_user_model
+        from gameserver.models import Submission
 
-        cls.objects.all().delete()  # clear inital objs
-        UserModel = get_user_model()
-        users = UserModel.objects.all()
+        if users is None:
+            users = get_user_model().objects.all()
+            cls.objects.all().delete()  # clear past objs
+        else:
+            cls.objects.filter(user__in=users).delete()  # clear past objs
+
         scores_to_create = []
+
         for user in users:
             queryset = user._get_unique_correct_submissions()
             queryset = queryset.aggregate(
                 points=Coalesce(Sum("problem__points"), 0),
                 flags=Count("problem"),
             )
+            try:
+                last_correct_submission = (
+                    Submission.objects.filter(user=user, problem__is_public=True, is_correct=True)
+                    .latest("date_created")
+                    .date_created
+                )
+            except Submission.DoesNotExist:  # user have never submitted to a public problem
+                last_correct_submission = EPOCH_TIME
+
             scores_to_create.append(
-                UserScore(user=user, flag_count=queryset["flags"], points=queryset["points"])
+                UserScore(
+                    user=user,
+                    flag_count=queryset["flags"],
+                    points=queryset["points"],
+                    last_correct_submission=last_correct_submission,
+                )
             )
         # Use bulk_create to create all objects in a single query
         cls.objects.bulk_create(scores_to_create)
 
 
-def get_contest_submission() -> Callable[[], "ContestSubmission"]:
-    model: "ContestSubmission" = None
-
-    def inner():
-        nonlocal model
-        if model is None:
-            model = apps.get_model("gameserver", "ContestSubmission", require_ready=True)
-        return model
-
-    return inner
-
-
 class ContestScore(CacheMeta):
     participation = models.OneToOneField(
-        "ContestParticipation", on_delete=models.CASCADE, db_index=True
+        "ContestParticipation", related_name="score_cache", on_delete=models.CASCADE, db_index=True
     )
     points = models.PositiveIntegerField(help_text="The amount of points.", default=0)
     flag_count = models.PositiveIntegerField(
         help_text="The amount of flags the user/team has.", default=0
     )
+
+    last_correct_submission = models.DateTimeField(
+        help_text="The date of the last correct submission.",
+        # auto_now=True, auto now is not used as it does not allow you to override the value
+        editable=False,
+        blank=True,
+        default=EPOCH_TIME,  # only used for migration (overwritten by reset_score)
+    )
+
     # contest_id = models.IntegerField(
     #     help_text="The id for which contest this applies to. Do not change this value manually.",
     #     blank=True,
@@ -158,7 +196,7 @@ class ContestScore(CacheMeta):
     #     super().save(*args, **kwargs)
 
     @classmethod
-    def can_reset(cls, request: HttpRequest):
+    def should_reset(cls, request: HttpRequest):
         return cls._can_reset(request) and request.user.has_perm(
             "gameserver.can_reset_cache_user_score"
         )
@@ -187,12 +225,6 @@ class ContestScore(CacheMeta):
         # perm_edit_all_contests = Permission.objects.get(
         #     codename="edit_all_contests", content_type=contest_content_type
         # )
-        max_submission_time_subquery = (
-            get_contest_submission()()
-            .objects.filter(participation=OuterRef("participation"))
-            .order_by("-submission__date_created")
-            .values("submission__date_created")[:1]
-        )
         if participation:
             if isinstance(participation, QuerySet):
                 query = cls.objects.filter(participation__in=participation)
@@ -216,16 +248,11 @@ class ContestScore(CacheMeta):
                 default=Value(True),
                 output_field=BooleanField(),
             ),
-            sub_rank=Window(
-                expression=Rank(),
-                order_by=F("points").desc(),
-            ),
             rank=Window(
-                expression=RowNumber(),
-                order_by=F("points").desc(),
+                expression=Rank(),
+                order_by=("-points", "-last_correct_submission"),
             ),
-            max_submission_time=Subquery(max_submission_time_subquery),
-        ).order_by("rank", "flag_count", "-max_submission_time")
+        ).order_by("rank")
         return data
 
     def __str__(self) -> str:
@@ -239,45 +266,38 @@ class ContestScore(CacheMeta):
     def update_or_create(
         cls, change_in_score: int, participant: "ContestParticipation", update_flags: bool = True
     ):
-        assert change_in_score > 0
+        assert change_in_score > 0, "change_in_score must be greater than 0"
         queryset = cls.objects.filter(participation=participant)
 
         if not queryset.exists():  # no user/team found matching that
             cls.objects.create(
-                participation=participant, flag_count=int(update_flags), points=change_in_score
-            )
-            return cls.update_or_create(
-                change_in_score=change_in_score, participant=participant, update_flags=update_flags
+                participation=participant,
+                flag_count=int(update_flags),
+                points=change_in_score,
+                last_correct_submission=timezone.now(),
             )
 
         with transaction.atomic():
             queryset.select_for_update()  # prevent race conditions with other team members
 
             if update_flags:
-                queryset.update(points=F("points") + change_in_score)
+                queryset.update(
+                    points=F("points") + change_in_score,
+                    flag_count=F("flag_count") + 1,
+                    last_correct_submission=timezone.now(),
+                )
             else:
                 queryset.update(
-                    points=F("points") + change_in_score, flag_count=F("flag_count") + 1
+                    points=F("points") + change_in_score, last_correct_submission=timezone.now()
                 )
-
-    @classmethod
-    def invalidate(cls, participant: "ContestParticipation"):
-        try:
-            cls.objects.get(participant=participant).delete()
-        except cls.DoesNotExist:
-            pass  # participant was not found.
-
-    @classmethod
-    def get(cls, participant: "ContestParticipation") -> Self | None:
-        obj = cls.objects.filter(participant=participant)
-        if obj is None:
-            return None
-        return obj.first()
 
     @classmethod
     def reset_data(cls, contest: Optional["Contest"] = None, all: bool = False):
         assert contest is not None or all, "Either contest or all must be set to True"
         ContestModel = apps.get_model("gameserver", "Contest")
+        ContestSubmissionModel: ContestSubmission = apps.get_model(
+            "gameserver", "ContestSubmission"
+        )
         if all:
             contests = ContestModel.objects.all()
             for contest in contests:
@@ -293,11 +313,28 @@ class ContestScore(CacheMeta):
                 points=Coalesce(Sum("problem__points"), 0),
                 flags=Count("problem"),
             )
+            try:
+                last_correct_submission = (
+                    ContestSubmissionModel.objects.filter(
+                        problem__contest=contest,
+                        participation=participant,
+                        problem__problem__is_public=True,
+                        submission__is_correct=True,
+                    )
+                    .prefetch_related("submission")
+                    .latest("submission__date_created")
+                    .submission.date_created
+                )
+            except (
+                ContestSubmissionModel.DoesNotExist
+            ):  # user have never submitted to a public problem
+                last_correct_submission = EPOCH_TIME
             scores_to_create.append(
                 ContestScore(
                     participation=participant,
                     flag_count=queryset["flags"],
                     points=queryset["points"],
+                    last_correct_submission=last_correct_submission,
                 )
             )
         # Use bulk_create to create all objects in a single query

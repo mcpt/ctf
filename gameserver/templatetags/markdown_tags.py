@@ -1,13 +1,14 @@
 import re
 
 import bleach.sanitizer as sanitizer
+import bleach_allowlist
 import mistune
+from bleach.css_sanitizer import CSSSanitizer
 from django import template
 from django.conf import settings
 from django.template.defaultfilters import stringfilter
 from django.utils.safestring import mark_safe
 
-from . import bleach_allowlist
 
 render = mistune.create_markdown(
     renderer=mistune.HTMLRenderer(escape=False),
@@ -46,12 +47,12 @@ cleaner = sanitizer.Cleaner(
         "iframe": ["src", "frameborder", "class"],
         "img": ["alt", "src", "style", "class"],
     },
-    styles=[*bleach_allowlist.all_styles, "markdown-embed"],
     protocols=[
         "https",
         "mailto",
     ],
     strip=True,
+    css_sanitizer=CSSSanitizer(allowed_css_properties=[*bleach_allowlist.all_styles, "markdown-embed"]),
 )
 
 

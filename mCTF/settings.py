@@ -63,14 +63,14 @@ MIDDLEWARE = [
     "django.contrib.flatpages.middleware.FlatpageFallbackMiddleware",
     "gameserver.middleware.RedirectFallbackTemporaryMiddleware",
     "allauth.account.middleware.AccountMiddleware",
-    'gameserver.middleware.ErrorLogMiddleware',
+    "gameserver.middleware.ErrorLogMiddleware",
     # ↑ keep last to log errors from middlewares
 ]
 
 CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'CTFx',
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "CTFx",
     }
 }
 
@@ -179,11 +179,6 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_AUTHENTICATION_METHOD = "username_email"
 ACCOUNT_EMAIL_VERIFICATION = "optional"
 ACCOUNT_SIGNUP_REDIRECT_URL = "/"
-
-AUTHENTICATION_BACKENDS = (
-    "django.contrib.auth.backends.ModelBackend",
-    "allauth.account.auth_backends.AuthenticationBackend",
-)
 
 ACCOUNT_FORMS = {"signup": "gameserver.forms.MCTFSignupForm"}
 
@@ -300,9 +295,7 @@ SILENCED_SYSTEM_CHECKS = ["urls.W002"]
 
 DEFAULT_TIMEZONE = "UTC"
 
-MISTUNE_PLUGINS = (
-    "strikethrough",
-)
+MISTUNE_PLUGINS = ("strikethrough",)
 
 try:
     from mCTF.config import *
@@ -310,15 +303,16 @@ except ImportError:
     raise TypeError("Please create a config file to override values in config.py")
 
 
-if STORAGES.get("default") == None:
+if STORAGES.get("default") is None:
     raise TypeError("STORAGES[default] must not be blank")
-if STORAGES.get("staticfiles") == None:
+if STORAGES.get("staticfiles") is None:
     raise TypeError("STORAGES[staticfiles] must not be blank")
 
-INSTALLED_APPS += ["debug_toolbar"]
+if DEBUG:
+    INSTALLED_APPS += ["debug_toolbar"]
 
-MIDDLEWARE += [
-    # ...
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
-    # ...
-]
+    MIDDLEWARE += [
+        # ...
+        "debug_toolbar.middleware.DebugToolbarMiddleware",
+        # ...
+    ]

@@ -1,5 +1,9 @@
 {% extends 'table-list.html' %}
 
+{% block top %}
+{% include 'snippets/search.html' %}
+{% endblock top %}
+
 {% block th %}
     <th scope="col">Rank</th>
     <th scope="col">Username</th>

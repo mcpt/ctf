@@ -18,28 +18,29 @@ logger = logging.getLogger("django")
 
 
 def int_list(l):
+    if not l:
+        return None
     return list(map(int, filter(lambda x: x.isnumeric(), l)))
 
 
 class ProblemList(ListView, mixin.MetaMixin):
     template_name = "problem/list.html"
     context_object_name = "problems"
-    paginate_by = 50
+    paginate_by = 35
     title = "Practice Problems"
 
     def get_queryset(self):
+        base = models.Problem.get_visible_problems(self.request.user).prefetch_related(
+            "problem_type", "problem_group"
+        )
+        
+        if self.selected_types is not None:
+            base = base.filter(problem_type__in=self.selected_types)
+        if self.selected_groups is not None and not self.request.in_contest:
+            base = base.filter(problem_group__in=self.selected_groups)
+            
         q = (
-            models.Problem.get_visible_problems(self.request.user)
-            .prefetch_related("problem_type", "problem_group")
-            .filter(
-                Q(problem_type__in=self.selected_types) if len(self.selected_types) else Q(),
-                (
-                    Q(problem_group__in=self.selected_groups)
-                    if len(self.selected_groups) and not self.request.in_contest
-                    else Q()
-                ),
-            )
-            .distinct()
+            base.distinct()
             .order_by("points", "name")
         )
         if self.hide_solved and self.request.user.is_authenticated:
@@ -47,7 +48,7 @@ class ProblemList(ListView, mixin.MetaMixin):
                 submission__in=self.request.user.submissions.filter(is_correct=True).all()
             )
         if self.nfts:
-            q = q.filter(name__contains=self.nfts)
+            q = q.filter(name__icontains=self.nfts)
         return q
 
     def get(self, request, *args, **kwargs):
@@ -169,11 +170,11 @@ class ProblemDetail(
             and not self.request.participation.has_solved(self.contest_object)
         ):
             messages.success(self.request, "Your flag is correct!")
+            self._create_submission_object(form, is_correct=True)
         else:
             messages.info(
                 self.request, "Your flag is correct, but you have already solved this problem."
             )
-        self._create_submission_object(form, is_correct=True)
         return super().form_valid(form)
 
     def form_invalid(self, form):

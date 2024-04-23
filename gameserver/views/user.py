@@ -28,10 +28,17 @@ class UserList(ListView, mixin.MetaMixin):
     paginate_by = 50
     title = "Users"
 
-    def get_queryset(self):
-        if self.model.cache.can_reset(self.request):
+    def get_queryset(self) -> models.QuerySet:
+        if self.model.cache.should_reset(self.request):
             UserScore.reset_data()
-        return UserScore.ranks()
+
+        query = self.request.GET.get("q")
+
+        ranks = UserScore.ranks()
+        if query:
+            ranks = ranks.filter(user__username__icontains=query)
+
+        return ranks
 
     def get(self, request, *args, **kwargs):
         if request.in_contest:

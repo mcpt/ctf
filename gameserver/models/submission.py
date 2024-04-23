@@ -1,6 +1,8 @@
 from django.db import models
 from django.db.models import Q
+from django.urls import reverse
 from django.utils.functional import cached_property
+from django.utils.html import format_html
 
 from .cache import UserScore
 
@@ -13,16 +15,24 @@ class Submission(models.Model):
         blank=True,
         related_name="submissions",
         related_query_name="submission",
+        db_index=True,
     )
     problem = models.ForeignKey(
         "Problem",
         on_delete=models.CASCADE,
         related_name="submissions",
+        db_index=True,
         related_query_name="submission",
     )
     is_correct = models.BooleanField(default=False, db_index=True)
     date_created = models.DateTimeField(auto_now_add=True)
     content = models.CharField(max_length=256, null=True, default=None)
+
+    def get_absolute_admin_url(self):
+        url = reverse(
+            "admin:%s_%s_change" % (self._meta.app_label, self._meta.model_name), args=[self.id]
+        )
+        return format_html('<a href="{url}">{url}</a>', url=url)
 
     def __str__(self):
         return f"{self.user.username}'s submission for {self.problem.name}"

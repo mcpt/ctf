@@ -1,24 +1,20 @@
 from datetime import timedelta
 
 from django.apps import apps
-from django.contrib.auth.models import Permission
-from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.core.cache.utils import make_template_fragment_key
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.db.models import Count, F, Max, Min, OuterRef, Q, Subquery, Sum
-from django.db.models.expressions import Window
-from django.db.models.functions import Coalesce, Rank
+from django.db.models import Min, Q
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
+from django.utils.html import format_html
+
 from gameserver.models.cache import ContestScore
 
 from ..templatetags.common_tags import strfdelta
 from . import abstract
-
-# Create your models here.
 
 
 class ContestTag(abstract.Category):
@@ -49,12 +45,16 @@ class Contest(models.Model):
 
     tags = models.ManyToManyField(ContestTag, blank=True)
 
-    is_public = models.BooleanField(default=True)
+    is_public = models.BooleanField(default=True, db_index=True)
     max_team_size = models.PositiveSmallIntegerField(
         null=True, blank=True, validators=[MinValueValidator(1)]
     )
 
     date_created = models.DateTimeField(auto_now_add=True)
+    first_blood_webhook = models.URLField(
+        blank=True,
+        help_text="URL to send a POST request to when a user gets the first blood on a problem",
+    )
 
     class Meta:
         permissions = (
@@ -98,69 +98,8 @@ class Contest(models.Model):
         else:
             return self.problems.filter(problem__pk=problem.pk).exists()
 
-    @cached_property
-    def __meta_key(self):
-        return f"contest_ranks_{self.pk}"
-
     def ranks(self):
         return self.ContestScore.ranks(self)
-
-    def _ranks(self, queryset=None):
-        if queryset is None:
-            contest_content_type = ContentType.objects.get_for_model(Contest)
-            perm_edit_all_contests = Permission.objects.get(
-                codename="edit_all_contests", content_type=contest_content_type
-            )
-
-            queryset = self.participations.exclude(
-                Q(participants__is_superuser=True)
-                | Q(participants__groups__permissions=perm_edit_all_contests)
-                | Q(participants__user_permissions=perm_edit_all_contests)
-                | Q(participants__in=self.organizers.all())
-                | Q(participants__in=self.curators.all())
-            )
-
-        submissions_with_points = (
-            ContestSubmission.objects.filter(
-                participation=OuterRef("pk"), submission__is_correct=True
-            )
-            .order_by()
-            .values("submission__problem")
-            .distinct()
-            .annotate(sub_pk=Min("pk"))
-            .values("sub_pk")
-        )
-        return (
-            queryset.annotate(
-                points=Coalesce(
-                    Sum(
-                        "submission__problem__points",
-                        filter=Q(submission__in=Subquery(submissions_with_points)),
-                    ),
-                    0,
-                ),
-                flags=Coalesce(
-                    Count(
-                        "submission__pk", filter=Q(submission__in=Subquery(submissions_with_points))
-                    ),
-                    0,
-                ),
-                most_recent_solve_time=Coalesce(
-                    Max(
-                        "submission__submission__date_created",
-                        filter=Q(submission__in=Subquery(submissions_with_points)),
-                    ),
-                    self.start_time,
-                ),
-            )
-            .annotate(
-                rank=Window(
-                    expression=Rank(),
-                    order_by=[F("points").desc(), F("most_recent_solve_time").asc()],
-                )
-            )
-            .order_by("rank", "flags")
-        )
 
     def is_visible_by(self, user):
         if self.is_public:
@@ -413,6 +352,12 @@ class ContestSubmission(models.Model):
     def __str__(self):
         return f"{self.participation.participant}'s submission for {self.problem.problem.name} in {self.problem.contest.name}"
 
+    def get_absolute_admin_url(self):
+        url = reverse(
+            "admin:%s_%s_change" % (self._meta.app_label, self._meta.model_name), args=[self.id]
+        )
+        return format_html('<a href="{url}">{url}</a>', url=url)
+
     @cached_property
     def is_correct(self):
         return self.submission.is_correct
@@ -425,14 +370,22 @@ class ContestSubmission(models.Model):
 
         return prev_correct_submissions.count() == 1 and prev_correct_submissions.first() == self
 
+    @property
+    async def ais_firstblooded(self):
+        prev_correct_submissions = ContestSubmission.objects.filter(
+            problem=self.problem, submission__is_correct=True, pk__lte=self.pk
+        )
+
+        return (
+            await prev_correct_submissions.acount() == 1
+            and await prev_correct_submissions.afirst() == self
+        )
+
     def save(self, *args, **kwargs):
-        for key in cache.get(f"contest_ranks_{self.participation.contest.pk}", default=[]):
-            cache.delete(key)
         cache.delete(
             make_template_fragment_key("participant_data", [self.participation])
         )  # see participation.html
         cache.delete(
             make_template_fragment_key("user_participation", [self.participation])
         )  # see scoreboard.html
-        ContestScore.invalidate(self.participation)
         super().save(*args, **kwargs)
