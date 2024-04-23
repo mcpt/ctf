@@ -26,7 +26,7 @@ def construct_discord_payload(submission: ContestSubmission) -> dict:
 
 
 @receiver(post_save, sender=ContestSubmission, dispatch_uid="notify_contest_firstblood")
-async def my_handler(sender, instance, created, raw, using, update_fields, **kwargs):
+async def firstblood_notification_handler(sender, instance, created, raw, using, update_fields, **kwargs):
     if not created:  # only for new submissions
         return
     if not await instance.ais_firstblooded:
