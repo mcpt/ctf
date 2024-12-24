@@ -7,7 +7,7 @@
             {% if page_obj.has_previous %}
                 <li class="page-item">
                     <a class="page-link pag-item"
-                       href="?page=1{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}">&laquo;</a>
+                       href="?page=1">&laquo;</a>
                     <a class="page-link pag-item" href="?page={{ page_obj.previous_page_number }}{% if request.GET %}&{{ request.GET|format_GET }}{% endif %}">&lt;</a>
                 </li>
             {% else %}
@@ -24,7 +24,7 @@
             {% if page_obj.has_next %}
                 <li class="page-item">
                     <a class="page-link pag-item" href="?page={{ page_obj.next_page_number }}{% if request.GET %}&{{ request.GET|format_GET }}{% endif %}">&gt;</a>
-                    <a class="page-link pag-item" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET %}&{{ request.GET|format_GET   }}{% endif %}">&raquo;</a>
+                    <a class="page-link pag-item" href="?page={{ page_obj.paginator.num_pages }}">&raquo;</a>
                 </li>
             {% else %}
                 <li class="page-item disabled">
